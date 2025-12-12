@@ -11,7 +11,7 @@ Silakan masuk ke `db.php` di vscode kemudian input informasi MyAdmin kalian ke s
     `$password = "";`
 
 
-2.  Kemudian masuk ke localhost PhpMyadmin kalian dan masukan struktur berikut ke SQL Query:
+2.  Kemudian masuk ke localhost PhpMyAdmin kalian dan buat database dengan struktur berikut ke SQL Query:
 
     >CREATE DATABASE myapp;
     >
@@ -91,3 +91,4 @@ FINAL PROJECT:
 **System Analyst (1 orang):** Use Case, Activity & Class Diagram, ERD
 
 **Programmer (2 orang):** Database, Coding, Git, Hosting (VPS/Dedicated, bukan shared hosting)
+
