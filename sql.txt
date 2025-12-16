@@ -1,0 +1,81 @@
+CREATE DATABASE IF NOT EXISTS db_rms;
+USE db_rms;
+
+-- Tabel untuk menyimpan data user (admin dan mahasiswa)
+CREATE TABLE users (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'mahasiswa') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabel khusus untuk data mahasiswa
+CREATE TABLE mahasiswa (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    user_id INT(11) UNIQUE NOT NULL,
+    nama_lengkap VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tabel untuk menu makanan (akan diisi oleh API Spoonacular)
+CREATE TABLE menu_makanan (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    spoonacular_id INT(11) UNIQUE, -- ID dari API Spoonacular
+    nama_makanan VARCHAR(255) NOT NULL,
+    kalori DEC(10, 2),
+    protein DEC(10, 2), -- dalam gram
+    karbohidrat DEC(10, 2), -- dalam gram
+    lemak DEC(10, 2), -- dalam gram
+    gambar_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabel untuk menyimpan hasil survey preferensi mahasiswa
+CREATE TABLE survey_preferensi (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    mahasiswa_id INT(11) NOT NULL,
+    preferensi_json JSON, -- Menyimpan preferensi dalam format JSON (misal: {"diet": "vegetarian", "intoleransi": ["lactose"]})
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id) ON DELETE CASCADE
+);
+
+-- Tabel untuk jadwal makan mahasiswa
+CREATE TABLE jadwal_makan (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    mahasiswa_id INT(11) NOT NULL,
+    tanggal DATE NOT NULL,
+    waktu_makan ENUM('pagi', 'siang', 'malam') NOT NULL,
+    menu_id INT(11) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id) ON DELETE CASCADE,
+    FOREIGN KEY (menu_id) REFERENCES menu_makanan(id) ON DELETE CASCADE
+);
+
+-- Tabel untuk mencatat semua aktivitas
+CREATE TABLE riwayat_aktivitas (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    user_id INT(11) NOT NULL,
+    aktivitas VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tabel untuk notifikasi
+CREATE TABLE notifikasi (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    mahasiswa_id INT(11) NOT NULL,
+    pesan TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id) ON DELETE CASCADE
+);
+
+-- Menambahkan user admin dan mahasiswa dummy (password: 'password')
+INSERT INTO users (username, password, role) VALUES
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
+('budi', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'mahasiswa');
+
+INSERT INTO mahasiswa (user_id, nama_lengkap, email) VALUES
+(2, 'Budi Santoso', 'budi@example.com');
