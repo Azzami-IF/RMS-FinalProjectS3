@@ -12,20 +12,7 @@ Silakan masuk ke `db.php` di vscode kemudian input informasi MyAdmin kalian ke s
 
 
 2.  Kemudian masuk ke localhost PhpMyadmin kalian dan masukan struktur berikut ke SQL Query:
-
-    >CREATE DATABASE myapp;
-    >
-    >USE myapp;
-    >
-    >CREATE TABLE users ( id INT AUTO_INCREMENT PRIMARY KEY, username
-    VARCHAR(100) NOT NULL UNIQUE, email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL, role ENUM(‘admin’,‘user’) DEFAULT
-    ‘user’, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP );
-    >
-    >CREATE TABLE log_login ( id INT AUTO_INCREMENT PRIMARY KEY, user_id INT,
-    ip_address VARCHAR(50), user_agent TEXT, status VARCHAR(20), login_time
-    TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (user_id) REFERENCES
-    users(id) );
+    `sql.txt`
 
 3. Untuk pembuatan akun, bisa menggunakan Registrasi dalam kode, kemudian akun dapat di buat menjadi admin dengan cara mengubahnya di database dalam tabel `users`.
 <br> <br>
@@ -91,3 +78,4 @@ FINAL PROJECT:
 **System Analyst (1 orang):** Use Case, Activity & Class Diagram, ERD
 
 **Programmer (2 orang):** Database, Coding, Git, Hosting (VPS/Dedicated, bukan shared hosting)
+
