@@ -58,7 +58,7 @@ $totalDays     = $analytics->totalDays($userId);
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="assets/js/Chart.js"></script>
 <script>
 fetch('charts/nutrition_chart.php')
   .then(res => res.json())

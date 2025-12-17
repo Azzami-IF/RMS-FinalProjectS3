@@ -11,31 +11,62 @@ $db = (new Database($config))->getConnection();
 $food = new Food($db);
 
 $data = $food->all();
+
+// Handle success/error messages
+$message = '';
+$messageType = '';
+
+if (isset($_GET['success'])) {
+    switch ($_GET['success']) {
+        case 'create':
+            $message = 'Makanan berhasil ditambahkan!';
+            $messageType = 'success';
+            break;
+        case 'update':
+            $message = 'Makanan berhasil diperbarui!';
+            $messageType = 'success';
+            break;
+        case 'delete':
+            $message = 'Makanan berhasil dihapus!';
+            $messageType = 'success';
+            break;
+    }
+} elseif (isset($_GET['error'])) {
+    $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
+    $messageType = 'danger';
+}
 ?>
 
 <h4 class="mb-3">Data Makanan</h4>
+
+<?php if ($message): ?>
+<div class="alert alert-<?= $messageType ?> alert-dismissible fade show mb-3" role="alert">
+    <?= $message ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
 
 <form method="post" action="../process/food.process.php" class="card p-3 mb-4">
     <input type="hidden" name="action" value="create">
 
     <div class="row g-2">
-        <div class="col">
+        <div class="col-md-3">
             <input name="name" class="form-control" placeholder="Nama" required>
         </div>
-        <div class="col">
-            <input name="calories" class="form-control" placeholder="Kalori" required>
+        <div class="col-md-2">
+            <input name="calories" type="number" step="0.1" class="form-control" placeholder="Kalori" required>
         </div>
-        <div class="col">
-            <input name="protein" class="form-control" placeholder="Protein" required>
+        <div class="col-md-2">
+            <input name="protein" type="number" step="0.1" class="form-control" placeholder="Protein (g)" required>
         </div>
-        <div class="col">
-            <input name="fat" class="form-control" placeholder="Lemak" required>
+        <div class="col-md-2">
+            <input name="fat" type="number" step="0.1" class="form-control" placeholder="Lemak (g)" required>
         </div>
-        <div class="col">
-            <input name="carbs" class="form-control" placeholder="Karbo" required>
+        <div class="col-md-2">
+            <input name="carbs" type="number" step="0.1" class="form-control" placeholder="Karbo (g)" required>
         </div>
-        <div class="col">
-            <button class="btn btn-success">Tambah</button>
+        <div class="col-md-1">
+            <button class="btn btn-success w-100">Tambah</button>
         </div>
     </div>
 </form>

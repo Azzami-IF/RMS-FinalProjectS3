@@ -26,20 +26,73 @@ class Food
     public function create(array $data): void
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO foods (name, calories, protein, fat, carbs)
-             VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO foods (category_id, name, description, calories, protein, fat, carbs, fiber, sugar, sodium, serving_size, created_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
-        $stmt->execute($data);
+        $stmt->execute([
+            $data['category_id'] ?? null,
+            $data['name'],
+            $data['description'] ?? null,
+            $data['calories'],
+            $data['protein'] ?? 0,
+            $data['fat'] ?? 0,
+            $data['carbs'] ?? 0,
+            $data['fiber'] ?? 0,
+            $data['sugar'] ?? 0,
+            $data['sodium'] ?? 0,
+            $data['serving_size'] ?? '100g',
+            $data['created_by'] ?? null
+        ]);
     }
 
     public function update(int $id, array $data): void
     {
         $stmt = $this->db->prepare(
             "UPDATE foods
-             SET name=?, calories=?, protein=?, fat=?, carbs=?
+             SET category_id=?, name=?, description=?, calories=?, protein=?, fat=?, carbs=?,
+                 fiber=?, sugar=?, sodium=?, serving_size=?, updated_at=CURRENT_TIMESTAMP
              WHERE id=?"
         );
-        $stmt->execute([...$data, $id]);
+        $stmt->execute([
+            $data['category_id'] ?? null,
+            $data['name'],
+            $data['description'] ?? null,
+            $data['calories'],
+            $data['protein'] ?? 0,
+            $data['fat'] ?? 0,
+            $data['carbs'] ?? 0,
+            $data['fiber'] ?? 0,
+            $data['sugar'] ?? 0,
+            $data['sodium'] ?? 0,
+            $data['serving_size'] ?? '100g',
+            $id
+        ]);
+    }
+
+    public function getByCategory(int $categoryId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT f.*, fc.name as category_name
+             FROM foods f
+             LEFT JOIN food_categories fc ON f.category_id = fc.id
+             WHERE f.category_id = ?
+             ORDER BY f.name"
+        );
+        $stmt->execute([$categoryId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function search(string $query): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT f.*, fc.name as category_name
+             FROM foods f
+             LEFT JOIN food_categories fc ON f.category_id = fc.id
+             WHERE MATCH(f.name, f.description) AGAINST(? IN NATURAL LANGUAGE MODE)
+             ORDER BY f.name"
+        );
+        $stmt->execute([$query]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function delete(int $id): void

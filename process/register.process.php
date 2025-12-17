@@ -4,8 +4,14 @@ session_start();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 
-if (!isset($_POST['name'], $_POST['email'], $_POST['password'])) {
+if (!isset($_POST['name'], $_POST['email'], $_POST['password'], $_POST['confirm_password'])) {
     header('Location: ../register.php');
+    exit;
+}
+
+// Validasi confirm password
+if ($_POST['password'] !== $_POST['confirm_password']) {
+    header('Location: ../register.php?error=password_mismatch');
     exit;
 }
 

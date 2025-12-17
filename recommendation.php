@@ -5,7 +5,7 @@ require_once __DIR__ . '/classes/ApiClientSpoonacular.php';
 
 $config = require __DIR__ . '/config/env.php';
 
-$api = new ApiClientSpoonacular($config['spoonacular_key']);
+$api = new ApiClientSpoonacular($config['SPOON_API_KEY']);
 $data = $api->healthyFood(600);
 ?>
 

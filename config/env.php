@@ -1,7 +1,7 @@
 <?php
 return [
     'DB_HOST' => 'localhost',
-    'DB_NAME' => 'myapp',
+    'DB_NAME' => 'db_rms',
     'DB_USER' => 'root',
     'DB_PASS' => '02012006',
 

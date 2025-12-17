@@ -19,7 +19,12 @@ $success = $auth->login(
 );
 
 if ($success) {
-    header('Location: ../dashboard.php');
+    // Redirect based on user role
+    if ($_SESSION['user']['role'] === 'admin') {
+        header('Location: ../admin/dashboard.php');
+    } else {
+        header('Location: ../dashboard.php');
+    }
 } else {
     header('Location: ../login.php?error=1');
 }
