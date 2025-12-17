@@ -1,0 +1,39 @@
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE,
+  password VARCHAR(255),
+  role ENUM('admin','mahasiswa') DEFAULT 'mahasiswa'
+);
+
+CREATE TABLE foods (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  calories INT,
+  protein FLOAT,
+  fat FLOAT,
+  carbs FLOAT
+);
+
+CREATE TABLE schedules (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  food_id INT,
+  schedule_date DATE,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(150),
+    message TEXT,
+    channel ENUM('email','push') DEFAULT 'email',
+    status ENUM('sent','failed') DEFAULT 'sent',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+INSERT INTO foods VALUES
+(NULL,'Salad Ayam',350,30,10,20),
+(NULL,'Oatmeal',250,10,5,40);
