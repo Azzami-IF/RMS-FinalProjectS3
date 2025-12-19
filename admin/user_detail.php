@@ -3,24 +3,21 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/User.php';
+require_once __DIR__ . '/../classes/Admin/UserDetailController.php';
+
+use Admin\UserDetailController;
 
 require_admin();
-
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$user = new User($db);
-
-$userData = $user->find((int)$_GET['id']);
+$controller = new UserDetailController($db, (int)$_GET['id']);
+$userData = $controller->getUserData();
 if (!$userData) {
     echo '<div class="container mt-5"><div class="alert alert-danger">User tidak ditemukan</div></div>';
     require_once __DIR__ . '/../includes/footer.php';
     exit;
 }
-
-// Get user's schedule statistics
-$schedules = $db->prepare("SELECT COUNT(*) as total_schedules FROM schedules WHERE user_id = ?");
-$schedules->execute([$userData['id']]);
-$scheduleStats = $schedules->fetch(PDO::FETCH_ASSOC);
+$scheduleStats = $controller->getScheduleStats();
 ?>
 
 <section class="py-5">

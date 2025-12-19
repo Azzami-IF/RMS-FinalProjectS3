@@ -7,35 +7,17 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Schedule.php';
 require_once __DIR__ . '/../classes/Food.php';
 require_once __DIR__ . '/../classes/User.php';
+require_once __DIR__ . '/../classes/Admin/SchedulesController.php';
+
+use Admin\SchedulesController;
 
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$schedule = new Schedule($db);
-$food = new Food($db);
-$user = new User($db);
-
-$foods = $food->all();
-$users = $user->all();
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    switch ($_GET['success']) {
-        case 'schedule_created':
-            $message = 'Jadwal berhasil ditambahkan!';
-            $messageType = 'success';
-            break;
-        case 'schedule_deleted':
-            $message = 'Jadwal berhasil dihapus!';
-            $messageType = 'success';
-            break;
-    }
-} elseif (isset($_GET['error'])) {
-    $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-    $messageType = 'danger';
-}
+$controller = new SchedulesController($db);
+$foods = $controller->getFoods();
+$users = $controller->getUsers();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
 <h4 class="mb-3">Kelola Jadwal Makan</h4>

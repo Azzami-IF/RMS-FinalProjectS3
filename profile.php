@@ -4,43 +4,18 @@ require_once 'includes/auth_guard.php';
 require_once 'config/database.php';
 require_once 'classes/User.php';
 require_once 'classes/UserGoal.php';
+require_once 'classes/ProfilePageController.php';
 
 $config = require 'config/env.php';
 $db = (new Database($config))->getConnection();
-$userClass = new User($db);
-$userGoalClass = new UserGoal($db);
-
 $user = $_SESSION['user'];
-$userData = $userClass->find($user['id']);
-$userGoal = $userGoalClass->findActive($user['id']);
-
-// Get user's statistics
-$schedules = $db->prepare("SELECT COUNT(*) as total_schedules FROM schedules WHERE user_id = ?");
-$schedules->execute([$user['id']]);
-$scheduleStats = $schedules->fetch(PDO::FETCH_ASSOC);
-
-$todaySchedules = $db->prepare("SELECT COUNT(*) as today_count FROM schedules WHERE user_id = ? AND schedule_date = CURDATE()");
-$todaySchedules->execute([$user['id']]);
-$todayStats = $todaySchedules->fetch(PDO::FETCH_ASSOC);
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    $message = 'Operasi berhasil!';
-    $messageType = 'success';
-} elseif (isset($_GET['error'])) {
-    switch ($_GET['error']) {
-        case 'password_incorrect':
-            $message = 'Password yang Anda masukkan salah!';
-            $messageType = 'danger';
-            break;
-        default:
-            $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-            $messageType = 'danger';
-    }
-}
+$controller = new ProfilePageController($db, $user);
+$userData = $controller->getUserData();
+$userGoal = $controller->getUserGoal();
+$scheduleStats = $controller->getScheduleStats();
+$todayStats = $controller->getTodayStats();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
 <section class="py-5">

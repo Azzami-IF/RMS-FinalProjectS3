@@ -3,27 +3,15 @@ require_once 'includes/header.php';
 require_once 'includes/auth_guard.php';
 require_once 'config/database.php';
 require_once 'classes/WeightLog.php';
+require_once 'classes/WeightLogPageController.php';
 
 $config = require 'config/env.php';
 $db = (new Database($config))->getConnection();
-$weightLogClass = new WeightLog($db);
-
 $user = $_SESSION['user'];
-
-// Get recent weight logs
-$recentLogs = $weightLogClass->getRecent($user['id'], 10);
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    $message = 'Log berat badan berhasil disimpan!';
-    $messageType = 'success';
-} elseif (isset($_GET['error'])) {
-    $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-    $messageType = 'danger';
-}
+$controller = new WeightLogPageController($db, $user);
+$recentLogs = $controller->getRecentLogs();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
 <section class="py-5">
@@ -106,7 +94,7 @@ if (isset($_GET['success'])) {
                     </div>
                     <div class="card-body">
                         <?php
-                        $stats = $weightLogClass->getStats($user['id']);
+                        $stats = $controller->getStats();
                         if ($stats):
                         ?>
                         <div class="row text-center">

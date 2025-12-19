@@ -5,36 +5,16 @@ require_admin();
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Food.php';
+require_once __DIR__ . '/../classes/Admin/FoodsController.php';
+
+use Admin\FoodsController;
 
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$food = new Food($db);
-
-$data = $food->all();
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    switch ($_GET['success']) {
-        case 'create':
-            $message = 'Makanan berhasil ditambahkan!';
-            $messageType = 'success';
-            break;
-        case 'update':
-            $message = 'Makanan berhasil diperbarui!';
-            $messageType = 'success';
-            break;
-        case 'delete':
-            $message = 'Makanan berhasil dihapus!';
-            $messageType = 'success';
-            break;
-    }
-} elseif (isset($_GET['error'])) {
-    $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-    $messageType = 'danger';
-}
+$controller = new FoodsController($db);
+$data = $controller->getData();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
 <h4 class="mb-3">Data Makanan</h4>

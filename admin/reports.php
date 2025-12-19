@@ -2,40 +2,23 @@
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../classes/AnalyticsService.php';
+require_once __DIR__ . '/../classes/Admin/ReportAdminController.php';
+
+use Admin\ReportAdminController;
 
 require_admin();
-
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$analytics = new AnalyticsService($db);
-
-// Get various statistics
-$userCount = $db->query("SELECT COUNT(*) FROM users WHERE role = 'user'")->fetchColumn();
-$adminCount = $db->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
-$foodCount = $db->query("SELECT COUNT(*) FROM foods")->fetchColumn();
-$scheduleCount = $db->query("SELECT COUNT(*) FROM schedules")->fetchColumn();
-$notificationCount = $db->query("SELECT COUNT(*) FROM notifications")->fetchColumn();
-
-// Get top foods by usage
-$topFoods = $db->query("
-    SELECT f.name, COUNT(s.id) as usage_count
-    FROM foods f
-    LEFT JOIN schedules s ON f.id = s.food_id
-    GROUP BY f.id, f.name
-    ORDER BY usage_count DESC
-    LIMIT 5
-")->fetchAll(PDO::FETCH_ASSOC);
-
-// Get recent activities
-$recentSchedules = $db->query("
-    SELECT s.*, u.name as user_name, f.name as food_name
-    FROM schedules s
-    JOIN users u ON s.user_id = u.id
-    JOIN foods f ON s.food_id = f.id
-    ORDER BY s.created_at DESC
-    LIMIT 10
-")->fetchAll(PDO::FETCH_ASSOC);
+$controller = new ReportAdminController($db);
+// OOP controller usage
+$stats = $controller->getStats();
+$userCount = $stats['userCount'] ?? 0;
+$adminCount = $stats['adminCount'] ?? 0;
+$foodCount = $stats['foodCount'] ?? 0;
+$scheduleCount = $stats['scheduleCount'] ?? 0;
+$notificationCount = $stats['notificationCount'] ?? 0;
+$topFoods = $controller->getTopFoods();
+$recentSchedules = $controller->getRecentSchedules();
 ?>
 
 <section class="py-5">

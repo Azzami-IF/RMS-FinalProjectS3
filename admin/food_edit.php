@@ -5,12 +5,14 @@ require_admin();
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Food.php';
+require_once __DIR__ . '/../classes/Admin/FoodEditController.php';
+
+use Admin\FoodEditController;
 
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$food = new Food($db);
-
-$data = $food->find((int)$_GET['id']);
+$controller = new FoodEditController($db, (int)$_GET['id']);
+$data = $controller->getData();
 if (!$data) {
     exit('Data tidak ditemukan');
 }

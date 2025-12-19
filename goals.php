@@ -3,25 +3,15 @@ require_once 'includes/header.php';
 require_once 'includes/auth_guard.php';
 require_once 'config/database.php';
 require_once 'classes/UserGoal.php';
+require_once 'classes/GoalsPageController.php';
 
 $config = require 'config/env.php';
 $db = (new Database($config))->getConnection();
-$userGoalClass = new UserGoal($db);
-
 $user = $_SESSION['user'];
-$currentGoal = $userGoalClass->findActive($user['id']);
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    $message = 'Goal berhasil diperbarui!';
-    $messageType = 'success';
-} elseif (isset($_GET['error'])) {
-    $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-    $messageType = 'danger';
-}
+$controller = new GoalsPageController($db, $user);
+$currentGoal = $controller->getCurrentGoal();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
 <section class="py-5">

@@ -1,9 +1,13 @@
 <?php
 require_once __DIR__ . '/includes/header.php';
-require_once __DIR__ . '/classes/ApiClientEdamam.php';
+require_once __DIR__ . '/classes/Cache.php';
+require_once __DIR__ . '/classes/EdamamService.php';
+require_once __DIR__ . '/controllers/NutritionAnalysisController.php';
 
 $config = require __DIR__ . '/config/env.php';
-$api = new ApiClientEdamam($config['EDAMAM_APP_ID'], $config['EDAMAM_APP_KEY']);
+$cache = new Cache();
+$edamam = new EdamamService($config, $cache);
+$controller = new NutritionAnalysisController($edamam);
 
 $ingredients = [];
 $result = null;
@@ -12,10 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = trim($_POST['ingredients'] ?? '');
     $ingredients = array_filter(array_map('trim', explode("\n", $input)));
     if ($ingredients) {
-        $result = $api->analyzeNutrition($ingredients);
-        if (isset($result['error'])) {
-            $error = $result['error'];
-        }
+        $result = $controller->handle($ingredients);
+        if (isset($result['error'])) $error = $result['error'];
     } else {
         $error = 'Masukkan minimal satu bahan makanan.';
     }

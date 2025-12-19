@@ -1,55 +1,20 @@
+
 <?php
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/User.php';
+require_once __DIR__ . '/../classes/Admin/UserAdminController.php';
+
+use Admin\UserAdminController;
 
 require_admin();
-
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$user = new User($db);
-
-$users = $user->all();
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    switch ($_GET['success']) {
-        case 'user_updated':
-            $message = 'User berhasil diperbarui!';
-            $messageType = 'success';
-            break;
-        case 'user_deleted':
-            $message = 'User berhasil dihapus!';
-            $messageType = 'success';
-            break;
-        case 'status_updated':
-            $message = 'Status user berhasil diperbarui!';
-            $messageType = 'success';
-            break;
-    }
-} elseif (isset($_GET['error'])) {
-    switch ($_GET['error']) {
-        case 'cannot_delete_self':
-            $message = 'Anda tidak dapat menghapus akun Anda sendiri!';
-            $messageType = 'danger';
-            break;
-        case 'user_not_found':
-            $message = 'User tidak ditemukan!';
-            $messageType = 'danger';
-            break;
-        case 'invalid_action':
-            $message = 'Aksi tidak valid!';
-            $messageType = 'danger';
-            break;
-        default:
-            $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-            $messageType = 'danger';
-    }
-}
+$controller = new UserAdminController($db);
+$users = $controller->getUsers();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
 <section class="py-5">

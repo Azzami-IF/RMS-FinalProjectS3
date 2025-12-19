@@ -1,15 +1,19 @@
 <?php
 require_once __DIR__ . '/includes/header.php';
-require_once __DIR__ . '/classes/ApiClientEdamam.php';
+require_once __DIR__ . '/classes/Cache.php';
+require_once __DIR__ . '/classes/EdamamService.php';
+require_once __DIR__ . '/controllers/RecipeDetailController.php';
 
 $config = require __DIR__ . '/config/env.php';
-$api = new ApiClientEdamam($config['EDAMAM_APP_ID'], $config['EDAMAM_APP_KEY']);
+$cache = new Cache();
+$edamam = new EdamamService($config, $cache);
+$controller = new RecipeDetailController($edamam);
 
 $id = $_GET['id'] ?? '';
 $recipe = null;
 $error = '';
 if ($id) {
-    $recipe = $api->getRecipeDetail($id);
+    $recipe = $controller->handle($id);
     if (isset($recipe['error'])) {
         $error = $recipe['error'];
     }

@@ -3,18 +3,18 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/AnalyticsService.php';
+require_once __DIR__ . '/../classes/Admin/DashboardController.php';
+
+use Admin\DashboardController;
 
 require_admin();
-
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$analytics = new AnalyticsService($db);
-
-// Get admin statistics
-$userCount = $db->query("SELECT COUNT(*) FROM users WHERE role = 'user'")->fetchColumn();
-$foodCount = $db->query("SELECT COUNT(*) FROM foods")->fetchColumn();
-$scheduleCount = $db->query("SELECT COUNT(*) FROM schedules")->fetchColumn();
-$adminCount = $db->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+$controller = new DashboardController($db);
+$userCount = $controller->getUserCount();
+$foodCount = $controller->getFoodCount();
+$scheduleCount = $controller->getScheduleCount();
+$adminCount = $controller->getAdminCount();
 ?>
 
 <section class="py-5">
