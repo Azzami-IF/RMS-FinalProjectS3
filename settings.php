@@ -19,16 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update user preferences in database
         $preferences = [
             'theme' => $_POST['theme'] ?? 'light',
-            'language' => $_POST['language'] ?? 'id',
+            // 'language' removed
             'notifications_email' => isset($_POST['notifications_email']) ? '1' : '0',
             'notifications_inapp' => isset($_POST['notifications_inapp']) ? '1' : '0',
             'units_weight' => $_POST['units_weight'] ?? 'kg',
             'units_height' => $_POST['units_height'] ?? 'cm',
-            'privacy_profile' => isset($_POST['privacy_profile']) ? '1' : '0',
-            'privacy_stats' => isset($_POST['privacy_stats']) ? '1' : '0'
+            // privacy fields removed
         ];
 
         $userPrefs->setMultiple($_SESSION['user']['id'], $preferences);
+
 
         $message = 'Pengaturan berhasil disimpan!';
         $messageType = 'success';
@@ -41,13 +41,12 @@ $currentPrefs = $userPrefs->getAll($_SESSION['user']['id']);
 // Set defaults if not set
 $defaults = [
     'theme' => 'light',
-    'language' => 'id',
+    // 'language' removed
     'notifications_email' => '1',
     'notifications_inapp' => '1',
     'units_weight' => 'kg',
     'units_height' => 'cm',
-    'privacy_profile' => '1',
-    'privacy_stats' => '1'
+    // privacy fields removed
 ];
 
 $currentPrefs = array_merge($defaults, $currentPrefs);
@@ -94,13 +93,7 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
                                         <option value="auto" <?= $currentPrefs['theme'] === 'auto' ? 'selected' : '' ?>>Otomatis (sesuai sistem)</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Bahasa</label>
-                                    <select name="language" class="form-select">
-                                        <option value="id" <?= $currentPrefs['language'] === 'id' ? 'selected' : '' ?>>Bahasa Indonesia</option>
-                                        <option value="en" <?= $currentPrefs['language'] === 'en' ? 'selected' : '' ?>>English</option>
-                                    </select>
-                                </div>
+                                <!-- Bahasa setting removed -->
                             </div>
                         </div>
                     </div>
@@ -165,38 +158,7 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
                         </div>
                     </div>
 
-                    <!-- Privacy Settings -->
-                    <div class="card shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="bi bi-shield-check me-2"></i>Privasi
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="privacy_profile" id="privacyProfile"
-                                               <?= $currentPrefs['privacy_profile'] === '1' ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="privacyProfile">
-                                            <strong>Profil Publik</strong><br>
-                                            <small class="text-muted">Izinkan data profil Anda dilihat oleh orang lain</small>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="privacy_stats" id="privacyStats"
-                                               <?= $currentPrefs['privacy_stats'] === '1' ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="privacyStats">
-                                            <strong>Statistik Publik</strong><br>
-                                            <small class="text-muted">Izinkan statistik nutrisi Anda dilihat oleh orang lain</small>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Privacy Settings removed -->
 
                     <!-- Save Button -->
                     <div class="d-flex justify-content-end">

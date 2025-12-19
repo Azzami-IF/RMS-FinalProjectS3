@@ -1,3 +1,5 @@
+-- Cleanup: Remove privacy preferences (no longer used)
+DELETE FROM user_preferences WHERE preference_key IN ('privacy_profile','privacy_stats');
 -- ===========================================
 -- RMS (Rekomendasi Makanan Sehat) Database
 -- ===========================================
@@ -185,19 +187,6 @@ CREATE TABLE notifications (
     INDEX idx_created_at (created_at)
 );
 
--- Tabel API Logs (untuk Spoonacular API)
-CREATE TABLE api_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    endpoint VARCHAR(255) NOT NULL,
-    request_data JSON NULL,
-    response_data JSON NULL,
-    status_code INT NULL,
-    error_message TEXT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_endpoint (endpoint),
-    INDEX idx_created_at (created_at)
-);
 
 -- ===========================================
 -- DATA AWAL (SEED DATA)

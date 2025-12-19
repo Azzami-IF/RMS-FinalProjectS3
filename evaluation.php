@@ -13,7 +13,11 @@ $totalCalories = $analytics->totalCalories($userId);
 $totalDays     = $analytics->totalDays($userId);
 ?>
 
-<h4 class="mb-4">Evaluasi Pola Makan</h4>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Evaluasi Pola Makan</h4>
+    <a href="export/export_evaluation.php" class="btn btn-outline-success">Export CSV</a>
+</div>
 
 <!-- ANALYTICS CARDS -->
 <div class="row mb-4">

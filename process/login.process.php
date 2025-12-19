@@ -19,6 +19,7 @@ $success = $auth->login(
 );
 
 if ($success) {
+    // Language feature removed
     // Redirect based on user role
     if ($_SESSION['user']['role'] === 'admin') {
         header('Location: ../admin/dashboard.php');

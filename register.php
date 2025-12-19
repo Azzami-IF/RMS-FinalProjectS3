@@ -51,17 +51,53 @@ require_once __DIR__ . '/includes/header.php';
                                        class="form-control" required>
                             </div>
 
+
                             <div class="mb-3">
                                 <label>Password</label>
-                                <input type="password" name="password"
-                                       class="form-control" required>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="regPassword" class="form-control" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleRegPassword" tabindex="-1">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="mb-3">
                                 <label>Konfirmasi Password</label>
-                                <input type="password" name="confirm_password"
-                                       class="form-control" required>
+                                <div class="input-group">
+                                    <input type="password" name="confirm_password" id="regConfirmPassword" class="form-control" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleRegConfirmPassword" tabindex="-1">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
+
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var btn1 = document.getElementById('toggleRegPassword');
+                                var input1 = document.getElementById('regPassword');
+                                btn1.addEventListener('click', function() {
+                                    if (input1.type === 'password') {
+                                        input1.type = 'text';
+                                        btn1.innerHTML = '<i class="bi bi-eye-slash"></i>';
+                                    } else {
+                                        input1.type = 'password';
+                                        btn1.innerHTML = '<i class="bi bi-eye"></i>';
+                                    }
+                                });
+                                var btn2 = document.getElementById('toggleRegConfirmPassword');
+                                var input2 = document.getElementById('regConfirmPassword');
+                                btn2.addEventListener('click', function() {
+                                    if (input2.type === 'password') {
+                                        input2.type = 'text';
+                                        btn2.innerHTML = '<i class="bi bi-eye-slash"></i>';
+                                    } else {
+                                        input2.type = 'password';
+                                        btn2.innerHTML = '<i class="bi bi-eye"></i>';
+                                    }
+                                });
+                            });
+                            </script>
 
                             <button class="btn btn-success w-100">
                                 Daftar

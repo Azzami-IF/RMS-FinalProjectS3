@@ -196,7 +196,7 @@ try {
             try {
                 // Delete related data first
                 $db->prepare("DELETE FROM schedules WHERE user_id = ?")->execute([$_SESSION['user']['id']]);
-                $db->prepare("DELETE FROM nutrition_logs WHERE user_id = ?")->execute([$_SESSION['user']['id']]);
+                // $db->prepare("DELETE FROM nutrition_logs WHERE user_id = ?")->execute([$_SESSION['user']['id']]); // tabel tidak ada
                 $db->prepare("DELETE FROM notifications WHERE user_id = ?")->execute([$_SESSION['user']['id']]);
                 $db->prepare("DELETE FROM user_goals WHERE user_id = ?")->execute([$_SESSION['user']['id']]);
 

@@ -51,11 +51,31 @@ require_once __DIR__ . '/includes/header.php';
                                        class="form-control" required>
                             </div>
 
+
                             <div class="mb-3">
                                 <label>Password</label>
-                                <input type="password" name="password"
-                                       class="form-control" required>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="loginPassword" class="form-control" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword" tabindex="-1">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var btn = document.getElementById('toggleLoginPassword');
+                                var input = document.getElementById('loginPassword');
+                                btn.addEventListener('click', function() {
+                                    if (input.type === 'password') {
+                                        input.type = 'text';
+                                        btn.innerHTML = '<i class="bi bi-eye-slash"></i>';
+                                    } else {
+                                        input.type = 'password';
+                                        btn.innerHTML = '<i class="bi bi-eye"></i>';
+                                    }
+                                });
+                            });
+                            </script>
 
                             <button class="btn btn-success w-100">
                                 Login

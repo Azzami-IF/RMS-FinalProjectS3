@@ -1,5 +1,11 @@
 <?php
 class Schedule {
+  public function update($id, $user, $food, $date, $notes = null) {
+    $stmt = $this->db->prepare(
+      "UPDATE schedules SET food_id=?, schedule_date=?, notes=? WHERE id=? AND user_id=?"
+    );
+    return $stmt->execute([$food, $date, $notes, $id, $user]);
+  }
   private $db;
 
   public function __construct($db) {

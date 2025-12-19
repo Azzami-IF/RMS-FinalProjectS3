@@ -25,7 +25,12 @@ try {
         $_POST['email'],
         $_POST['password']
     );
-    header('Location: ../login.php');
+    // Login otomatis setelah register
+    $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$_POST['email']]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $_SESSION['user'] = $user;
+    header('Location: ../profile_register.php');
 } catch (PDOException $e) {
     header('Location: ../register.php?error=1');
 }

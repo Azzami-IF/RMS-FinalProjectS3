@@ -28,6 +28,15 @@ class NotificationService
         }
     }
 
+    // Log notifikasi email ke tabel notifications
+    public function log(int $userId, string $title, string $message, string $status): void
+    {
+        $stmt = $this->db->prepare(
+            "INSERT INTO notifications (user_id, title, message, type, channel, status) VALUES (?, ?, ?, 'info', 'email', ?)"
+        );
+        $stmt->execute([$userId, $title, $message, $status]);
+    }
+
     public function createNotification(int $userId, string $title, string $message, string $type = 'info'): void
     {
         $stmt = $this->db->prepare(

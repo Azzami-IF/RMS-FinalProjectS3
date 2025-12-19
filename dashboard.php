@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/header.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -7,11 +8,9 @@ $user = $_SESSION['user'] ?? null;
 $role = $user['role'] ?? null;
 
 if (!$user || !in_array($role, ['user', 'admin'])) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
-
-require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/classes/AnalyticsService.php';
 

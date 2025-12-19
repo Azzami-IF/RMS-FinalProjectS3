@@ -1,6 +1,14 @@
 <?php
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+// Cek sesi wajib_profil, redirect jika perlu
+if (isset($_SESSION['wajib_profil']) && $_SESSION['wajib_profil'] && basename($_SERVER['PHP_SELF']) !== 'profile_register.php') {
+    $_SESSION['notif_wajib_profil'] = true;
+    header('Location: profile_register.php');
+    exit;
 }
 
 require_once __DIR__ . '/../config/database.php';
@@ -12,13 +20,34 @@ $role = $user['role'] ?? null;
 
 // Determine path prefix based on current directory
 $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : '';
+// Language feature removed
 ?>
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id"<?php
+    $themeAttr = '';
+    if (isset($themePref) && $themePref === 'dark') {
+        $themeAttr = ' data-theme="dark"';
+    }
+    echo $themeAttr;
+?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <meta name="color-scheme" content="light dark">
+    <?php
+    // Inject user theme preference for JS
+    $themePref = 'light';
+    if (isset($user) && $user) {
+        require_once __DIR__ . '/../classes/UserPreferences.php';
+        $userPrefs = new UserPreferences($db);
+        $themePref = $userPrefs->get($user['id'], 'theme', 'light');
+    }
+    ?>
+    <script>
+    window.userPreferences = window.userPreferences || {};
+    window.userPreferences.theme = "<?= htmlspecialchars($themePref) ?>";
+    </script>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="<?php echo $path_prefix; ?>assets/css/bootstrap.min.css">
@@ -70,7 +99,7 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
 
 <nav class="navbar navbar-expand-lg navbar-dark primarybg">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="<?php echo $path_prefix; ?>index.php">
+        <a class="navbar-brand fw-bold" href="<?php echo $path_prefix; ?><?php echo $user ? 'home.php' : 'index.php'; ?>">
             RMS
         </a>
 
@@ -81,7 +110,6 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
 
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav ms-auto">
-
                 <?php if (!$user): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $path_prefix; ?>index.php">Home</a>
@@ -92,8 +120,10 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $path_prefix; ?>register.php">Registrasi</a>
                     </li>
-
                 <?php else: ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?php echo $path_prefix; ?>home.php">Home</a>
+                    </li>
                     <?php if ($role === 'admin'): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo $path_prefix; ?>dashboard.php">
