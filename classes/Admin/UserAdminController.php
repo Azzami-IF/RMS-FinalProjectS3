@@ -24,15 +24,15 @@ class UserAdminController
         if (isset($_GET['success'])) {
             switch ($_GET['success']) {
                 case 'user_updated':
-                    $this->message = 'User berhasil diperbarui!';
+                    $this->message = 'Pengguna berhasil diperbarui!';
                     $this->messageType = 'success';
                     break;
                 case 'user_deleted':
-                    $this->message = 'User berhasil dihapus!';
+                    $this->message = 'Pengguna berhasil dihapus!';
                     $this->messageType = 'success';
                     break;
                 case 'status_updated':
-                    $this->message = 'Status user berhasil diperbarui!';
+                    $this->message = 'Status pengguna berhasil diperbarui!';
                     $this->messageType = 'success';
                     break;
             }
@@ -43,7 +43,7 @@ class UserAdminController
                     $this->messageType = 'danger';
                     break;
                 case 'user_not_found':
-                    $this->message = 'User tidak ditemukan!';
+                    $this->message = 'Pengguna tidak ditemukan!';
                     $this->messageType = 'danger';
                     break;
                 case 'invalid_action':

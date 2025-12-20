@@ -1,5 +1,8 @@
 <?php
 
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
+
 class NotificationService
 {
     private PDO $db;
@@ -11,39 +14,60 @@ class NotificationService
         $this->config = $config;
     }
 
-    public function sendEmail(int $userId, string $email, string $title, string $message): bool
+    public function sendEmail(int $userId, string $email, string $title, string $message, string $actionUrl = ''): bool
     {
-        $headers = 'From: ' . $this->config['MAIL_USER'] . "\r\n" .
-                   'Reply-To: ' . $this->config['MAIL_USER'] . "\r\n" .
-                   'X-Mailer: PHP/' . phpversion();
+        // Use SMTP via PHPMailer to avoid relying on missing sendmail executables on Windows.
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = $this->config['MAIL_HOST'] ?? 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->config['MAIL_USER'] ?? '';
+            $mail->Password = $this->config['MAIL_PASS'] ?? '';
+            $mail->SMTPSecure = $this->config['MAIL_ENCRYPTION'] ?? PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = (int)($this->config['MAIL_PORT'] ?? 587);
 
-        $success = mail($email, $title, $message, $headers);
+            // Prevent garbled characters in email clients.
+            $mail->CharSet = 'UTF-8';
+            $mail->Encoding = 'base64';
 
-        if ($success) {
-            $this->log($userId, $title, $message, 'sent');
+            $from = $this->config['MAIL_FROM'] ?? ($this->config['MAIL_USER'] ?? '');
+            if ($from !== '') {
+                $mail->setFrom($from, 'RMS');
+            }
+
+            $mail->addAddress($email);
+            $mail->Subject = $title;
+            $mail->isHTML(true);
+            $mail->Body = $message;
+            $mail->AltBody = strip_tags($message);
+
+            $mail->send();
+            $this->log($userId, $title, $message, 'sent', $actionUrl);
             return true;
-        } else {
-            $this->log($userId, $title, $message, 'failed');
+        } catch (Exception $e) {
+            $this->log($userId, $title, $message, 'failed', $actionUrl);
             return false;
         }
     }
 
     // Log notifikasi email ke tabel notifications
-    public function log(int $userId, string $title, string $message, string $status): void
+    public function log(int $userId, string $title, string $message, string $status, string $actionUrl = ''): void
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO notifications (user_id, title, message, type, channel, status) VALUES (?, ?, ?, 'info', 'email', ?)"
+            "INSERT INTO notifications (user_id, title, message, action_url, type, channel, status, created_at) 
+             VALUES (?, ?, ?, ?, 'info', 'email', ?, NOW())"
         );
-        $stmt->execute([$userId, $title, $message, $status]);
+        $stmt->execute([$userId, $title, $message, $actionUrl, $status]);
     }
 
-    public function createNotification(int $userId, string $title, string $message, string $type = 'info'): void
+    public function createNotification(int $userId, string $title, string $message, string $type = 'info', string $actionUrl = ''): void
     {
         $stmt = $this->db->prepare(
             "INSERT INTO notifications
-             (user_id, title, message, type, channel, status)
-             VALUES (?, ?, ?, ?, 'in_app', 'unread')"
+             (user_id, title, message, action_url, type, channel, status, created_at)
+             VALUES (?, ?, ?, ?, ?, 'in_app', 'unread', NOW())"
         );
-        $stmt->execute([$userId, $title, $message, $type]);
+        $stmt->execute([$userId, $title, $message, $actionUrl, $type]);
     }
 }

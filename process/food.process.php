@@ -4,11 +4,16 @@ session_start();
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Food.php';
+require_once __DIR__ . '/../includes/auth_guard.php';
 
-// Auth check
+// Admin only
 if (!isset($_SESSION['user'])) {
     header('Location: ../login.php');
     exit;
+}
+if (($_SESSION['user']['role'] ?? '') !== 'admin') {
+    http_response_code(403);
+    exit('Akses ditolak');
 }
 
 $config = require __DIR__ . '/../config/env.php';
@@ -37,6 +42,9 @@ try {
             header('Location: ../admin/foods.php?success=create');
             break;
         case 'update':
+            if (empty($_POST['id'])) {
+                throw new Exception('ID makanan tidak ditemukan.');
+            }
             $food->update(
                 (int)$_POST['id'],
                 [
@@ -56,6 +64,9 @@ try {
             header('Location: ../admin/foods.php?success=update');
             break;
         case 'delete':
+            if (empty($_POST['id'])) {
+                throw new Exception('ID makanan tidak ditemukan.');
+            }
             $food->delete((int)$_POST['id']);
             header('Location: ../admin/foods.php?success=delete');
             break;

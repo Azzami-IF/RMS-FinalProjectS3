@@ -23,7 +23,7 @@ try {
             $dailyCalorieTarget = (int)($_POST['daily_calorie_target'] ?? 2000);
 
             if (empty($goalType)) {
-                header('Location: ../goals.php?error=Tipe goal harus dipilih');
+                header('Location: ../goals.php?error=Tipe target harus dipilih');
                 exit;
             }
 
@@ -32,14 +32,36 @@ try {
                 exit;
             }
 
+            $targetDate = null;
+            if (!empty($_POST['target_date'])) {
+                $candidate = (string)$_POST['target_date'];
+                $dt = DateTime::createFromFormat('Y-m-d', $candidate);
+                $errs = DateTime::getLastErrors();
+                if ($dt === false || ($errs['warning_count'] ?? 0) > 0 || ($errs['error_count'] ?? 0) > 0) {
+                    header('Location: ../goals.php?error=' . urlencode('Format target tanggal tidak valid'));
+                    exit;
+                }
+                $today = new DateTime('today');
+                if ($dt < $today) {
+                    header('Location: ../goals.php?error=' . urlencode('Target tanggal tidak boleh di masa lalu'));
+                    exit;
+                }
+                $targetDate = $dt->format('Y-m-d');
+            }
+
+            $weeklyChange = null;
+            if (!empty($_POST['weekly_weight_change'])) {
+                $weeklyChange = abs((float)$_POST['weekly_weight_change']);
+            }
+
             // Prepare goal data
             $goalData = [
                 'user_id' => $_SESSION['user']['id'],
                 'goal_type' => $goalType,
                 'daily_calorie_target' => $dailyCalorieTarget,
                 'target_weight_kg' => !empty($_POST['target_weight_kg']) ? (float)$_POST['target_weight_kg'] : null,
-                'target_date' => !empty($_POST['target_date']) ? $_POST['target_date'] : null,
-                'weekly_weight_change' => !empty($_POST['weekly_weight_change']) ? (float)$_POST['weekly_weight_change'] : null,
+                'target_date' => $targetDate,
+                'weekly_weight_change' => $weeklyChange,
                 'daily_protein_target' => !empty($_POST['daily_protein_target']) ? (float)$_POST['daily_protein_target'] : null,
                 'daily_fat_target' => !empty($_POST['daily_fat_target']) ? (float)$_POST['daily_fat_target'] : null,
                 'daily_carbs_target' => !empty($_POST['daily_carbs_target']) ? (float)$_POST['daily_carbs_target'] : null,
@@ -57,7 +79,7 @@ try {
             );
             $stmt->execute([$_SESSION['user']['id']]);
 
-            header('Location: ../goals.php?success=Goal berhasil dihapus');
+            header('Location: ../goals.php?success=Target berhasil dihapus');
             break;
 
         default:

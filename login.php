@@ -15,22 +15,43 @@ require_once __DIR__ . '/includes/header.php';
 
 <style>
     .primarybg {
-        background: linear-gradient(to right, #349250ff, #4cb292ff);
+        background: linear-gradient(135deg, #349250ff 0%, #2d7a43ff 25%, #4cb292ff 75%, #5ab5a8ff 100%);
+        background-attachment: fixed;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .primarybg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    
+    .primarybg {
         color: white;
     }
 </style>
 
-<div class="primarybg d-flex justify-content-center align-items-center vh-100">
+<div class="primarybg d-flex justify-content-center align-items-center vh-100 position-relative">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-5">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="mb-3 text-center">Login</h5>
+            <div class="col-12 col-sm-10 col-md-5 col-lg-4">
+                <div class="card shadow-sm rounded-4 border-0 rms-card-adaptive">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-3">
+                            <h4 class="fw-bold text-success mb-0">Login</h4>
+                        </div>
 
                         <?php if (isset($_GET['error'])): ?>
                             <div class="alert alert-danger">
-                                Email atau password salah
+                                Nama/Email atau password salah
                             </div>
                         <?php elseif (isset($_GET['message'])): ?>
                             <?php if ($_GET['message'] === 'password_changed'): ?>
@@ -46,17 +67,17 @@ require_once __DIR__ . '/includes/header.php';
 
                         <form method="post" action="process/login.process.php">
                             <div class="mb-3">
-                                <label>Email</label>
-                                <input type="email" name="email"
-                                       class="form-control" required>
+                                <label class="form-label fw-semibold">Nama atau Email</label>
+                                <input type="text" name="login_identifier"
+                                       class="form-control rounded-3" required>
                             </div>
 
 
                             <div class="mb-3">
-                                <label>Password</label>
+                                <label class="form-label fw-semibold">Password</label>
                                 <div class="input-group">
-                                    <input type="password" name="password" id="loginPassword" class="form-control" required>
-                                    <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword" tabindex="-1">
+                                    <input type="password" name="password" id="loginPassword" class="form-control rounded-start-3" required>
+                                    <button class="btn btn-outline-secondary border-1 rounded-end-3" type="button" id="toggleLoginPassword" tabindex="-1">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
@@ -77,14 +98,15 @@ require_once __DIR__ . '/includes/header.php';
                             });
                             </script>
 
-                            <button class="btn btn-success w-100">
-                                Login
+                            <button class="btn btn-success w-100 py-2 fw-semibold rounded-3">
+                                Masuk Sekarang
                             </button>
                         </form>
 
-                        <div class="mt-3 text-center">
-                            Belum punya akun?
-                            <a href="register.php">Daftar</a>
+                        <hr class="my-4">
+
+                        <div class="text-center small">
+                            <p class="text-muted mb-0">Belum punya akun? <a href="register.php" class="fw-semibold text-success text-decoration-none">Daftar di sini</a></p>
                         </div>
                     </div>
                 </div>

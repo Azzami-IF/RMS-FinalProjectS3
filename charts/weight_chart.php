@@ -3,7 +3,7 @@ session_start();
 
 if (!isset($_SESSION['user'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['error' => 'Tidak diizinkan']);
     exit;
 }
 
@@ -14,7 +14,8 @@ $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
 
 $weightLog = new WeightLog($db);
-$data = $weightLog->getByDateRange($_SESSION['user']['id'], date('Y-m-d', strtotime('-90 days')), date('Y-m-d'));
+$endDate = date('Y-m-d', strtotime('+2 days'));
+$data = $weightLog->getByDateRange($_SESSION['user']['id'], date('Y-m-d', strtotime('-90 days')), $endDate);
 
 echo json_encode([
     'labels' => array_map(function($item) {

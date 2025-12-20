@@ -6,9 +6,10 @@ class Auth {
     $this->db = $db;
   }
 
-  public function login($email, $password) {
-    $stmt = $this->db->prepare("SELECT * FROM users WHERE email=?");
-    $stmt->execute([$email]);
+  public function login($identifier, $password) {
+    // Accept both name (as username) and email
+    $stmt = $this->db->prepare("SELECT * FROM users WHERE email=? OR name=?");
+    $stmt->execute([$identifier, $identifier]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {

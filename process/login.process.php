@@ -4,7 +4,7 @@ session_start();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Auth.php';
 
-if (!isset($_POST['email'], $_POST['password'])) {
+if (!isset($_POST['login_identifier'], $_POST['password'])) {
     header('Location: ../login.php');
     exit;
 }
@@ -14,7 +14,7 @@ $db = (new Database($config))->getConnection();
 $auth = new Auth($db);
 
 $success = $auth->login(
-    $_POST['email'],
+    $_POST['login_identifier'],
     $_POST['password']
 );
 

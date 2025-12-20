@@ -11,7 +11,33 @@ $edamam = new EdamamService($config, $cache);
 $controller = new RecommendationController($edamam);
 
 $search = $_GET['q'] ?? '';
-$calories = $_GET['calories'] ?? 600;
+$focusLabel = $_GET['focus_label'] ?? '';
+
+// Default calories: follow user's active goal if available, else user's profile daily calorie goal.
+$defaultCalories = 600;
+try {
+    $userId = (int)($user['id'] ?? 0);
+    if ($userId > 0 && isset($db) && $db instanceof PDO) {
+        require_once __DIR__ . '/classes/UserGoal.php';
+        $userGoal = new UserGoal($db);
+        $activeGoal = $userGoal->findActive($userId);
+        if ($activeGoal && !empty($activeGoal['daily_calorie_target'])) {
+            $defaultCalories = (int)$activeGoal['daily_calorie_target'];
+        } else {
+            require_once __DIR__ . '/classes/User.php';
+            $userModel = new User($db);
+            $freshUser = $userModel->find($userId);
+            if ($freshUser && !empty($freshUser['daily_calorie_goal'])) {
+                $defaultCalories = (int)$freshUser['daily_calorie_goal'];
+            }
+        }
+    }
+} catch (Throwable $e) {
+    // Ignore and keep fallback.
+}
+
+$defaultCalories = max(200, min(5000, (int)$defaultCalories));
+$calories = (isset($_GET['calories']) && is_numeric($_GET['calories'])) ? (int)$_GET['calories'] : $defaultCalories;
 $diet = $_GET['diet'] ?? '';
 $mealType = $_GET['mealType'] ?? '';
 $dishType = $_GET['dishType'] ?? '';
@@ -33,6 +59,31 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1' && isset($_GET['q'])) {
 
 $data = null;
 $error = '';
+
+if (!function_exists('rms_translateDietLabel')) {
+    function rms_translateDietLabel(string $label): string
+    {
+        $raw = trim($label);
+        if ($raw === '') return '';
+
+        // Canonical key: lowercase, words separated by hyphen.
+        $key = strtolower(preg_replace('/[^a-z]+/i', '-', $raw) ?? $raw);
+        $key = trim($key, '-');
+
+        $map = [
+            'balanced' => 'Seimbang',
+            'high-protein' => 'Tinggi Protein',
+            'high-fiber' => 'Tinggi Serat',
+            'low-fat' => 'Rendah Lemak',
+            'low-carb' => 'Rendah Karbohidrat',
+            'low-sodium' => 'Rendah Natrium',
+            'low-sugar' => 'Rendah Gula',
+        ];
+
+        return $map[$key] ?? $raw;
+    }
+}
+
 $params = [
     'q' => $search,
     'calories' => $calories,
@@ -60,16 +111,16 @@ if (isset($data['error'])) $error = $data['error'];
             <label for="diet" class="form-label">Preferensi Diet</label>
             <select name="diet" id="diet" class="form-select">
                 <option value="">-- Semua --</option>
-                <option value="balanced" <?= (isset($_GET['diet']) && $_GET['diet']==='balanced')?'selected':'' ?>>Balanced</option>
-                <option value="high-protein" <?= (isset($_GET['diet']) && $_GET['diet']==='high-protein')?'selected':'' ?>>High Protein</option>
-                <option value="high-fiber" <?= (isset($_GET['diet']) && $_GET['diet']==='high-fiber')?'selected':'' ?>>High Fiber</option>
-                <option value="low-fat" <?= (isset($_GET['diet']) && $_GET['diet']==='low-fat')?'selected':'' ?>>Low Fat</option>
-                <option value="low-carb" <?= (isset($_GET['diet']) && $_GET['diet']==='low-carb')?'selected':'' ?>>Low Carb</option>
-                <option value="low-sodium" <?= (isset($_GET['diet']) && $_GET['diet']==='low-sodium')?'selected':'' ?>>Low Sodium</option>
-                <option value="low-sugar" <?= (isset($_GET['diet']) && $_GET['diet']==='low-sugar')?'selected':'' ?>>Low Sugar</option>
-                <option value="keto-friendly" <?= (isset($_GET['diet']) && $_GET['diet']==='keto-friendly')?'selected':'' ?>>Keto Friendly</option>
-                <option value="gluten-free" <?= (isset($_GET['diet']) && $_GET['diet']==='gluten-free')?'selected':'' ?>>Gluten Free</option>
-                <option value="wheat-free" <?= (isset($_GET['diet']) && $_GET['diet']==='wheat-free')?'selected':'' ?>>Wheat Free</option>
+                <option value="balanced" <?= (isset($_GET['diet']) && $_GET['diet']==='balanced')?'selected':'' ?>>Seimbang</option>
+                <option value="high-protein" <?= (isset($_GET['diet']) && $_GET['diet']==='high-protein')?'selected':'' ?>>Tinggi Protein</option>
+                <option value="high-fiber" <?= (isset($_GET['diet']) && $_GET['diet']==='high-fiber')?'selected':'' ?>>Tinggi Serat</option>
+                <option value="low-fat" <?= (isset($_GET['diet']) && $_GET['diet']==='low-fat')?'selected':'' ?>>Rendah Lemak</option>
+                <option value="low-carb" <?= (isset($_GET['diet']) && $_GET['diet']==='low-carb')?'selected':'' ?>>Rendah Karbohidrat</option>
+                <option value="low-sodium" <?= (isset($_GET['diet']) && $_GET['diet']==='low-sodium')?'selected':'' ?>>Rendah Natrium</option>
+                <option value="low-sugar" <?= (isset($_GET['diet']) && $_GET['diet']==='low-sugar')?'selected':'' ?>>Rendah Gula</option>
+                <option value="keto-friendly" <?= (isset($_GET['diet']) && $_GET['diet']==='keto-friendly')?'selected':'' ?>>Ramah Keto</option>
+                <option value="gluten-free" <?= (isset($_GET['diet']) && $_GET['diet']==='gluten-free')?'selected':'' ?>>Bebas Gluten</option>
+                <option value="wheat-free" <?= (isset($_GET['diet']) && $_GET['diet']==='wheat-free')?'selected':'' ?>>Bebas Gandum</option>
                 <option value="vegetarian" <?= (isset($_GET['diet']) && $_GET['diet']==='vegetarian')?'selected':'' ?>>Vegetarian</option>
                 <option value="vegan" <?= (isset($_GET['diet']) && $_GET['diet']==='vegan')?'selected':'' ?>>Vegan</option>
             </select>
@@ -112,7 +163,7 @@ if (isset($data['error'])) $error = $data['error'];
                                 <div class="small text-muted">Kalori: <?= round($food['calories']) ?> kcal</div>
                                 <?php if (!empty($food['dietLabels'])): ?>
                                     <?php foreach ($food['dietLabels'] as $diet): ?>
-                                        <span class="badge rounded-pill bg-success-subtle text-success-emphasis small" style="font-size:0.85em;font-weight:500;"> <?= htmlspecialchars($diet) ?> </span>
+                                        <span class="badge rounded-pill bg-success-subtle text-success-emphasis small" style="font-size:0.85em;font-weight:500;"> <?= htmlspecialchars(rms_translateDietLabel((string)$diet)) ?> </span>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
@@ -141,12 +192,6 @@ if (isset($data['error'])) $error = $data['error'];
         </div>
     </div>
 </div>
-
-<footer class="footer mt-auto py-3 border-top custom-footer rms-card-adaptive" style="bottom:0;width:100%;z-index:10;">
-    <div class="container text-center small text-muted">
-        &copy; <?= date('Y') ?> RMS - Rekomendasi Makanan Sehat
-    </div>
-</footer>
 </div>
 
 <script>
@@ -196,6 +241,7 @@ window.removeExcludeTag = removeExcludeTag;
 renderExcludeTags();
 
 let foodData = <?php echo json_encode($data && isset($data['hits']) ? array_column($data['hits'], 'recipe') : []); ?>;
+const focusLabel = <?php echo json_encode((string)$focusLabel); ?>;
 document.querySelectorAll('.food-item').forEach(function(item){
     item.addEventListener('click', function(e){
         e.preventDefault();
@@ -205,6 +251,26 @@ document.querySelectorAll('.food-item').forEach(function(item){
         this.classList.add('active');
     });
 });
+
+// Auto-open detail from schedules deep-link
+(function autoFocusFromQuery() {
+    if (!focusLabel || !Array.isArray(foodData) || foodData.length === 0) return;
+    const target = String(focusLabel).trim().toLowerCase();
+    if (!target) return;
+    let idx = -1;
+    for (let i = 0; i < foodData.length; i++) {
+        const label = (foodData[i] && foodData[i].label) ? String(foodData[i].label).trim().toLowerCase() : '';
+        if (label && label === target) { idx = i; break; }
+    }
+    if (idx === -1) return;
+    showFoodDetail(idx);
+    document.querySelectorAll('.food-item').forEach(i=>i.classList.remove('active'));
+    const el = document.querySelector('.food-item[data-index="' + idx + '"]');
+    if (el) {
+        el.classList.add('active');
+        try { el.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+    }
+})();
 function showFoodDetail(idx) {
     const food = foodData[idx];
     if (!food) return;
@@ -223,6 +289,14 @@ document.addEventListener('click', function(e) {
         showTambahCatatanModal(food);
     }
 });
+
+function formatLocalYmd(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
 // Modal tambah catatan
 function showTambahCatatanModal(foodJson) {
     let food = typeof foodJson === 'string' ? JSON.parse(foodJson) : foodJson;
@@ -233,6 +307,12 @@ function showTambahCatatanModal(foodJson) {
         food.carbs = food.totalNutrients.CHOCDF ? Math.round(food.totalNutrients.CHOCDF.quantity) : 0;
     }
     let modal = document.getElementById('tambahCatatanModal');
+        const today = new Date();
+        const maxDateObj = new Date(today);
+        maxDateObj.setDate(maxDateObj.getDate() + 2);
+        const todayYmd = formatLocalYmd(today);
+        const maxYmd = formatLocalYmd(maxDateObj);
+
         if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'tambahCatatanModal';
@@ -252,7 +332,8 @@ function showTambahCatatanModal(foodJson) {
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Tanggal</label>
-                                        <input type="date" name="schedule_date" class="form-control" required>
+                                        <input type="date" name="schedule_date" class="form-control" max="${maxYmd}" value="${todayYmd}" required>
+                                        <div class="form-text">Tanggal maksimal 2 hari ke depan (toleransi zona waktu).</div>
                                     </div>
                                     <input type="hidden" name="edamam_food" value='${JSON.stringify(food)}'>
                                 </div>
@@ -268,7 +349,8 @@ function showTambahCatatanModal(foodJson) {
         } else {
         modal.querySelector('input[readonly]').value = food.label;
         modal.querySelector('input[name=edamam_food]').value = JSON.stringify(food);
-        modal.querySelector('input[name=schedule_date]').value = '';
+        modal.querySelector('input[name=schedule_date]').max = maxYmd;
+        modal.querySelector('input[name=schedule_date]').value = todayYmd;
     }
     var bsModal = new bootstrap.Modal(modal.querySelector('.modal'));
     bsModal.show();
@@ -291,7 +373,6 @@ function showTambahCatatanModal(foodJson) {
 
 #exclude-tags-container { min-height:40px; background:linear-gradient(90deg,#f8fffa,#e6f9f2); box-shadow:none; border:1px solid #b2f2dd; }
 #exclude-tags .badge.exclude-badge-adaptive { margin-bottom:2px; background:linear-gradient(90deg,#e0f7fa,#b2f2dd); color:#218c5a; border:1px solid #b2f2dd; font-weight:500; transition:background 0.3s,color 0.3s,border-color 0.3s; }
-.custom-footer { margin-top: 28px !important; }
 </style>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

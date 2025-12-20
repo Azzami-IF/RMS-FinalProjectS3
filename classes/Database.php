@@ -9,6 +9,9 @@ class Database {
       $config['DB_PASS']
     );
     $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Set timezone to UTC to match PHP timezone
+    $this->conn->exec("SET time_zone = '+00:00'");
   }
 
   public function getConnection() {

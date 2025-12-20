@@ -17,40 +17,19 @@ if (isset($_GET['message'])) {
 }
 ?>
 
-
-<style>
-    .primarybg {
-        background: linear-gradient(to right, #349250ff, #4cb292ff);
-        color: white;
-    }
-    /* Adaptive hero for dark mode */
-    .hero-bg {
-        background: var(--bs-body-bg, #f8f9fa);
-        color: var(--bs-body-color, #212529);
-        border-radius: 1.5rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        transition: background 0.2s, color 0.2s;
-    }
-    @media (prefers-color-scheme: dark) {
-        .hero-bg {
-            background: #23272e;
-            color: #e0e0e0;
-        }
-    }
-</style>
-
-
 <?php if ($message): ?>
-<div class="alert alert-<?= $messageType ?> alert-dismissible fade show m-3 rms-alert-adaptive" role="alert">
-    <?= $message ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="container mt-4">
+    <div class="alert alert-<?= $messageType ?> alert-dismissible fade show" role="alert">
+        <?= $message ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 </div>
 <?php endif; ?>
 
 <!-- HERO SECTION -->
 <section class="py-5">
     <div class="container">
-        <div class="hero-bg p-5 mb-4 text-center rms-hero-adaptive">
+        <div class="card shadow-sm rounded-4 p-5 mb-4 text-center border-0 rms-card-adaptive">
             <h1 class="fw-bold mb-3">Rekomendasi Makanan Sehat</h1>
             <div class="mt-4">
                 <div class="rms-card-adaptive rounded shadow-sm d-inline-block p-4">
@@ -61,73 +40,63 @@ if (isset($_GET['message'])) {
                     </div>
                 </div>
             </div>
-            <p class="lead text-center mt-3 rms-muted-adaptive">Aplikasi untuk membantu Anda menjaga pola makan sehat dengan rekomendasi makanan dan tracking kalori harian.</p>
+            <p class="lead text-center mt-3 rms-muted-adaptive">Pantau kalori harian, catat menu, dapatkan rekomendasi makanan, lihat evaluasi nutrisi, kelola target, dan pantau berat badan Anda dalam satu aplikasi.</p>
         </div>
     </div>
 </section>
 
 <!-- SECTION FITUR -->
-<section class="py-5 rms-feature-section">
+<section class="py-5 border-top">
     <div class="container">
-        <h3 class="fw-bold text-center mb-4 rms-title-adaptive">Fitur Program RMS Saat Ini</h3>
+        <h3 class="fw-bold text-center mb-4">Fitur Program RMS Saat Ini</h3>
         <div class="row text-center">
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm rounded-4 p-4 h-100 border-0 rms-card-adaptive">
-                    <div class="mb-3"><i class="bi bi-egg-fried fs-1 text-success"></i></div>
-                    <h5 class="fw-bold">Rekomendasi Makanan Sehat</h5>
-                    <p class="rms-muted-adaptive">Dapatkan rekomendasi makanan berbasis kebutuhan nutrisi, preferensi, dan tujuan kesehatan Anda. Sistem kami terintegrasi dengan database makanan dan API nutrisi terkini.</p>
+                    <div class="mb-3"><i class="bi bi-journal-plus fs-1 text-success"></i></div>
+                    <h5 class="fw-bold">Catatan Menu Harian</h5>
+                    <p class="rms-muted-adaptive">Catat menu makan harian Anda dengan mudah untuk memantau asupan kalori dan membangun kebiasaan makan yang lebih teratur.</p>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm rounded-4 p-4 h-100 border-0 rms-card-adaptive">
-                    <div class="mb-3"><i class="bi bi-graph-up-arrow fs-1 text-primary"></i></div>
-                    <h5 class="fw-bold">Tracking Kalori & Nutrisi</h5>
-                    <p class="rms-muted-adaptive">Pantau asupan kalori, protein, karbohidrat, lemak, dan nutrisi penting lain setiap hari. Tersedia grafik analitik dan log berat badan untuk memantau progres Anda.</p>
+                    <div class="mb-3"><i class="bi bi-egg-fried fs-1 text-success"></i></div>
+                    <h5 class="fw-bold">Rekomendasi Makanan</h5>
+                    <p class="rms-muted-adaptive">Cari dan temukan menu sehat berdasarkan kebutuhan nutrisi Anda. Rekomendasi terintegrasi dengan data makanan dan informasi nutrisi.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm rounded-4 p-4 h-100 border-0 rms-card-adaptive">
+                    <div class="mb-3"><i class="bi bi-bar-chart-line fs-1 text-primary"></i></div>
+                    <h5 class="fw-bold">Evaluasi Pola Makan</h5>
+                    <p class="rms-muted-adaptive">Lihat grafik dan evaluasi nutrisi untuk memahami pola makan Anda, sehingga Anda bisa melakukan penyesuaian yang lebih tepat.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm rounded-4 p-4 h-100 border-0 rms-card-adaptive">
+                    <div class="mb-3"><i class="bi bi-flag-fill fs-1 text-success"></i></div>
+                    <h5 class="fw-bold">Kelola Target</h5>
+                    <p class="rms-muted-adaptive">Tetapkan target nutrisi dan target berat badan, lalu pantau progresnya agar tetap konsisten menuju tujuan Anda.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm rounded-4 p-4 h-100 border-0 rms-card-adaptive">
+                    <div class="mb-3"><i class="bi bi-activity fs-1 text-info"></i></div>
+                    <h5 class="fw-bold">Catatan Berat Badan</h5>
+                    <p class="rms-muted-adaptive">Catat dan pantau perubahan berat badan Anda secara berkala untuk melihat tren dan progres kesehatan.</p>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm rounded-4 p-4 h-100 border-0 rms-card-adaptive">
                     <div class="mb-3"><i class="bi bi-bell fs-1 text-warning"></i></div>
                     <h5 class="fw-bold">Notifikasi & Pengingat</h5>
-                    <p class="rms-muted-adaptive">Dapatkan notifikasi pengingat menu sehat harian, target kalori, dan tips nutrisi langsung di aplikasi atau email Anda.</p>
+                    <p class="rms-muted-adaptive">Dapatkan notifikasi pengingat dan informasi penting agar Anda tidak melewatkan jadwal, target, dan pembaruan di aplikasi.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
-
-<style>
-    .rms-feature-section {
-        background: var(--bs-body-bg, #fff);
-        border-top: 1px solid var(--bs-card-border-color, #e0e0e0);
-        transition: background 0.2s, border-color 0.2s;
-    }
-    .rms-card-adaptive {
-        background: var(--bs-card-bg, #fff) !important;
-        color: var(--bs-card-color, #212529) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-        transition: background 0.2s, color 0.2s;
-    }
-    .rms-muted-adaptive {
-        color: var(--bs-text-muted, #6c757d) !important;
-        transition: color 0.2s;
-    }
-    .rms-title-adaptive {
-        color: var(--bs-body-color, #212529) !important;
-        transition: color 0.2s;
-    }
-    .rms-hero-adaptive {
-        background: var(--bs-body-bg, #f8f9fa) !important;
-        color: var(--bs-body-color, #212529) !important;
-        transition: background 0.2s, color 0.2s;
-    }
-    .rms-alert-adaptive {
-        background: var(--bs-alert-bg, #f8d7da) !important;
-        color: var(--bs-alert-color, #842029) !important;
-        border-color: var(--bs-alert-border-color, #f5c2c7) !important;
-        transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-</style>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

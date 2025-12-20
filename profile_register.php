@@ -43,7 +43,7 @@ if (isset($_SESSION['notif_wajib_profil'])) {
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Tanggal Lahir</label>
-                    <input type="date" name="date_of_birth" class="form-control" required>
+                    <input type="date" name="date_of_birth" class="form-control" min="1900-01-01" max="<?= date('Y-m-d') ?>" required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Jenis Kelamin</label>
@@ -68,11 +68,11 @@ if (isset($_SESSION['notif_wajib_profil'])) {
             <div class="mb-3">
                 <label class="form-label">Tingkat Aktivitas</label>
                 <select name="activity_level" class="form-select" required>
-                    <option value="sedentary">Sedentary (Jarang olahraga)</option>
-                    <option value="light">Light (Olahraga ringan 1-3x/minggu)</option>
-                    <option value="moderate" selected>Moderate (Olahraga sedang 3-5x/minggu)</option>
-                    <option value="active">Active (Olahraga berat 6-7x/minggu)</option>
-                    <option value="very_active">Very Active (Olahraga sangat berat & pekerjaan fisik)</option>
+                    <option value="sedentary">Sedentari (Jarang berolahraga)</option>
+                    <option value="light">Ringan (Olahraga ringan 1-3x/minggu)</option>
+                    <option value="moderate" selected>Sedang (Olahraga sedang 3-5x/minggu)</option>
+                    <option value="active">Aktif (Olahraga berat 6-7x/minggu)</option>
+                    <option value="very_active">Sangat Aktif (Olahraga sangat berat & pekerjaan fisik)</option>
                 </select>
             </div>
             <button class="btn btn-success px-4">Simpan & Lanjutkan</button>

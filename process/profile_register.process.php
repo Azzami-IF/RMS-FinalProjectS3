@@ -18,7 +18,7 @@ $db = (new Database($config))->getConnection();
 $userClass = new User($db);
 $user = $_SESSION['user'];
 
-// Update user profile
+// Perbarui profil pengguna
 $userClass->update($user['id'], [
     'name' => $user['name'],
     'email' => $user['email'],

@@ -17,6 +17,16 @@ $action = $_POST['action'] ?? '';
 
 try {
     if ($action === 'update') {
+        $id = (int)($_POST['id'] ?? 0);
+        if ($id <= 0) {
+            throw new Exception('ID pengguna tidak valid.');
+        }
+
+        $existing = $user->find($id);
+        if (!$existing) {
+            throw new Exception('Pengguna tidak ditemukan.');
+        }
+
         $userData = [
             'name' => $_POST['name'],
             'email' => $_POST['email'],
@@ -30,12 +40,14 @@ try {
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
 
-        // Don't allow changing role to admin unless current user is admin
+        // Ensure role is always present (User::update requires it)
         if (isset($_POST['role']) && $_SESSION['user']['role'] === 'admin') {
             $userData['role'] = $_POST['role'];
+        } else {
+            $userData['role'] = $existing['role'] ?? 'user';
         }
 
-        $user->update((int)$_POST['id'], $userData);
+        $user->update($id, $userData);
         header('Location: ../admin/users.php?success=user_updated');
 
     } elseif ($action === 'delete') {
@@ -49,10 +61,26 @@ try {
         header('Location: ../admin/users.php?success=user_deleted');
 
     } elseif ($action === 'toggle_status') {
-        $userData = $user->find((int)$_POST['id']);
-        if ($userData) {
-            $user->update((int)$_POST['id'], [
-                'is_active' => $userData['is_active'] ? 0 : 1
+        $id = (int)($_POST['id'] ?? 0);
+        if ($id <= 0) {
+            header('Location: ../admin/users.php?error=user_not_found');
+            exit;
+        }
+
+        $existing = $user->find($id);
+        if ($existing) {
+            $user->update($id, [
+                'name' => $existing['name'],
+                'email' => $existing['email'],
+                'phone' => $existing['phone'] ?? null,
+                'date_of_birth' => $existing['date_of_birth'] ?? null,
+                'gender' => $existing['gender'] ?? null,
+                'height_cm' => $existing['height_cm'] ?? null,
+                'weight_kg' => $existing['weight_kg'] ?? null,
+                'activity_level' => $existing['activity_level'] ?? 'moderate',
+                'daily_calorie_goal' => $existing['daily_calorie_goal'] ?? 2000,
+                'role' => $existing['role'] ?? 'user',
+                'is_active' => ($existing['is_active'] ?? 0) ? 0 : 1
             ]);
             header('Location: ../admin/users.php?success=status_updated');
         } else {

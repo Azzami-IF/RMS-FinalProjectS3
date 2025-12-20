@@ -18,7 +18,7 @@ class GoalsPageController
     private function handleMessages(): void
     {
         if (isset($_GET['success'])) {
-            $this->message = 'Goal berhasil diperbarui!';
+            $this->message = 'Perubahan berhasil disimpan!';
             $this->messageType = 'success';
         } elseif (isset($_GET['error'])) {
             $this->message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);

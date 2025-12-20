@@ -21,12 +21,9 @@ $messageType = $controller->getMessageType();
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="fw-bold mb-1">Kelola Users</h1>
+                <h1 class="fw-bold mb-1">Kelola Pengguna</h1>
                 <p class="text-muted">Pantau dan kelola pengguna sistem RMS</p>
             </div>
-            <a href="dashboard.php" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard
-            </a>
         </div>
 
         <?php if ($message): ?>
@@ -37,14 +34,14 @@ $messageType = $controller->getMessageType();
         <?php endif; ?>
 
         <div class="card shadow-sm rounded-3">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold">Daftar Pengguna</h6>
-                <span class="badge bg-primary fs-6">Total: <?= count($users) ?> users</span>
+                <span class="badge bg-primary fs-6">Total: <?= count($users) ?> pengguna</span>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover">
-                        <thead class="table-light">
+                        <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Nama</th>
@@ -65,7 +62,7 @@ $messageType = $controller->getMessageType();
                                 <td><?= htmlspecialchars($u['email']) ?></td>
                                 <td>
                                     <span class="badge bg-<?= $u['role'] === 'admin' ? 'danger' : 'success' ?>">
-                                        <?= ucfirst($u['role']) ?>
+                                        <?= $u['role'] === 'admin' ? 'Admin' : 'Pengguna' ?>
                                     </span>
                                 </td>
                                 <td>
@@ -90,7 +87,7 @@ $messageType = $controller->getMessageType();
                                             <input type="hidden" name="action" value="toggle_status">
                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
                                             <button class="btn btn-outline-<?= $u['is_active'] ? 'secondary' : 'success' ?> btn-sm"
-                                                    onclick="return confirm('<?= $u['is_active'] ? 'Non-aktifkan' : 'Aktifkan' ?> user ini?')">
+                                                    onclick="return confirm('<?= $u['is_active'] ? 'Non-aktifkan' : 'Aktifkan' ?> pengguna ini?')">
                                                 <i class="bi bi-<?= $u['is_active'] ? 'x-circle' : 'check-circle' ?>"></i>
                                             </button>
                                         </form>
@@ -99,7 +96,7 @@ $messageType = $controller->getMessageType();
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="<?= $u['id'] ?>">
                                             <button class="btn btn-outline-danger btn-sm"
-                                                    onclick="return confirm('Hapus user ini secara permanen?')">
+                                                    onclick="return confirm('Hapus pengguna ini secara permanen?')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -118,12 +115,12 @@ $messageType = $controller->getMessageType();
 
 <script>
 function viewUser(id) {
-    // Redirect to user detail page (we'll create this later)
+    // Redirect ke halaman detail pengguna
     window.location.href = 'user_detail.php?id=' + id;
 }
 
 function editUser(id) {
-    // Redirect to user edit page (we'll create this later)
+    // Redirect ke halaman ubah pengguna
     window.location.href = 'user_edit.php?id=' + id;
 }
 </script>

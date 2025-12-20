@@ -49,7 +49,7 @@ try {
             // Get current user data
             $currentUser = $user->find($_SESSION['user']['id']);
             if (!$currentUser) {
-                header('Location: ../profile_edit.php?error=User tidak ditemukan');
+                header('Location: ../profile_edit.php?error=Pengguna tidak ditemukan');
                 exit;
             }
 
@@ -80,6 +80,7 @@ try {
             $height = trim($_POST['height_cm'] ?? '');
             $weight = trim($_POST['weight_kg'] ?? '');
             $calorieGoal = trim($_POST['daily_calorie_goal'] ?? '');
+            $activityLevel = trim($_POST['activity_level'] ?? '');
 
             $errors = [];
 
@@ -95,6 +96,13 @@ try {
                 $errors[] = 'Target kalori harus antara 1000-5000 kcal';
             }
 
+            if (!empty($activityLevel)) {
+                $allowed = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
+                if (!in_array($activityLevel, $allowed, true)) {
+                    $errors[] = 'Tingkat aktivitas tidak valid';
+                }
+            }
+
             if (!empty($errors)) {
                 header('Location: ../profile_edit.php?error=' . urlencode(implode(', ', $errors)) . '#physical');
                 exit;
@@ -103,7 +111,7 @@ try {
             // Get current user data
             $currentUser = $user->find($_SESSION['user']['id']);
             if (!$currentUser) {
-                header('Location: ../profile_edit.php?error=User tidak ditemukan');
+                header('Location: ../profile_edit.php?error=Pengguna tidak ditemukan');
                 exit;
             }
 
@@ -116,11 +124,25 @@ try {
                 'gender' => $currentUser['gender'],
                 'height_cm' => !empty($height) ? (float)$height : $currentUser['height_cm'],
                 'weight_kg' => !empty($weight) ? (float)$weight : $currentUser['weight_kg'],
-                'activity_level' => !empty(trim($_POST['activity_level'] ?? '')) ? trim($_POST['activity_level']) : $currentUser['activity_level'],
+                'activity_level' => !empty($activityLevel) ? $activityLevel : $currentUser['activity_level'],
                 'daily_calorie_goal' => !empty($calorieGoal) ? (int)$calorieGoal : $currentUser['daily_calorie_goal'],
                 'role' => $currentUser['role'],
                 'is_active' => $currentUser['is_active']
             ]);
+
+            // Keep weight_logs in sync so goals/evaluation can use latest weight
+            if (!empty($weight)) {
+                $stmt = $db->prepare(
+                    "INSERT INTO weight_logs (user_id, weight_kg, notes, logged_at)
+                     VALUES (?, ?, ?, CURDATE())
+                     ON DUPLICATE KEY UPDATE weight_kg = VALUES(weight_kg), notes = VALUES(notes)"
+                );
+                $stmt->execute([
+                    (int)$_SESSION['user']['id'],
+                    (float)$weight,
+                    'Diperbarui melalui Ubah Profil'
+                ]);
+            }
 
             header('Location: ../profile_edit.php?success=1#physical');
             break;

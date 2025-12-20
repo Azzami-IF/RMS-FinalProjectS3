@@ -1,203 +1,98 @@
 
-# RMS (Rekomendasi Makanan Sehat) - Documentation
+# RMS (Rekomendasi Makanan Sehat)
 
-## Overview
-RMS is a web application for nutrition tracking and healthy food recommendations, built with PHP (native), MySQL/MariaDB, and Bootstrap. The system integrates the Edamam API for food and nutrition data, provides analytics, notifications, and supports full CRUD for core entities.
+## Ringkasan
+RMS adalah aplikasi web untuk pencatatan nutrisi dan rekomendasi makanan sehat. Aplikasi dibangun menggunakan PHP native, MySQL/MariaDB, dan Bootstrap. Sistem terintegrasi dengan Edamam API untuk pencarian resep dan analisis nutrisi, menyediakan analitik, notifikasi, dan CRUD untuk entitas utama.
 
----
+## Diagram
+- Activity Diagram: `Activity.jpg`
+- Use Case Diagram: `usecase.jpg`
 
-## System Architecture & Diagrams
+## Teknologi
+- Backend: PHP (native)
+- Database: MySQL/MariaDB
+- Frontend: Bootstrap, Chart.js
+- Library: PHPMailer, vlucas/phpdotenv
 
-- **ERD & Architecture:**
-    - [Activity Diagram](Activity.jpg)
-    - [Use Case Diagram](usecase.jpg)
+## Prasyarat
+- PHP 8.x (disarankan menggunakan Laragon/XAMPP)
+- MySQL/MariaDB
+- Composer
 
----
+## Instalasi Lokal (Laragon)
+1. Pastikan proyek berada di direktori web server, contoh: `C:\laragon\www\RMS`.
+2. Jalankan instalasi dependency:
+    ```bash
+    composer install
+    ```
+3. Buat file environment:
+    - Salin `.env.example` menjadi `.env`, lalu isi nilainya.
 
+## Konfigurasi Environment
+Konfigurasi dibaca melalui `config/env.php` menggunakan `vlucas/phpdotenv`. Variabel yang digunakan:
 
-## Features
+```dotenv
+DB_HOST=localhost
+DB_NAME=db_rms
+DB_USER=root
+DB_PASS=
 
-- **API Integration:** Edamam API (nutrition & food search)
-- **Smart Notifications:** Daily healthy menu reminders (Email/PHPMailer)
-- **Interactive Charts:** Calorie & nutrition visualization (Chart.js)
-- **Advanced Analytics:** Eating pattern evaluation & personalized recommendations
-- **Authentication:** Login, registration, password hashing (bcrypt)
-- **CRUD:** Full Create, Read, Update, Delete for foods and schedules
-- **Seed Data:** Sample data for development/testing
-- **Export CSV:** Analytics data exportable as CSV
-- **Documentation:** ERD, architecture diagram, endpoint routing, SQL dump
+EDAMAM_APP_ID=
+EDAMAM_APP_KEY=
+EDAMAM_USER_ID=
 
----
-
-
-## Database Structure
-
-### Tabel Utama
-
-#### 1. `users` - Data Pengguna
-```sql
-- id (PRIMARY KEY)
-- name, email, password
-- role (admin/user)
-- phone, date_of_birth, gender
-- height_cm, weight_kg, activity_level
-- daily_calorie_goal
-- avatar, created_at, updated_at, last_login, is_active
+MAIL_USER=
+MAIL_PASS=
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_ENCRYPTION=tls
+MAIL_FROM=
 ```
 
-#### 2. `food_categories` - Kategori Makanan
-```sql
-- id (PRIMARY KEY)
-- name, description, icon
-- created_at
-```
+Catatan keamanan: file `.env` tidak boleh di-commit ke repository.
 
-#### 3. `foods` - Database Makanan
-```sql
-- id (PRIMARY KEY)
-- category_id (FOREIGN KEY)
-- name, description, calories
-- protein, fat, carbs, fiber, sugar, sodium
-- serving_size, image_url
-- is_verified, created_by, created_at, updated_at
-```
+## Setup Database
+1. Buat database dan import skema + seed data:
+    ```bash
+    mysql -u root -p < sql.txt
+    ```
+    Secara default, skrip SQL menggunakan database `db_rms`.
 
-#### 4. `meal_types` - Jenis Makanan
-```sql
-- id (PRIMARY KEY)
-- name, display_name, icon, sort_order
-- is_active
-```
+2. Akun demo (jika menggunakan seed data):
+    - `admin@rms.local` / `admin123`
+    - `user@rms.local` / `user123`
 
-#### 5. `schedules` - Jadwal Makan
-```sql
-- id (PRIMARY KEY)
-- user_id, food_id, meal_type_id (FOREIGN KEYS)
-- schedule_date, quantity, notes
-- calories_consumed (auto-calculated)
-- created_at, updated_at
-```
+## Menjalankan Aplikasi
+- Melalui Laragon: jalankan Apache/Nginx + MySQL, lalu akses `http://localhost/RMS/`.
 
-#### 6. `user_goals` - Target Pengguna
-```sql
-- id (PRIMARY KEY)
-- user_id (FOREIGN KEY)
-- goal_type, target_weight_kg, target_date
-- daily_calorie_target, daily_protein_target, etc.
-- is_active, created_at, updated_at
-```
+## Fitur
+- Autentikasi: login, registrasi, hashing password
+- CRUD: makanan (`foods`) dan jadwal makan (`schedules`)
+- Integrasi API: Edamam (pencarian resep dan analisis)
+- Notifikasi: in-app dan email (PHPMailer)
+- Analitik dan visualisasi: Chart.js, view `daily_nutrition_summary` dan `user_progress`
+- Ekspor: CSV untuk laporan tertentu
 
-#### 7. `weight_logs` - Log Berat Badan
-```sql
-- id (PRIMARY KEY)
-- user_id (FOREIGN KEY)
-- weight_kg, body_fat_percentage, muscle_mass_kg
-- notes, logged_at, created_at
-```
+## Notifikasi (Script)
+Script notifikasi berada di folder `notifications/` dan dapat dijalankan melalui browser atau CLI.
 
-#### 8. `notifications` - Notifikasi
-```sql
-- id (PRIMARY KEY)
-- user_id (FOREIGN KEY)
-- title, message, type, channel, status
-- scheduled_at, sent_at, created_at
-```
-
-
-## Setup & Deployment
-
-### 1. Import Schema & Seed Data
-Import the schema and sample data using:
+Contoh (CLI):
 ```bash
-mysql -u username -p rms_db < sql.txt
+php notifications/send_daily_menu.php --force
 ```
 
-### 2. Environment Configuration
-Edit `config/env.php` or use a `.env` file for sensitive credentials:
-```php
-return [
-    'DB_HOST' => 'localhost',
-    'DB_NAME' => 'rms_db',
-    'DB_USER' => 'your_username',
-    'DB_PASS' => 'your_password',
-    'MAIL_USER' => 'your_email@example.com',
-    'MAIL_PASS' => 'your_email_password',
-    'EDAMAM_APP_ID' => 'your_edamam_app_id',
-    'EDAMAM_APP_KEY' => 'your_edamam_app_key'
-];
-```
+## Struktur Direktori (Ringkas)
+- `classes/`: class OOP (Database, Cache, Service)
+- `controllers/`: controller untuk halaman yang memerlukan pemrosesan
+- `process/`: handler aksi (create/update/delete)
+- `notifications/`: pengiriman dan pencatatan notifikasi
+- `assets/`: CSS/JS/Font/Gambar
+- `sql.txt`: skema database + seed data
 
-### 3. Deployment
-- Place all files in your web server's public directory (e.g., `/public` or `/var/www/html`).
-- Ensure `sql.txt` is imported and environment variables are set.
-- Access the app via your browser.
+## Troubleshooting
+- Jika koneksi database gagal, pastikan variabel `DB_HOST/DB_NAME/DB_USER/DB_PASS` pada `.env` sesuai.
+- Jika notifikasi email gagal, pastikan `MAIL_USER` dan `MAIL_PASS` valid (untuk Gmail, gunakan App Password).
 
----
-
-### 1. Import Schema
-```bash
-mysql -u username -p rms_db < sql.txt
-```
-
-### 2. Konfigurasi Environment
-Edit file `config/env.php`:
-```php
-<?php
-return [
-    'DB_HOST' => 'localhost',
-    'DB_NAME' => 'rms_db',
-    'DB_USER' => 'your_username',
-    'DB_PASS' => 'your_password',
-    'MAIL_USER' => 'your_email@example.com',
-    'MAIL_PASS' => 'your_email_password',
-    'SPOON_API_KEY' => 'your_spoonacular_api_key'
-];
-```
-
-
-## API Integration: Edamam
-
-The application uses the Edamam API for food search and nutrition analysis. Example usage:
-
-**Endpoint:**
-`https://api.edamam.com/api/recipes/v2?type=public&q={query}&app_id={APP_ID}&app_key={APP_KEY}`
-
-**Parameters:**
-- `q`: Search query (e.g., "chicken")
-- `calories`: Calorie range (e.g., "0-600")
-- `diet`: Diet label (optional)
-- `health`: Health label (optional)
-
-**Response:** JSON with recipe hits, nutrition info, and ingredients.
-
-All API credentials are stored securely in `.env` or `config/env.php`.
-
----
-
-### Views untuk Analisis
-- `daily_nutrition_summary` - Ringkasan nutrisi harian
-- `user_progress` - Progress pengguna
-
-### Stored Procedures
-- `calculate_meal_calories()` - Hitung kalori otomatis
-- `get_food_recommendations()` - Rekomendasi makanan
-- `update_user_stats()` - Update statistik user
-
-### Triggers
-- Auto-calculate calories saat insert/update schedule
-
-### Indexes
-- Optimized untuk performa query yang sering digunakan
-
-
-## Routing & Endpoints
-
-Main endpoints:
-- `/index.php` - Dashboard
-- `/login.php` - User login
-- `/register.php` - User registration
-- `/recommendation.php` - Food recommendations (Edamam API)
-- `/nutrition_analysis.php` - Nutrition analysis
 - `/analytics.php` - Analytics & charts
 - `/notifications.php` - Notification history
 - `/schedules.php` - Meal scheduling

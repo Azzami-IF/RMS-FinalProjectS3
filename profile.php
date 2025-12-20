@@ -20,6 +20,11 @@ $messageType = $controller->getMessageType();
 
 <section class="py-5">
     <div class="container">
+        <div class="mb-4">
+            <h1 class="fw-bold mb-1">Profil</h1>
+            <p class="text-muted">Ringkasan akun dan data Anda</p>
+        </div>
+
         <?php if ($message): ?>
         <div class="alert alert-<?= $messageType ?> alert-dismissible fade show mb-4" role="alert">
             <?= $message ?>
@@ -40,12 +45,12 @@ $messageType = $controller->getMessageType();
                         <h5 class="card-title fw-bold"><?= htmlspecialchars($userData['name']) ?></h5>
                         <p class="text-muted mb-2"><?= htmlspecialchars($userData['email']) ?></p>
                         <span class="badge bg-<?= $userData['role'] === 'admin' ? 'danger' : 'success' ?>">
-                            <?= $userData['role'] === 'admin' ? 'Admin' : 'User' ?>
+                            <?= $userData['role'] === 'admin' ? 'Admin' : 'Pengguna' ?>
                         </span>
 
                         <div class="mt-3">
                             <a href="profile_edit.php" class="btn btn-primary btn-sm me-2">
-                                <i class="bi bi-pencil me-1"></i>Edit Profile
+                                <i class="bi bi-pencil me-1"></i>Ubah Profil
                             </a>
                             <button class="btn btn-outline-danger btn-sm" onclick="confirmDelete()">
                                 <i class="bi bi-trash me-1"></i>Hapus Akun
@@ -86,7 +91,7 @@ $messageType = $controller->getMessageType();
                     <div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold">Informasi Pribadi</h6>
                         <a href="profile_edit.php" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-pencil me-1"></i>Edit
+                            <i class="bi bi-pencil me-1"></i>Ubah
                         </a>
                     </div>
                     <div class="card-body">
@@ -140,81 +145,108 @@ $messageType = $controller->getMessageType();
                 </div>
 
                 <!-- Physical Information -->
-                <?php if ($userData['height_cm'] || $userData['weight_kg']): ?>
+                <?php if ($userData['height_cm'] || $userData['weight_kg'] || $userData['activity_level'] || $userData['daily_calorie_goal']): ?>
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold">Data Fisik</h6>
                         <a href="profile_edit.php#physical" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-pencil me-1"></i>Edit
+                            <i class="bi bi-pencil me-1"></i>Ubah
                         </a>
                     </div>
                     <div class="card-body">
+                        <?php
+                            $physicalItems = [];
+
+                            if (!empty($userData['height_cm'])) {
+                                $physicalItems[] = [
+                                    'label' => 'Tinggi Badan',
+                                    'value' => number_format((float)$userData['height_cm'], 1) . ' cm',
+                                ];
+                            }
+
+                            if (!empty($userData['weight_kg'])) {
+                                $physicalItems[] = [
+                                    'label' => 'Berat Badan',
+                                    'value' => number_format((float)$userData['weight_kg'], 1) . ' kg',
+                                ];
+                            }
+
+                            if (!empty($userData['height_cm']) && !empty($userData['weight_kg'])) {
+                                $bmi = round((float)$userData['weight_kg'] / (((float)$userData['height_cm'] / 100) ** 2), 1);
+                                $bmiCategory = '';
+                                if ($bmi < 18.5) $bmiCategory = 'Kurus';
+                                elseif ($bmi < 25) $bmiCategory = 'Normal';
+                                elseif ($bmi < 30) $bmiCategory = 'Berlebih';
+                                else $bmiCategory = 'Obesitas';
+
+                                $physicalItems[] = [
+                                    'label' => 'BMI',
+                                    'value' => $bmi . ' (' . $bmiCategory . ')',
+                                ];
+                            }
+
+                            $physicalItems[] = [
+                                'label' => 'Target Kalori Harian',
+                                'value' => (int)($userData['daily_calorie_goal'] ?? 2000) . ' kcal',
+                            ];
+
+                            $activityLabel = '';
+                            switch ($userData['activity_level'] ?? 'moderate') {
+                                case 'sedentary': $activityLabel = 'Sedentari (Jarang berolahraga)'; break;
+                                case 'light': $activityLabel = 'Ringan (Olahraga ringan)'; break;
+                                case 'moderate': $activityLabel = 'Sedang (Olahraga sedang)'; break;
+                                case 'active': $activityLabel = 'Aktif (Olahraga berat)'; break;
+                                case 'very_active': $activityLabel = 'Sangat Aktif (Olahraga sangat berat)'; break;
+                                default: $activityLabel = 'Sedang';
+                            }
+                            $physicalItems[] = [
+                                'label' => 'Tingkat Aktivitas',
+                                'value' => $activityLabel,
+                            ];
+
+                            $physicalLeft = [];
+                            $physicalRight = [];
+                            foreach ($physicalItems as $idx => $item) {
+                                if ($idx % 2 === 0) $physicalLeft[] = $item;
+                                else $physicalRight[] = $item;
+                            }
+                        ?>
+
                         <div class="row g-3">
-                            <?php if ($userData['height_cm']): ?>
-                            <div class="col-md-4">
-                                <strong>Tinggi Badan</strong><br>
-                                <span class="text-muted"><?= $userData['height_cm'] ?> cm</span>
+                            <div class="col-12 col-md-6">
+                                <?php foreach ($physicalLeft as $item): ?>
+                                    <div class="mb-3">
+                                        <strong><?= htmlspecialchars($item['label']) ?></strong><br>
+                                        <span class="text-muted"><?= htmlspecialchars($item['value']) ?></span>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
-                            <?php endif; ?>
-                            <?php if ($userData['weight_kg']): ?>
-                            <div class="col-md-4">
-                                <strong>Berat Badan</strong><br>
-                                <span class="text-muted"><?= $userData['weight_kg'] ?> kg</span>
-                            </div>
-                            <?php endif; ?>
-                            <?php if ($userData['height_cm'] && $userData['weight_kg']): ?>
-                            <div class="col-md-4">
-                                <strong>BMI</strong><br>
-                                <span class="text-muted">
-                                    <?php
-                                    $bmi = round($userData['weight_kg'] / (($userData['height_cm']/100) ** 2), 1);
-                                    $bmiCategory = '';
-                                    if ($bmi < 18.5) $bmiCategory = 'Underweight';
-                                    elseif ($bmi < 25) $bmiCategory = 'Normal';
-                                    elseif ($bmi < 30) $bmiCategory = 'Overweight';
-                                    else $bmiCategory = 'Obese';
-                                    echo $bmi . ' (' . $bmiCategory . ')';
-                                    ?>
-                                </span>
-                            </div>
-                            <?php endif; ?>
-                            <div class="col-md-6">
-                                <strong>Target Kalori Harian</strong><br>
-                                <span class="text-muted"><?= $userData['daily_calorie_goal'] ?> kcal</span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Tingkat Aktivitas</strong><br>
-                                <span class="text-muted">
-                                    <?php
-                                    switch($userData['activity_level']) {
-                                        case 'sedentary': echo 'Sedentary (Jarang olahraga)'; break;
-                                        case 'light': echo 'Light (Olahraga ringan)'; break;
-                                        case 'moderate': echo 'Moderate (Olahraga sedang)'; break;
-                                        case 'active': echo 'Active (Olahraga berat)'; break;
-                                        case 'very_active': echo 'Very Active (Olahraga sangat berat)'; break;
-                                        default: echo 'Moderate';
-                                    }
-                                    ?>
-                                </span>
+                            <div class="col-12 col-md-6">
+                                <?php foreach ($physicalRight as $item): ?>
+                                    <div class="mb-3">
+                                        <strong><?= htmlspecialchars($item['label']) ?></strong><br>
+                                        <span class="text-muted"><?= htmlspecialchars($item['value']) ?></span>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
                 </div>
                 <?php endif; ?>
 
-                <!-- Goals Section -->
+                <!-- Target Section -->
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 fw-bold">Target & Goals</h6>
+                    <div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">Target</h6>
                         <a href="goals.php" class="btn btn-outline-success btn-sm">
-                            <i class="bi bi-target me-1"></i>Kelola Goals
+                            <i class="bi bi-target me-1"></i>Kelola Target
                         </a>
                     </div>
                     <div class="card-body">
                         <?php if ($userGoal): ?>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <strong>Tipe Goal</strong><br>
+                                <strong>Tipe Target</strong><br>
                                 <span class="text-muted">
                                     <?php
                                     switch($userGoal['goal_type']) {
@@ -272,10 +304,10 @@ $messageType = $controller->getMessageType();
                         <?php else: ?>
                         <div class="text-center py-4">
                             <i class="bi bi-target fs-1 text-muted mb-3"></i>
-                            <h6 class="text-muted">Belum ada goal yang ditetapkan</h6>
-                            <p class="text-muted mb-3">Tetapkan goal untuk tracking progress yang lebih baik</p>
+                            <h6 class="text-muted">Belum ada target yang ditetapkan</h6>
+                            <p class="text-muted mb-3">Tetapkan target agar progres Anda lebih terpantau</p>
                             <a href="goals.php" class="btn btn-success">
-                                <i class="bi bi-plus-circle me-2"></i>Buat Goal Pertama
+                                <i class="bi bi-plus-circle me-2"></i>Buat Target Pertama
                             </a>
                         </div>
                         <?php endif; ?>
@@ -284,7 +316,7 @@ $messageType = $controller->getMessageType();
 
                 <!-- Recent Activity -->
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">Aktivitas Terbaru</h6>
                     </div>
                     <div class="card-body">

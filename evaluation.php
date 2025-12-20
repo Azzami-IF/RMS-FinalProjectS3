@@ -16,7 +16,7 @@ $totalDays     = $analytics->totalDays($userId);
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="mb-0">Evaluasi Pola Makan</h4>
-    <a href="export/export_evaluation.php" class="btn btn-outline-success">Export CSV</a>
+    <a href="export/export_evaluation.php" class="btn btn-outline-success">Ekspor CSV</a>
 </div>
 
 <!-- ANALYTICS CARDS -->
@@ -57,19 +57,32 @@ $totalDays     = $analytics->totalDays($userId);
 <!-- GRAFIK -->
 
 <div class="row g-4">
-    <div class="col-12 col-lg-6 d-flex flex-column align-items-center">
-        <h6 class="mb-2">Distribusi Nutrisi Total</h6>
-        <div style="width:100%;max-width:370px;min-width:220px;">
-            <canvas id="nutritionChart" style="aspect-ratio:1.1/1;"></canvas>
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm rounded-3 h-100">
+            <div class="card-header rms-card-adaptive">
+                <h6 class="mb-0">Distribusi Nutrisi Total</h6>
+            </div>
+            <div class="card-body">
+                <div class="w-100" style="position:relative;height:320px;">
+                    <canvas id="nutritionChart"></canvas>
+                </div>
+                <div class="small text-muted mt-2">Persentase total protein, lemak, dan karbohidrat dari seluruh catatan makan Anda.</div>
+            </div>
         </div>
-        <div class="small text-muted mt-2">Persentase total protein, lemak, dan karbohidrat dari seluruh catatan makan Anda.</div>
     </div>
-    <div class="col-12 col-lg-6 d-flex flex-column align-items-center">
-        <h6 class="mb-2">Tren Kalori Harian</h6>
-        <div style="width:100%;max-width:420px;min-width:220px;">
-            <canvas id="calorieChart" style="aspect-ratio:1.8/1;"></canvas>
+
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm rounded-3 h-100">
+            <div class="card-header rms-card-adaptive">
+                <h6 class="mb-0">Tren Kalori Harian</h6>
+            </div>
+            <div class="card-body">
+                <div class="w-100" style="position:relative;height:320px;">
+                    <canvas id="calorieChart"></canvas>
+                </div>
+                <div class="small text-muted mt-2">Visualisasi tren asupan kalori harian Anda.</div>
+            </div>
         </div>
-        <div class="small text-muted mt-2">Visualisasi tren asupan kalori harian Anda.</div>
     </div>
 </div>
 
@@ -93,9 +106,19 @@ fetch('charts/nutrition_chart.php')
             type: 'pie',
             data: data,
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'bottom' },
-                    tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed}g` } }
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const value = Number(ctx.parsed) || 0;
+                                const pct = total > 0 ? (value / total) * 100 : 0;
+                                return `${ctx.label}: ${value}g (${pct.toFixed(1)}%)`;
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -107,13 +130,27 @@ fetch('charts/calorie_chart.php')
             type: 'line',
             data: data,
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
                 scales: {
                     y: { beginAtZero: true, title: { display: true, text: 'Kalori' } },
                     x: { title: { display: true, text: 'Tanggal' } }
                 },
+                elements: {
+                    line: { tension: 0.35, borderWidth: 2 },
+                    point: { radius: 2, hoverRadius: 5 }
+                },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => `Kalori: ${ctx.parsed.y}` } }
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const y = ctx.parsed?.y;
+                                return `Kalori: ${typeof y === 'number' ? Math.round(y) : y}`;
+                            }
+                        }
+                    }
                 }
             }
         });

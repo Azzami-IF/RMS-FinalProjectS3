@@ -9,8 +9,23 @@ class WeightLog
         $this->db = $db;
     }
 
-    public function create(array $data): void
+    public function create(array $data): string
     {
+        $userId = (int)($data['user_id'] ?? 0);
+        $loggedAt = (string)($data['logged_at'] ?? '');
+        if ($userId <= 0) {
+            throw new InvalidArgumentException('User tidak valid');
+        }
+        if ($loggedAt === '') {
+            $loggedAt = date('Y-m-d');
+        }
+
+        $existsStmt = $this->db->prepare(
+            "SELECT 1 FROM weight_logs WHERE user_id = ? AND logged_at = ? LIMIT 1"
+        );
+        $existsStmt->execute([$userId, $loggedAt]);
+        $exists = (bool)$existsStmt->fetchColumn();
+
         $stmt = $this->db->prepare(
             "INSERT INTO weight_logs (user_id, weight_kg, body_fat_percentage, muscle_mass_kg, notes, logged_at)
              VALUES (?, ?, ?, ?, ?, ?)
@@ -20,7 +35,7 @@ class WeightLog
              muscle_mass_kg = VALUES(muscle_mass_kg),
              notes = VALUES(notes)"
         );
-        $stmt->bindParam(1, $data['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(1, $userId, PDO::PARAM_INT);
         $stmt->bindParam(2, $data['weight_kg'], PDO::PARAM_STR); // decimal
         $bodyFat = $data['body_fat_percentage'] ?? null;
         $stmt->bindParam(3, $bodyFat, is_null($bodyFat) ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -28,9 +43,10 @@ class WeightLog
         $stmt->bindParam(4, $muscleMass, is_null($muscleMass) ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $notes = $data['notes'] ?? null;
         $stmt->bindParam(5, $notes, is_null($notes) ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $loggedAt = $data['logged_at'] ?? date('Y-m-d');
         $stmt->bindParam(6, $loggedAt, PDO::PARAM_STR);
         $stmt->execute();
+
+        return $exists ? 'updated' : 'added';
     }
 
     public function getLatest(int $userId): array|false

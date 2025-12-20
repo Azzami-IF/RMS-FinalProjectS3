@@ -22,7 +22,18 @@ class WeightLogPageController
     private function handleMessages(): void
     {
         if (isset($_GET['success'])) {
-            $this->message = 'Log berat badan berhasil disimpan!';
+            $success = (string)$_GET['success'];
+            if ($success === 'updated' || stripos($success, 'update') !== false) {
+                $this->message = 'Catatan pada tanggal tersebut berhasil diperbarui.';
+                $this->messageType = 'success';
+                return;
+            }
+            if ($success === 'deleted' || stripos($success, 'hapus') !== false) {
+                $this->message = 'Catatan berat badan berhasil dihapus.';
+            } else {
+                // Backward compatible: success=1 or other values
+                $this->message = 'Catatan berat badan berhasil disimpan.';
+            }
             $this->messageType = 'success';
         } elseif (isset($_GET['error'])) {
             $this->message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);

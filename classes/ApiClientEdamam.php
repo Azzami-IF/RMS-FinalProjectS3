@@ -36,7 +36,7 @@ class ApiClientEdamam
             'app_key' => $this->appKey,
             'calories' => "0-$calories",
             'imageSize' => 'REGULAR',
-            'field' => ['label','image','calories','totalNutrients','ingredientLines'],
+            'field' => ['label','image','calories','totalNutrients','ingredientLines','uri','yield','source','url'],
             'size' => 6
         ];
         $url = "https://api.edamam.com/api/recipes/v2?" . http_build_query($params);
@@ -76,7 +76,7 @@ class ApiClientEdamam
             'app_key' => $this->appKey,
             'calories' => "0-$calories",
             'imageSize' => 'REGULAR',
-            'field' => ['label','image','calories','totalNutrients','ingredientLines'],
+            'field' => ['label','image','calories','totalNutrients','ingredientLines','uri','yield','source','url'],
             'size' => 6
         ];
         if ($diet) $params['diet'] = $diet;
