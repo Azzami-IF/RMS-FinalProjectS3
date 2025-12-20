@@ -145,11 +145,11 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
 
                     <!-- NOTIFIKASI (User + Admin) -->
                     <?php
-                    $stmt = $db->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND status = 'unread'");
+                    $stmt = $db->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND channel = 'in_app' AND status = 'unread'");
                     $stmt->execute([$_SESSION['user']['id']]);
                     $unreadCount = (int)$stmt->fetchColumn();
 
-                    $stmt = $db->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
+                    $stmt = $db->prepare("SELECT * FROM notifications WHERE user_id = ? AND channel = 'in_app' ORDER BY created_at DESC LIMIT 5");
                     $stmt->execute([$_SESSION['user']['id']]);
                     $recentNotifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

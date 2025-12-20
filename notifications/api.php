@@ -61,7 +61,7 @@ switch ($action) {
         $stmt = $db->prepare(
             "SELECT id, title, message, action_url, type, channel, status, created_at 
              FROM notifications 
-             WHERE id = ? AND user_id = ?"
+             WHERE id = ? AND user_id = ? AND channel = 'in_app'"
         );
         $stmt->execute([$notificationId, $userId]);
         $notification = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -71,7 +71,7 @@ switch ($action) {
             $response = ['error' => 'Notification not found'];
         } else {
             // Mark as read
-            $updateStmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ?");
+            $updateStmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND channel = 'in_app'");
             $updateStmt->execute([$notificationId]);
             
             $response = [
@@ -83,7 +83,7 @@ switch ($action) {
 
     case 'mark_read':
         // Mark notification as read
-        $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND user_id = ?");
+        $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND user_id = ? AND channel = 'in_app'");
         $result = $stmt->execute([$notificationId, $userId]);
         
         $response = [
@@ -94,7 +94,7 @@ switch ($action) {
 
     case 'mark_all_read':
         // Mark all notifications as read
-        $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE user_id = ? AND status = 'unread'");
+        $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE user_id = ? AND channel = 'in_app' AND status = 'unread'");
         $result = $stmt->execute([$userId]);
         
         $response = [
@@ -105,7 +105,7 @@ switch ($action) {
 
     case 'delete':
         // Delete notification
-        $stmt = $db->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ?");
+        $stmt = $db->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ? AND channel = 'in_app'");
         $result = $stmt->execute([$notificationId, $userId]);
         
         $response = [

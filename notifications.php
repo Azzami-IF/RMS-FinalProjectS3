@@ -199,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userId) {
     if ($action === 'delete') {
         $notifId = (int)($_POST['notif_id'] ?? 0);
         if ($notifId > 0) {
-            $stmt = $db->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ?");
+            $stmt = $db->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ? AND channel = 'in_app'");
             $stmt->execute([$notifId, $userId]);
         }
         header('Location: notifications.php');
@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userId) {
     if ($action === 'mark_read') {
         $notifId = (int)($_POST['notif_id'] ?? 0);
         if ($notifId > 0) {
-            $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND user_id = ?");
+            $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND user_id = ? AND channel = 'in_app'");
             $stmt->execute([$notifId, $userId]);
         }
         header('Location: notifications.php');
@@ -221,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userId) {
         if (count($ids)) {
             $in = implode(',', array_fill(0, count($ids), '?'));
             $params = array_merge($ids, [$userId]);
-            $stmt = $db->prepare("DELETE FROM notifications WHERE id IN ($in) AND user_id = ?");
+            $stmt = $db->prepare("DELETE FROM notifications WHERE id IN ($in) AND user_id = ? AND channel = 'in_app'");
             $stmt->execute($params);
         }
         header('Location: notifications.php');
@@ -229,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userId) {
     }
 
     if ($action === 'mark_all_read') {
-        $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE user_id = ? AND status = 'unread'");
+        $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE user_id = ? AND channel = 'in_app' AND status = 'unread'");
         $stmt->execute([$userId]);
         header('Location: notifications.php');
         exit;
@@ -240,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userId) {
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $userId && isset($_GET['mark_read'])) {
     $notifId = (int)$_GET['mark_read'];
     if ($notifId > 0) {
-        $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND user_id = ?");
+        $stmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND user_id = ? AND channel = 'in_app'");
         $stmt->execute([$notifId, $userId]);
     }
     header('Location: notifications.php' . ($notifId > 0 ? ('#notif-' . $notifId) : ''));
@@ -258,7 +258,7 @@ $db = (new Database($config))->getConnection();
 if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     $stmt = $db->prepare(
         "SELECT * FROM notifications
-         WHERE user_id = ?
+         WHERE user_id = ? AND channel = 'in_app'
          ORDER BY created_at DESC"
     );
     $stmt->execute([$_SESSION['user']['id']]);
@@ -319,7 +319,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
 // Normal page output
 $stmt = $db->prepare(
     "SELECT * FROM notifications
-     WHERE user_id = ?
+    WHERE user_id = ? AND channel = 'in_app'
      ORDER BY created_at DESC"
 );
 $stmt->execute([$_SESSION['user']['id']]);
