@@ -1,3 +1,18 @@
+# Exclude tags badge adaptive for dark mode
+[data-theme="dark"] #exclude-tags .badge {
+    background: linear-gradient(90deg,#2a3a3f,#1e2a2e) !important;
+    color: #7abaff !important;
+    border: 1px solid #3a4a4f !important;
+}
+
+#food-list .food-item.active {
+    background: var(--bs-card-bg, #e9f7ef);
+    border-left: 4px solid #28a745;
+}
+[data-theme="dark"] #food-list .food-item.active {
+    background: #22332a !important;
+    border-left: 4px solid #7abaff;
+}
 /* Adaptive RMS custom classes for dark/light mode */
 .rms-card-adaptive {
     background-color: var(--bs-card-bg, #fff);

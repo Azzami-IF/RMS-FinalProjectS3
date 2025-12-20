@@ -138,7 +138,7 @@ class AnalyticsService
         return (int)$stmt->fetchColumn();
     }
 
-    // TOTAL MENU DIJADWALKAN
+    // TOTAL MENU DICATAT
     public function totalMeals(int $userId): int
     {
         $stmt = $this->db->prepare("

@@ -107,7 +107,7 @@ $scheduleStats = $controller->getScheduleStats();
                         <div class="mb-3">
                             <i class="bi bi-calendar-check fs-1 text-primary"></i>
                             <h4 class="mt-2"><?= $scheduleStats['total_schedules'] ?? 0 ?></h4>
-                            <small class="text-muted">Total Jadwal</small>
+                            <small class="text-muted">Total Catatan</small>
                         </div>
                     </div>
                 </div>

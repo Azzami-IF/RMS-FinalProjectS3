@@ -32,11 +32,11 @@ class SchedulesController
         if (isset($_GET['success'])) {
             switch ($_GET['success']) {
                 case 'schedule_created':
-                    $this->message = 'Jadwal berhasil ditambahkan!';
+                    $this->message = 'Catatan berhasil ditambahkan!';
                     $this->messageType = 'success';
                     break;
                 case 'schedule_deleted':
-                    $this->message = 'Jadwal berhasil dihapus!';
+                    $this->message = 'Catatan berhasil dihapus!';
                     $this->messageType = 'success';
                     break;
             }

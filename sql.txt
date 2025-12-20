@@ -50,7 +50,6 @@ CREATE TABLE foods (
   fiber DECIMAL(6,2) DEFAULT 0,
   sugar DECIMAL(6,2) DEFAULT 0,
   sodium DECIMAL(6,2) DEFAULT 0,
-  serving_size VARCHAR(50) DEFAULT '100g',
   image_url VARCHAR(255),
   is_verified TINYINT(1) DEFAULT 0,
   created_by INT,

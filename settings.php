@@ -22,9 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 'language' removed
             'notifications_email' => isset($_POST['notifications_email']) ? '1' : '0',
             'notifications_inapp' => isset($_POST['notifications_inapp']) ? '1' : '0',
-            'units_weight' => $_POST['units_weight'] ?? 'kg',
-            'units_height' => $_POST['units_height'] ?? 'cm',
-            // privacy fields removed
         ];
 
         $userPrefs->setMultiple($_SESSION['user']['id'], $preferences);
@@ -44,8 +41,7 @@ $defaults = [
     // 'language' removed
     'notifications_email' => '1',
     'notifications_inapp' => '1',
-    'units_weight' => 'kg',
-    'units_height' => 'cm',
+
     // privacy fields removed
 ];
 
@@ -78,7 +74,7 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
 
                     <!-- Appearance Settings -->
                     <div class="card shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-light">
+                        <div class="card-header rms-card-adaptive">
                             <h5 class="mb-0">
                                 <i class="bi bi-palette me-2"></i>Tampilan
                             </h5>
@@ -131,34 +127,7 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
                         </div>
                     </div>
 
-                    <!-- Units Settings -->
-                    <div class="card shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="bi bi-rulers me-2"></i>Satuan Pengukuran
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Berat Badan</label>
-                                    <select name="units_weight" class="form-select">
-                                        <option value="kg" <?= $currentPrefs['units_weight'] === 'kg' ? 'selected' : '' ?>>Kilogram (kg)</option>
-                                        <option value="lbs" <?= $currentPrefs['units_weight'] === 'lbs' ? 'selected' : '' ?>>Pound (lbs)</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Tinggi Badan</label>
-                                    <select name="units_height" class="form-select">
-                                        <option value="cm" <?= $currentPrefs['units_height'] === 'cm' ? 'selected' : '' ?>>Centimeter (cm)</option>
-                                        <option value="inch" <?= $currentPrefs['units_height'] === 'inch' ? 'selected' : '' ?>>Inch</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Privacy Settings removed -->
 
                     <!-- Save Button -->
                     <div class="d-flex justify-content-end">
@@ -193,7 +162,6 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
                         <ul class="list-unstyled small mb-0">
                             <li class="mb-2"><i class="bi bi-lightbulb text-warning me-2"></i>Tema gelap menghemat baterai</li>
                             <li class="mb-2"><i class="bi bi-bell text-info me-2"></i>Notifikasi membantu Anda tetap on track</li>
-                            <li class="mb-2"><i class="bi bi-shield text-success me-2"></i>Privasi data Anda selalu aman</li>
                         </ul>
                     </div>
                 </div>

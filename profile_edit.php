@@ -265,12 +265,12 @@ if (isset($_GET['success'])) {
 <!-- Delete Account Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content rms-card-adaptive">
+            <div class="modal-header rms-card-adaptive">
                 <h5 class="modal-title">Hapus Akun</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body rms-card-adaptive">
                 <div class="alert alert-danger">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     <strong>Perhatian!</strong> Tindakan ini tidak dapat dibatalkan.
@@ -281,7 +281,7 @@ if (isset($_GET['success'])) {
                     <input type="password" class="form-control" id="confirmPassword" required>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer rms-card-adaptive">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-danger" onclick="deleteAccount()">Hapus Akun</button>
             </div>

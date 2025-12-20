@@ -55,23 +55,69 @@ $totalDays     = $analytics->totalDays($userId);
 </div>
 
 <!-- GRAFIK -->
-<div class="row">
-    <div class="col-md-6">
-        <h6 class="mb-2">Distribusi Nutrisi</h6>
-        <canvas id="nutritionChart"></canvas>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-6 d-flex flex-column align-items-center">
+        <h6 class="mb-2">Distribusi Nutrisi Total</h6>
+        <div style="width:100%;max-width:370px;min-width:220px;">
+            <canvas id="nutritionChart" style="aspect-ratio:1.1/1;"></canvas>
+        </div>
+        <div class="small text-muted mt-2">Persentase total protein, lemak, dan karbohidrat dari seluruh catatan makan Anda.</div>
+    </div>
+    <div class="col-12 col-lg-6 d-flex flex-column align-items-center">
+        <h6 class="mb-2">Tren Kalori Harian</h6>
+        <div style="width:100%;max-width:420px;min-width:220px;">
+            <canvas id="calorieChart" style="aspect-ratio:1.8/1;"></canvas>
+        </div>
+        <div class="small text-muted mt-2">Visualisasi tren asupan kalori harian Anda.</div>
     </div>
 </div>
 
-<script src="assets/js/Chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 fetch('charts/nutrition_chart.php')
-  .then(res => res.json())
-  .then(data => {
-    new Chart(document.getElementById('nutritionChart'), {
-      type: 'pie',
-      data: data
+    .then(res => res.json())
+    .then(data => {
+        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+        if (total === 0) {
+            document.getElementById('nutritionChart').replaceWith((() => {
+                const d = document.createElement('div');
+                d.className = 'alert alert-info mt-3';
+                d.innerText = 'Belum ada data nutrisi untuk ditampilkan.';
+                return d;
+            })());
+            return;
+        }
+        new Chart(document.getElementById('nutritionChart'), {
+            type: 'pie',
+            data: data,
+            options: {
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.parsed}g` } }
+                }
+            }
+        });
     });
-  });
+fetch('charts/calorie_chart.php')
+    .then(res => res.json())
+    .then(data => {
+        new Chart(document.getElementById('calorieChart'), {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Kalori' } },
+                    x: { title: { display: true, text: 'Tanggal' } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => `Kalori: ${ctx.parsed.y}` } }
+                }
+            }
+        });
+    });
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

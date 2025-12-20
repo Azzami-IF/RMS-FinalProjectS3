@@ -37,7 +37,7 @@ $messageType = $controller->getMessageType();
             <div class="col-lg-4">
                 <!-- Add Weight Log -->
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">
                             <i class="bi bi-plus-circle me-2"></i>Tambah Log Baru
                         </h6>
@@ -204,16 +204,16 @@ $messageType = $controller->getMessageType();
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content rms-card-adaptive">
+            <div class="modal-header rms-card-adaptive">
                 <h5 class="modal-title">Hapus Log</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body rms-card-adaptive">
                 <p>Apakah Anda yakin ingin menghapus log berat badan ini?</p>
                 <p class="text-muted small">Tindakan ini tidak dapat dibatalkan.</p>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer rms-card-adaptive">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete">Hapus</button>
             </div>

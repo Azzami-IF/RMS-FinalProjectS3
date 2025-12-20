@@ -56,7 +56,7 @@ $messageType = $controller->getMessageType();
 
                 <!-- Quick Stats -->
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">Statistik</h6>
                     </div>
                     <div class="card-body">
@@ -66,14 +66,14 @@ $messageType = $controller->getMessageType();
                                     <i class="bi bi-calendar-check fs-2 text-primary"></i>
                                 </div>
                                 <h4 class="mb-1"><?= $scheduleStats['total_schedules'] ?? 0 ?></h4>
-                                <small class="text-muted">Total Jadwal</small>
+                                <small class="text-muted">Total Catatan</small>
                             </div>
                             <div class="col-6">
                                 <div class="mb-2">
                                     <i class="bi bi-calendar-day fs-2 text-success"></i>
                                 </div>
                                 <h4 class="mb-1"><?= $todayStats['today_count'] ?? 0 ?></h4>
-                                <small class="text-muted">Jadwal Hari Ini</small>
+                                <small class="text-muted">Catatan Hari Ini</small>
                             </div>
                         </div>
                     </div>
@@ -83,7 +83,7 @@ $messageType = $controller->getMessageType();
             <div class="col-md-8">
                 <!-- Personal Information -->
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold">Informasi Pribadi</h6>
                         <a href="profile_edit.php" class="btn btn-outline-primary btn-sm">
                             <i class="bi bi-pencil me-1"></i>Edit
@@ -310,7 +310,7 @@ $messageType = $controller->getMessageType();
                                         <strong><?= htmlspecialchars($activity['food_name']) ?></strong>
                                         <br>
                                         <small class="text-muted">
-                                            Dijadwalkan untuk: <?= date('d M Y', strtotime($activity['schedule_date'])) ?>
+                                            Dicatat untuk: <?= date('d M Y', strtotime($activity['schedule_date'])) ?>
                                         </small>
                                     </div>
                                     <small class="text-muted">
@@ -321,7 +321,7 @@ $messageType = $controller->getMessageType();
                             <?php endforeach; ?>
                         </div>
                         <?php else: ?>
-                        <p class="text-muted mb-0">Belum ada aktivitas jadwal makan.</p>
+                        <p class="text-muted mb-0">Belum ada aktivitas catatan makan.</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -333,19 +333,19 @@ $messageType = $controller->getMessageType();
 <!-- Delete Account Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content rms-card-adaptive">
+            <div class="modal-header rms-card-adaptive">
                 <h5 class="modal-title">Hapus Akun</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body rms-card-adaptive">
                 <div class="alert alert-danger">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     <strong>Perhatian!</strong> Tindakan ini tidak dapat dibatalkan.
                 </div>
                 <p>Apakah Anda yakin ingin menghapus akun Anda? Semua data Anda akan hilang permanen, termasuk:</p>
                 <ul>
-                    <li>Jadwal makan</li>
+                    <li>Catatan makan</li>
                     <li>Riwayat nutrisi</li>
                     <li>Data profil</li>
                 </ul>
@@ -354,7 +354,7 @@ $messageType = $controller->getMessageType();
                     <input type="password" class="form-control" id="confirmPassword" required>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer rms-card-adaptive">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-danger" onclick="deleteAccount()">Hapus Akun</button>
             </div>

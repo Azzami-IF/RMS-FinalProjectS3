@@ -31,7 +31,7 @@ try {
                 'fiber'         => (float)($_POST['fiber'] ?? 0),
                 'sugar'         => (float)($_POST['sugar'] ?? 0),
                 'sodium'        => (float)($_POST['sodium'] ?? 0),
-                'serving_size'  => $_POST['serving_size'] ?? '100g',
+
                 'created_by'    => $_SESSION['user']['id']
             ]);
             header('Location: ../admin/foods.php?success=create');
@@ -50,7 +50,7 @@ try {
                     'fiber'         => (float)($_POST['fiber'] ?? 0),
                     'sugar'         => (float)($_POST['sugar'] ?? 0),
                     'sodium'        => (float)($_POST['sodium'] ?? 0),
-                    'serving_size'  => $_POST['serving_size'] ?? '100g'
+
                 ]
             );
             header('Location: ../admin/foods.php?success=update');

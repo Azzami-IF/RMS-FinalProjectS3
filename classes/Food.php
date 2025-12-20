@@ -26,8 +26,8 @@ class Food
     public function create(array $data): void
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO foods (category_id, name, description, calories, protein, fat, carbs, fiber, sugar, sodium, serving_size, created_by)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO foods (category_id, name, description, calories, protein, fat, carbs, fiber, sugar, sodium, created_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
         $stmt->execute([
             $data['category_id'] ?? null,
@@ -40,7 +40,6 @@ class Food
             $data['fiber'] ?? 0,
             $data['sugar'] ?? 0,
             $data['sodium'] ?? 0,
-            $data['serving_size'] ?? '100g',
             $data['created_by'] ?? null
         ]);
     }
@@ -50,7 +49,7 @@ class Food
         $stmt = $this->db->prepare(
             "UPDATE foods
              SET category_id=?, name=?, description=?, calories=?, protein=?, fat=?, carbs=?,
-                 fiber=?, sugar=?, sodium=?, serving_size=?, updated_at=CURRENT_TIMESTAMP
+                 fiber=?, sugar=?, sodium=?, updated_at=CURRENT_TIMESTAMP
              WHERE id=?"
         );
         $stmt->execute([
@@ -64,7 +63,6 @@ class Food
             $data['fiber'] ?? 0,
             $data['sugar'] ?? 0,
             $data['sodium'] ?? 0,
-            $data['serving_size'] ?? '100g',
             $id
         ]);
     }

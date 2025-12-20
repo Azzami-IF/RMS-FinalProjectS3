@@ -49,7 +49,7 @@ if (isset($_GET['message'])) {
         <div class="container">
             <h1 class="fw-bold mb-3 text-center">Rekomendasi Makanan Sehat</h1>
             <div class="mt-4 text-center">
-                <div class="bg-light rounded shadow-sm d-inline-block p-4">
+                <div class="rms-card-adaptive rounded shadow-sm d-inline-block p-4">
                     <i class="bi bi-apple fs-1 text-success"></i>
                     <div class="mt-2">
                         <i class="bi bi-graph-up text-primary fs-2 me-3"></i>
@@ -87,14 +87,14 @@ if (isset($_GET['message'])) {
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm rounded-4 p-4 h-100 border-0">
                         <div class="mb-3"><i class="bi bi-calendar-check fs-1 text-warning"></i></div>
-                        <h5 class="fw-bold">Jadwal & Notifikasi Makan</h5>
-                        <p class="text-muted">Atur jadwal makan harian, dapatkan notifikasi pengingat, dan kelola pola makan lebih disiplin. Fitur notifikasi tersedia via aplikasi dan email.</p>
+                        <h5 class="fw-bold">Catatan & Notifikasi Makan</h5>
+                        <p class="text-muted">Catat makan harian, dapatkan notifikasi pengingat, dan kelola pola makan lebih disiplin. Fitur notifikasi tersedia via aplikasi dan email.</p>
                     </div>
                 </div>
             </div>
             <div class="row text-center mt-4">
                 <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm rounded-4 p-4 h-100 border-0 bg-light">
+                    <div class="card shadow-sm rounded-4 p-4 h-100 border-0 rms-card-adaptive">
                         <div class="mb-3"><i class="bi bi-bar-chart-steps fs-1 text-success"></i></div>
                         <h5 class="fw-bold">Evaluasi & Laporan Nutrisi</h5>
                         <p class="text-muted">Dapatkan evaluasi otomatis dari pola makan Anda, laporan mingguan, dan insight untuk perbaikan pola hidup sehat. Semua data dapat diekspor untuk kebutuhan pribadi.</p>
@@ -105,7 +105,7 @@ if (isset($_GET['message'])) {
     </section>
 
     <!-- FOOTER -->
-    <footer class="text-center text-muted py-3 border-top">
+    <footer class="text-center text-muted py-3 border-top rms-card-adaptive">
         <small>Rekomendasi Makanan Sehat - Aplikasi Pola Makan Seimbang</small>
     </footer>
 

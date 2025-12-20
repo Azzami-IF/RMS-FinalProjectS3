@@ -23,14 +23,26 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
 // Language feature removed
 ?>
 <!DOCTYPE html>
-<html lang="id"<?php
-    $themeAttr = '';
-    if (isset($themePref) && $themePref === 'dark') {
-        $themeAttr = ' data-theme="dark"';
-    }
-    echo $themeAttr;
-?>>
+<html lang="id">
 <head>
+    <script>
+    // Prevent flashbang: set data-theme ASAP
+    (function() {
+        try {
+            var theme = localStorage.getItem('theme');
+            if (!theme) {
+                // Try to get from cookies if not in localStorage
+                var m = document.cookie.match(/(?:^|; )theme=([^;]*)/);
+                if (m) theme = decodeURIComponent(m[1]);
+            }
+            if (!theme || theme === 'auto') {
+                // Use system preference if auto or not set
+                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        } catch(e) {}
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -142,16 +154,28 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
                         $recentNotifications = $stmt->fetchAll();
                         ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link position-relative" href="#" data-bs-toggle="dropdown">
+                            <a class="nav-link position-relative notif-bell" href="#" data-bs-toggle="dropdown">
                                 <i class="bi bi-bell fs-5"></i>
                                 <?php if ($unreadCount > 0): ?>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    <?php echo $unreadCount; ?>
-                                </span>
+                                <span id="notif-dot" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle" style="width:10px;height:10px;z-index:2;"></span>
                                 <?php endif; ?>
+                            <script>
+                            // Hilangkan dot notifikasi saat dropdown dibuka dan tandai notifikasi sudah dilihat (AJAX)
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var bell = document.querySelector('.notif-bell');
+                                if (bell) {
+                                    bell.addEventListener('show.bs.dropdown', function() {
+                                        var dot = document.getElementById('notif-dot');
+                                        if (dot) dot.style.display = 'none';
+                                        // AJAX: tandai semua notifikasi sebagai sudah dilihat
+                                        fetch('<?php echo $path_prefix; ?>process/mark_notifications_read.php', {method: 'POST', credentials: 'same-origin'});
+                                    });
+                                }
+                            });
+                            </script>
                             </a>
 
-                            <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 320px; max-height: 380px; overflow-y: auto;">
                                 <li class="dropdown-header fw-semibold">Notifikasi</li>
                                 <li><hr class="dropdown-divider"></li>
 
@@ -162,13 +186,16 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
                                 <li class="px-3 py-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="flex-grow-1">
-                                            <div class="fw-semibold small"><?php echo htmlspecialchars($notif['title']); ?></div>
-                                            <div class="small text-muted"><?php echo htmlspecialchars(substr($notif['message'], 0, 50)); ?>...</div>
-                                            <div class="small text-muted"><?php echo date('d M H:i', strtotime($notif['created_at'])); ?></div>
+                                            <div class="fw-semibold small text-truncate" style="max-width:180px;">
+                                                <?php echo htmlspecialchars($notif['title']); ?>
+                                            </div>
+                                            <div class="small text-muted text-truncate" style="max-width:180px;">
+                                                <?php echo htmlspecialchars(strip_tags(substr($notif['message'], 0, 40))); ?><?php if(strlen($notif['message'])>40): ?>...<?php endif; ?>
+                                            </div>
+                                            <div class="small text-muted">
+                                                <?php echo date('d M H:i', strtotime($notif['created_at'])); ?>
+                                            </div>
                                         </div>
-                                        <?php if ($notif['status'] === 'unread'): ?>
-                                        <span class="badge bg-primary ms-2">Baru</span>
-                                        <?php endif; ?>
                                     </div>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
@@ -256,7 +283,7 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
                                 <?php endif; ?>
                             </a>
 
-                            <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 300px;">
+                            <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 320px; max-height: 380px; overflow-y: auto;">
                                 <li class="dropdown-header fw-semibold">Notifikasi</li>
                                 <li><hr class="dropdown-divider"></li>
 
@@ -267,9 +294,15 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
                                 <li class="px-3 py-2">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="flex-grow-1">
-                                            <div class="fw-semibold small"><?php echo htmlspecialchars($notif['title']); ?></div>
-                                            <div class="small text-muted"><?php echo htmlspecialchars(substr($notif['message'], 0, 50)); ?>...</div>
-                                            <div class="small text-muted"><?php echo date('d M H:i', strtotime($notif['created_at'])); ?></div>
+                                            <div class="fw-semibold small text-truncate" style="max-width:180px;">
+                                                <?php echo htmlspecialchars($notif['title']); ?>
+                                            </div>
+                                            <div class="small text-muted text-truncate" style="max-width:180px;">
+                                                <?php echo htmlspecialchars(strip_tags(substr($notif['message'], 0, 40))); ?><?php if(strlen($notif['message'])>40): ?>...<?php endif; ?>
+                                            </div>
+                                            <div class="small text-muted">
+                                                <?php echo date('d M H:i', strtotime($notif['created_at'])); ?>
+                                            </div>
                                         </div>
                                         <?php if ($notif['status'] === 'unread'): ?>
                                         <span class="badge bg-primary ms-2">Baru</span>
@@ -336,5 +369,18 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
         </div>
     </div>
 </nav>
+<script>
+// Hilangkan dot notifikasi saat dropdown dibuka dan tandai notifikasi sudah dilihat (AJAX)
+document.addEventListener('DOMContentLoaded', function() {
+    var bells = document.querySelectorAll('.notif-bell');
+    bells.forEach(function(bell) {
+        bell.addEventListener('show.bs.dropdown', function() {
+            var dot = document.getElementById('notif-dot');
+            if (dot) dot.style.display = 'none';
+            fetch('<?php echo $path_prefix; ?>process/mark_notifications_read.php', {method: 'POST', credentials: 'same-origin'});
+        });
+    });
+});
+</script>
 
 <div class="container mt-4">

@@ -105,7 +105,7 @@ $recentSchedules = $controller->getRecentSchedules();
                     </div>
                     <div class="card-body">
                         <?php if (empty($topFoods)): ?>
-                            <p class="text-muted text-center">Belum ada data jadwal makan</p>
+                            <p class="text-muted text-center">Belum ada data catatan makan</p>
                         <?php else: ?>
                             <div class="list-group list-group-flush">
                                 <?php foreach ($topFoods as $index => $food): ?>
@@ -147,7 +147,7 @@ $recentSchedules = $controller->getRecentSchedules();
                                         </small>
                                         <p class="mb-1">
                                             <strong><?= htmlspecialchars($schedule['user_name']) ?></strong>
-                                            menjadwalkan <strong><?= htmlspecialchars($schedule['food_name']) ?></strong>
+                                            mencatat <strong><?= htmlspecialchars($schedule['food_name']) ?></strong>
                                         </p>
                                         <small class="text-muted">
                                             Tanggal: <?= date('d M Y', strtotime($schedule['schedule_date'])) ?>
@@ -165,39 +165,6 @@ $recentSchedules = $controller->getRecentSchedules();
             </div>
         </div>
 
-        <!-- Export Options -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0 fw-bold">Export Data</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <button class="btn btn-outline-primary w-100" onclick="exportUsers()">
-                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>Export Users
-                                </button>
-                            </div>
-                            <div class="col-md-3">
-                                <button class="btn btn-outline-success w-100" onclick="exportFoods()">
-                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>Export Foods
-                                </button>
-                            </div>
-                            <div class="col-md-3">
-                                <button class="btn btn-outline-warning w-100" onclick="exportSchedules()">
-                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>Export Schedules
-                                </button>
-                            </div>
-                            <div class="col-md-3">
-                                <button class="btn btn-outline-info w-100" onclick="exportReport()">
-                                    <i class="bi bi-file-earmark-pdf me-2"></i>Full Report (PDF)
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </section>
@@ -246,22 +213,6 @@ $recentSchedules = $controller->getRecentSchedules();
 }
 </style>
 
-<script>
-function exportUsers() {
-    alert('Export Users - Fitur akan diimplementasikan');
-}
 
-function exportFoods() {
-    alert('Export Foods - Fitur akan diimplementasikan');
-}
-
-function exportSchedules() {
-    alert('Export Schedules - Fitur akan diimplementasikan');
-}
-
-function exportReport() {
-    alert('Export Full Report - Fitur akan diimplementasikan');
-}
-</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

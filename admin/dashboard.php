@@ -17,169 +17,113 @@ $scheduleCount = $controller->getScheduleCount();
 $adminCount = $controller->getAdminCount();
 ?>
 
-<section class="py-5">
+
+<section class="py-5 rms-card-adaptive">
     <div class="container">
-        <h1 class="fw-bold mb-3">
-            Dashboard Admin
-            <span class="text-success">RMS</span>
-        </h1>
+        <div class="row align-items-center mb-5">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-2">Dashboard <span class="text-success">Admin RMS</span></h1>
+                <p class="lead text-muted mb-3">Pantau statistik, kelola pengguna, dan analisis performa sistem rekomendasi makanan sehat.</p>
+            </div>
+        </div>
 
-        <p class="lead text-muted">Kelola sistem Rekomendasi Makanan Sehat</p>
-
-        <hr>
-
-        <!-- Statistics Cards -->
-        <div class="row mt-4 g-4">
+        <div class="row g-4 mb-4">
             <div class="col-md-3">
-                <div class="card shadow-sm rounded-3 border-success">
-                    <div class="card-body text-center">
+                <div class="card border-0 shadow h-100 text-center rms-card-adaptive">
+                    <div class="card-body py-4">
                         <i class="bi bi-people-fill fs-1 text-success mb-2"></i>
-                        <h5 class="fw-bold">Total Users</h5>
-                        <h4 class="text-success"><?= $userCount ?></h4>
-                        <small class="text-muted">Pengguna terdaftar</small>
+                        <h6 class="fw-bold text-uppercase small mb-1">Total Users</h6>
+                        <div class="display-6 fw-bold text-success mb-1"><?= $userCount ?></div>
+                        <div class="small text-muted">Pengguna terdaftar</div>
                     </div>
                 </div>
             </div>
-
             <div class="col-md-3">
-                <div class="card shadow-sm rounded-3 border-primary">
-                    <div class="card-body text-center">
+                <div class="card border-0 shadow h-100 text-center rms-card-adaptive">
+                    <div class="card-body py-4">
                         <i class="bi bi-egg-fried fs-1 text-primary mb-2"></i>
-                        <h5 class="fw-bold">Total Makanan</h5>
-                        <h4 class="text-primary"><?= $foodCount ?></h4>
-                        <small class="text-muted">Menu tersedia</small>
+                        <h6 class="fw-bold text-uppercase small mb-1">Total Makanan</h6>
+                        <div class="display-6 fw-bold text-primary mb-1"><?= $foodCount ?></div>
+                        <div class="small text-muted">Menu tersedia</div>
                     </div>
                 </div>
             </div>
-
             <div class="col-md-3">
-                <div class="card shadow-sm rounded-3 border-warning">
-                    <div class="card-body text-center">
+                <div class="card border-0 shadow h-100 text-center rms-card-adaptive">
+                    <div class="card-body py-4">
                         <i class="bi bi-calendar-check-fill fs-1 text-warning mb-2"></i>
-                        <h5 class="fw-bold">Total Jadwal</h5>
-                        <h4 class="text-warning"><?= $scheduleCount ?></h4>
-                        <small class="text-muted">Jadwal makan</small>
+                        <h6 class="fw-bold text-uppercase small mb-1">Total Catatan</h6>
+                        <div class="display-6 fw-bold text-warning mb-1"><?= $scheduleCount ?></div>
+                        <div class="small text-muted">Catatan makan</div>
                     </div>
                 </div>
             </div>
-
             <div class="col-md-3">
-                <div class="card shadow-sm rounded-3 border-info">
-                    <div class="card-body text-center">
+                <div class="card border-0 shadow h-100 text-center rms-card-adaptive">
+                    <div class="card-body py-4">
                         <i class="bi bi-shield-check fs-1 text-info mb-2"></i>
-                        <h5 class="fw-bold">Admin Count</h5>
-                        <h4 class="text-info"><?= $adminCount ?></h4>
-                        <small class="text-muted">Administrator</small>
+                        <h6 class="fw-bold text-uppercase small mb-1">Admin</h6>
+                        <div class="display-6 fw-bold text-info mb-1"><?= $adminCount ?></div>
+                        <div class="small text-muted">Administrator</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Management Cards -->
-        <div class="row mt-5 g-4">
-            <div class="col-md-6">
-                <div class="card shadow-sm rounded-3 h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="bi bi-egg-fried fs-2 text-success me-3"></i>
-                            <div>
-                                <h5 class="fw-bold mb-1">Kelola Makanan</h5>
-                                <small class="text-muted">Tambah, edit, dan hapus data menu sehat</small>
-                            </div>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Kelola database makanan dengan informasi nutrisi lengkap termasuk kalori, protein, lemak, dan karbohidrat.
-                        </p>
-                        <a href="foods.php" class="btn btn-success">
-                            <i class="bi bi-plus-circle me-2"></i>Kelola Makanan
-                        </a>
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-4">
+                        <i class="bi bi-people fs-2 text-primary mb-2"></i>
+                        <h5 class="fw-bold mb-1">Kelola Users</h5>
+                        <p class="text-muted small mb-3">Pantau, edit, dan kelola pengguna sistem.</p>
+                        <a href="users.php" class="btn btn-primary w-100"><i class="bi bi-people me-2"></i>Kelola Users</a>
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <div class="card shadow-sm rounded-3 h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="bi bi-people-fill fs-2 text-primary me-3"></i>
-                            <div>
-                                <h5 class="fw-bold mb-1">Kelola Users</h5>
-                                <small class="text-muted">Pantau dan kelola pengguna sistem</small>
-                            </div>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Lihat daftar pengguna, pantau aktivitas, dan kelola role pengguna dalam sistem.
-                        </p>
-                        <a href="users.php" class="btn btn-primary">
-                            <i class="bi bi-people me-2"></i>Kelola Users
-                        </a>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-4">
+                        <i class="bi bi-calendar-check fs-2 text-warning mb-2"></i>
+                        <h5 class="fw-bold mb-1">Pantau Catatan</h5>
+                        <p class="text-muted small mb-3">Lihat dan kelola catatan makan seluruh pengguna.</p>
+                        <a href="schedules.php" class="btn btn-warning w-100"><i class="bi bi-calendar me-2"></i>Lihat Catatan</a>
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <div class="card shadow-sm rounded-3 h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="bi bi-calendar-check fs-2 text-warning me-3"></i>
-                            <div>
-                                <h5 class="fw-bold mb-1">Pantau Jadwal</h5>
-                                <small class="text-muted">Lihat jadwal makan pengguna</small>
-                            </div>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Monitor jadwal makan yang dibuat oleh pengguna dan lihat statistik penggunaan aplikasi.
-                        </p>
-                        <a href="schedules.php" class="btn btn-warning">
-                            <i class="bi bi-calendar me-2"></i>Lihat Jadwal
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card shadow-sm rounded-3 h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="bi bi-bar-chart-line fs-2 text-info me-3"></i>
-                            <div>
-                                <h5 class="fw-bold mb-1">Laporan & Analytics</h5>
-                                <small class="text-muted">Analisis data penggunaan sistem</small>
-                            </div>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Lihat laporan lengkap tentang penggunaan aplikasi, tren nutrisi, dan statistik pengguna.
-                        </p>
-                        <a href="reports.php" class="btn btn-info">
-                            <i class="bi bi-graph-up me-2"></i>Lihat Laporan
-                        </a>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-center py-4">
+                        <i class="bi bi-bar-chart-line fs-2 text-info mb-2"></i>
+                        <h5 class="fw-bold mb-1">Laporan & Analytics</h5>
+                        <p class="text-muted small mb-3">Analisis data, tren nutrisi, dan statistik aplikasi.</p>
+                        <a href="reports.php" class="btn btn-info w-100"><i class="bi bi-graph-up me-2"></i>Lihat Laporan</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="row mt-5">
+        <div class="row mt-4">
             <div class="col-12">
-                <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0 fw-bold">Aksi Cepat</h6>
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white border-bottom-0">
+                        <h6 class="mb-0 fw-bold text-secondary">Aksi Cepat</h6>
                     </div>
                     <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <a href="foods.php?action=add" class="btn btn-outline-success w-100">
-                                    <i class="bi bi-plus-lg me-2"></i>Tambah Makanan
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="food_edit.php" class="btn btn-outline-primary w-100">
-                                    <i class="bi bi-pencil me-2"></i>Edit Makanan
-                                </a>
-                            </div>
+                        <div class="row g-3 justify-content-center">
                             <div class="col-md-3">
                                 <a href="schedules.php" class="btn btn-outline-warning w-100">
-                                    <i class="bi bi-calendar me-2"></i>Lihat Semua Jadwal
+                                    <i class="bi bi-calendar me-2"></i>Lihat Semua Catatan
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="users.php" class="btn btn-outline-primary w-100">
+                                    <i class="bi bi-people me-2"></i>Kelola Users
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="reports.php" class="btn btn-outline-info w-100">
+                                    <i class="bi bi-graph-up me-2"></i>Laporan & Analytics
                                 </a>
                             </div>
                             <div class="col-md-3">

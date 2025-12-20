@@ -50,7 +50,7 @@ if (isset($data['error'])) $error = $data['error'];
 
 <h4 class="mb-4">Rekomendasi Makanan Sehat</h4>
 
-<form class="mb-4 p-3 rounded shadow-sm bg-light" method="get" action="">
+<form class="mb-4 p-3 rounded shadow-sm rms-card-adaptive" method="get" action="">
     <div class="row g-2 align-items-end">
         <div class="col-md-5">
             <label for="searchQ" class="form-label fw-semibold">Cari Makanan</label>
@@ -76,7 +76,7 @@ if (isset($data['error'])) $error = $data['error'];
         </div>
         <div class="col-md-4">
             <label for="exclude" class="form-label">Alergi/Bahan yang Dihindari</label>
-            <div class="form-control d-flex flex-wrap align-items-center gap-1 px-2 py-1" id="exclude-tags-container" style="min-height:40px; background:#fff; box-shadow:none;">
+            <div class="form-control d-flex flex-wrap align-items-center gap-1 px-2 py-1 rms-input-adaptive" id="exclude-tags-container" style="min-height:40px; box-shadow:none;">
                 <span id="exclude-tags" class="d-flex flex-wrap align-items-center gap-1"></span>
                 <input type="text" id="exclude" class="border-0 flex-grow-1" style="outline:none;box-shadow:none;min-width:180px;max-width:100%;padding:0.25rem 0.5rem;background:transparent;" placeholder="Contoh: kacang, telur, udang" autocomplete="off">
             </div>
@@ -96,7 +96,7 @@ if (isset($data['error'])) $error = $data['error'];
 
 <div class="row flex-nowrap" style="min-height:500px;">
     <div class="col-md-7 d-flex flex-column" id="food-list-section">
-        <div class="card shadow-sm rounded-4 h-100 d-flex flex-column" style="min-height:540px;background:#f8f9fa;">
+        <div class="card shadow-sm rounded-4 h-100 d-flex flex-column rms-card-adaptive" style="min-height:540px;">
             <div class="d-flex justify-content-between align-items-center mb-1 px-3 pt-3" style="gap:0.5rem;">
                 <span class="fw-semibold flex-shrink-0">Daftar Makanan</span>
             </div>
@@ -117,7 +117,7 @@ if (isset($data['error'])) $error = $data['error'];
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-outline-success btn-sm ms-auto tambah-jadwal-btn" data-food='<?= htmlspecialchars(json_encode($food)) ?>' title="Tambah ke Jadwal"><i class="bi bi-plus-circle"></i></button>
+                        <button type="button" class="btn btn-outline-success btn-sm ms-auto tambah-catatan-btn" data-food='<?= htmlspecialchars(json_encode($food)) ?>' title="Tambah ke Catatan"><i class="bi bi-plus-circle"></i></button>
                     </a>
                 <?php endforeach; ?>
             <?php elseif ($data && isset($data['hits']) && !count($data['hits'])): ?>
@@ -127,11 +127,11 @@ if (isset($data['error'])) $error = $data['error'];
         </div>
     </div>
     <div class="col-md-5 d-flex flex-column" id="food-detail-section">
-        <div class="card shadow-sm rounded-4 h-100 d-flex flex-column" style="min-height:540px;background:#f8f9fa;">
+        <div class="card shadow-sm rounded-4 h-100 d-flex flex-column rms-card-adaptive" style="min-height:540px;">
             <div class="d-flex justify-content-between align-items-center mb-1 px-3 pt-3" style="gap:0.5rem;">
                 <span class="fw-semibold flex-shrink-0">Detail Makanan</span>
             </div>
-            <div class="card shadow-sm h-100 d-flex flex-column" style="min-height:540px;background:#fff;">
+            <div class="card shadow-sm h-100 d-flex flex-column rms-card-adaptive" style="min-height:540px;">
                 <div id="food-detail-placeholder" class="text-center text-muted mt-5 flex-grow-1">
                     <i class="bi bi-egg-fried display-1"></i>
                     <p class="mt-3">Klik salah satu makanan untuk melihat detail.</p>
@@ -142,7 +142,7 @@ if (isset($data['error'])) $error = $data['error'];
     </div>
 </div>
 
-<footer class="footer mt-auto py-3 bg-light border-top custom-footer" style="bottom:0;width:100%;z-index:10;">
+<footer class="footer mt-auto py-3 border-top custom-footer rms-card-adaptive" style="bottom:0;width:100%;z-index:10;">
     <div class="container text-center small text-muted">
         &copy; <?= date('Y') ?> RMS - Rekomendasi Makanan Sehat
     </div>
@@ -158,7 +158,7 @@ let excludeList = (excludeHidden.value ? excludeHidden.value.split(',').map(x=>x
 
 function renderExcludeTags() {
     excludeTags.innerHTML = excludeList.map((item, idx) =>
-        `<span class='badge rounded-pill me-1 mb-1' style='font-size:0.95em;background:linear-gradient(90deg,#e0f7fa,#b2f2dd);color:#218c5a;border:1px solid #b2f2dd;font-weight:500;'>${item} <span style='cursor:pointer;font-size:1.1em;margin-left:2px;' onclick='removeExcludeTag(${idx})'>&times;</span></span>`
+        `<span class='badge rounded-pill me-1 mb-1 exclude-badge-adaptive' style='font-size:0.95em;font-weight:500;'>${item} <span style='cursor:pointer;font-size:1.1em;margin-left:2px;' onclick='removeExcludeTag(${idx})'>&times;</span></span>`
     ).join('');
     excludeHidden.value = excludeList.join(',');
     // Hide placeholder if tags exist
@@ -208,7 +208,7 @@ document.querySelectorAll('.food-item').forEach(function(item){
 function showFoodDetail(idx) {
     const food = foodData[idx];
     if (!food) return;
-    let html = `<div class=\"p-0\">\n    <div style=\"width:100%;height:180px;overflow:hidden;border-top-left-radius:0.7rem;border-top-right-radius:0.7rem;\">\n      <img src=\"${food.image}\" alt=\"${food.label}\" style=\"width:100%;height:100%;object-fit:cover;object-position:center;\">\n    </div>\n    <div class=\"card-body py-3 px-4\">\n      <h6 class=\"card-title mb-3\" style=\"font-weight:600;\">${food.label}</h6>\n      <dl class=\"row mb-3 small\" style=\"margin-bottom:1.1rem!important;row-gap:0.5rem;\">\n        <dt class=\"col-5\" style=\"font-weight:500;padding-bottom:0.5rem;\">Kalori</dt><dd class=\"col-7\" style=\"padding-bottom:0.5rem;\">${Math.round(food.calories)} kcal</dd>\n        <dt class=\"col-5\" style=\"font-weight:500;padding-bottom:0.5rem;\">Bahan utama</dt><dd class=\"col-7\" style=\"padding-bottom:0.5rem;\">${food.ingredientLines.slice(0,2).join(", ")}...</dd>\n      </dl>\n      <div class=\"mb-2 small\" style=\"margin-bottom:1.1rem!important;\"><b>Detail bahan:</b><ul style=\"margin-bottom:0;padding-left:1.2em;\">${food.ingredientLines.map(ing => `<li style='margin-bottom:0.35em;'>${ing}</li>`).join('')}</ul></div>\n      ${(food.url ? `<div class=\"d-flex gap-2 justify-content-end mt-4\">\n        <a href=\"${food.url}\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-outline-success btn-sm px-3 py-2 shadow-sm flex-fill\" style=\"border-radius:0.6rem;font-weight:500;letter-spacing:0.01em;min-width:140px;\">Lihat Resep Lengkap &rarr;</a>\n        <button type=\"button\" class=\"btn btn-success tambah-jadwal-btn flex-fill\" data-food='${JSON.stringify(food)}' style=\"min-width:140px;\"><i class=\"bi bi-plus-circle\"></i> Tambah ke Jadwal</button>\n      </div>` : `<div class=\"d-flex justify-content-end mt-4\">\n        <button type=\"button\" class=\"btn btn-success tambah-jadwal-btn flex-fill\" data-food='${JSON.stringify(food)}' style=\"min-width:140px;\"><i class=\"bi bi-plus-circle\"></i> Tambah ke Jadwal</button>\n      </div>`)}
+    let html = `<div class=\"p-0\">\n    <div style=\"width:100%;height:180px;overflow:hidden;border-top-left-radius:0.7rem;border-top-right-radius:0.7rem;\">\n      <img src=\"${food.image}\" alt=\"${food.label}\" style=\"width:100%;height:100%;object-fit:cover;object-position:center;\">\n    </div>\n    <div class=\"card-body py-3 px-4\">\n      <h6 class=\"card-title mb-3\" style=\"font-weight:600;\">${food.label}</h6>\n      <dl class=\"row mb-3 small\" style=\"margin-bottom:1.1rem!important;row-gap:0.5rem;\">\n        <dt class=\"col-5\" style=\"font-weight:500;padding-bottom:0.5rem;\">Kalori</dt><dd class=\"col-7\" style=\"padding-bottom:0.5rem;\">${Math.round(food.calories)} kcal</dd>\n        <dt class=\"col-5\" style=\"font-weight:500;padding-bottom:0.5rem;\">Bahan utama</dt><dd class=\"col-7\" style=\"padding-bottom:0.5rem;\">${food.ingredientLines.slice(0,2).join(", ")}...</dd>\n      </dl>\n      <div class=\"mb-2 small\" style=\"margin-bottom:1.1rem!important;\"><b>Detail bahan:</b><ul style=\"margin-bottom:0;padding-left:1.2em;\">${food.ingredientLines.map(ing => `<li style='margin-bottom:0.35em;'>${ing}</li>`).join('')}</ul></div>\n      ${(food.url ? `<div class=\"d-flex gap-2 justify-content-end mt-4\">\n        <a href=\"${food.url}\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-outline-success btn-sm px-3 py-2 shadow-sm flex-fill\" style=\"border-radius:0.6rem;font-weight:500;letter-spacing:0.01em;min-width:140px;\">Lihat Resep Lengkap &rarr;</a>\n        <button type=\"button\" class=\"btn btn-success tambah-catatan-btn flex-fill\" data-food='${JSON.stringify(food)}' style=\"min-width:140px;\"><i class=\"bi bi-plus-circle\"></i> Tambah ke Catatan</button>\n      </div>` : `<div class=\"d-flex justify-content-end mt-4\">\n        <button type=\"button\" class=\"btn btn-success tambah-catatan-btn flex-fill\" data-food='${JSON.stringify(food)}' style=\"min-width:140px;\"><i class=\"bi bi-plus-circle\"></i> Tambah ke Catatan</button>\n      </div>`)}
     </div>\n</div>`;
     document.getElementById('food-detail').innerHTML = html;
     document.getElementById('food-detail').style.display = '';
@@ -216,50 +216,56 @@ function showFoodDetail(idx) {
 }
 
 document.addEventListener('click', function(e) {
-    if (e.target.closest('.tambah-jadwal-btn')) {
-        const btn = e.target.closest('.tambah-jadwal-btn');
+    if (e.target.closest('.tambah-catatan-btn')) {
+        const btn = e.target.closest('.tambah-catatan-btn');
         const food = btn.getAttribute('data-food');
         // Tampilkan modal input tanggal dan submit ke schedules.php
-        showTambahJadwalModal(food);
+        showTambahCatatanModal(food);
     }
 });
-// Modal tambah jadwal
-function showTambahJadwalModal(foodJson) {
-    const food = typeof foodJson === 'string' ? JSON.parse(foodJson) : foodJson;
-    let modal = document.getElementById('tambahJadwalModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'tambahJadwalModal';
-        modal.innerHTML = `
-        <div class="modal fade" tabindex="-1" id="tambahJadwalModalInner">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <form method="post" action="schedules.php" id="formTambahJadwal">
-                <div class="modal-header">
-                  <h5 class="modal-title">Tambah ke Jadwal Makan</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label class="form-label">Makanan</label>
-                    <input type="text" class="form-control" value="${food.label}" readonly>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Tanggal</label>
-                    <input type="date" name="schedule_date" class="form-control" required>
-                  </div>
-                  <input type="hidden" name="edamam_food" value='${JSON.stringify(food)}'>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                  <button type="submit" class="btn btn-success">Simpan Jadwal</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>`;
-        document.body.appendChild(modal);
-    } else {
+// Modal tambah catatan
+function showTambahCatatanModal(foodJson) {
+    let food = typeof foodJson === 'string' ? JSON.parse(foodJson) : foodJson;
+    // Patch: pastikan protein, fat, carbs diambil dari totalNutrients jika ada
+    if (food.totalNutrients) {
+        food.protein = food.totalNutrients.PROCNT ? Math.round(food.totalNutrients.PROCNT.quantity) : 0;
+        food.fat = food.totalNutrients.FAT ? Math.round(food.totalNutrients.FAT.quantity) : 0;
+        food.carbs = food.totalNutrients.CHOCDF ? Math.round(food.totalNutrients.CHOCDF.quantity) : 0;
+    }
+    let modal = document.getElementById('tambahCatatanModal');
+        if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'tambahCatatanModal';
+                modal.innerHTML = `
+                <div class="modal fade" tabindex="-1" id="tambahCatatanModalInner">
+                    <div class="modal-dialog">
+                        <div class="modal-content rms-card-adaptive">
+                            <form method="post" action="process/schedule.process.php" id="formTambahCatatan">
+                                <div class="modal-header rms-card-adaptive">
+                                    <h5 class="modal-title">Catat Makanan Harian</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body rms-card-adaptive">
+                                    <div class="mb-3">
+                                        <label class="form-label">Makanan</label>
+                                        <input type="text" class="form-control" value="${food.label}" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tanggal</label>
+                                        <input type="date" name="schedule_date" class="form-control" required>
+                                    </div>
+                                    <input type="hidden" name="edamam_food" value='${JSON.stringify(food)}'>
+                                </div>
+                                <div class="modal-footer rms-card-adaptive">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-success">Tambah ke Catatan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>`;
+                document.body.appendChild(modal);
+        } else {
         modal.querySelector('input[readonly]').value = food.label;
         modal.querySelector('input[name=edamam_food]').value = JSON.stringify(food);
         modal.querySelector('input[name=schedule_date]').value = '';
@@ -284,7 +290,7 @@ function showTambahJadwalModal(foodJson) {
 #food-list { scrollbar-width:thin; }
 
 #exclude-tags-container { min-height:40px; background:linear-gradient(90deg,#f8fffa,#e6f9f2); box-shadow:none; border:1px solid #b2f2dd; }
-#exclude-tags .badge { margin-bottom:2px; background:linear-gradient(90deg,#e0f7fa,#b2f2dd); color:#218c5a; border:1px solid #b2f2dd; font-weight:500; }
+#exclude-tags .badge.exclude-badge-adaptive { margin-bottom:2px; background:linear-gradient(90deg,#e0f7fa,#b2f2dd); color:#218c5a; border:1px solid #b2f2dd; font-weight:500; transition:background 0.3s,color 0.3s,border-color 0.3s; }
 .custom-footer { margin-top: 28px !important; }
 </style>
 

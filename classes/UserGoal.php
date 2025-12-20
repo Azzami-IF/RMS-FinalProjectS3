@@ -28,12 +28,13 @@ class UserGoal
         );
         $stmt->execute([$data['user_id']]);
 
-        // Create new goal
+        // Tambahan field: evaluasi, status, last_notif, progress
         $stmt = $this->db->prepare(
             "INSERT INTO user_goals
              (user_id, goal_type, target_weight_kg, target_date, weekly_weight_change,
-              daily_calorie_target, daily_protein_target, daily_fat_target, daily_carbs_target)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+              daily_calorie_target, daily_protein_target, daily_fat_target, daily_carbs_target,
+              evaluation, status, last_notif, progress, is_active)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '', 'active', NULL, 0, TRUE)"
         );
         $stmt->execute([
             $data['user_id'],
@@ -54,7 +55,7 @@ class UserGoal
             "UPDATE user_goals SET
              goal_type=?, target_weight_kg=?, target_date=?, weekly_weight_change=?,
              daily_calorie_target=?, daily_protein_target=?, daily_fat_target=?,
-             daily_carbs_target=?, updated_at=CURRENT_TIMESTAMP
+             daily_carbs_target=?, evaluation=?, status=?, last_notif=?, progress=?, updated_at=CURRENT_TIMESTAMP
              WHERE id=?"
         );
         $stmt->execute([
@@ -66,6 +67,10 @@ class UserGoal
             $data['daily_protein_target'] ?? null,
             $data['daily_fat_target'] ?? null,
             $data['daily_carbs_target'] ?? null,
+            $data['evaluation'] ?? '',
+            $data['status'] ?? 'active',
+            $data['last_notif'] ?? null,
+            $data['progress'] ?? 0,
             $id
         ]);
     }
