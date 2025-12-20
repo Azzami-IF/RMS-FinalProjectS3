@@ -5,100 +5,98 @@ require_admin();
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Food.php';
+require_once __DIR__ . '/../classes/Admin/FoodsController.php';
+
+use Admin\FoodsController;
 
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$food = new Food($db);
-
-$data = $food->all();
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    switch ($_GET['success']) {
-        case 'create':
-            $message = 'Makanan berhasil ditambahkan!';
-            $messageType = 'success';
-            break;
-        case 'update':
-            $message = 'Makanan berhasil diperbarui!';
-            $messageType = 'success';
-            break;
-        case 'delete':
-            $message = 'Makanan berhasil dihapus!';
-            $messageType = 'success';
-            break;
-    }
-} elseif (isset($_GET['error'])) {
-    $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-    $messageType = 'danger';
-}
+$controller = new FoodsController($db);
+$data = $controller->getData();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
-<h4 class="mb-3">Data Makanan</h4>
+<section class="py-5">
+	<div class="container">
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<div>
+				<h1 class="fw-bold mb-1">Makanan</h1>
+				<p class="text-muted mb-0">Kelola data makanan yang tersimpan di database.</p>
+			</div>
+			<a href="food_edit.php" class="btn btn-primary btn-sm">
+				<i class="bi bi-plus-circle me-1"></i>Tambah Makanan
+			</a>
+		</div>
 
-<?php if ($message): ?>
-<div class="alert alert-<?= $messageType ?> alert-dismissible fade show mb-3" role="alert">
-    <?= $message ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
+		<?php if (!empty($message)): ?>
+			<div class="alert alert-<?= htmlspecialchars($messageType ?: 'info') ?> alert-dismissible fade show" role="alert">
+				<?= htmlspecialchars($message) ?>
+				<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+			</div>
+		<?php endif; ?>
 
-<form method="post" action="../process/food.process.php" class="card p-3 mb-4">
-    <input type="hidden" name="action" value="create">
-
-    <div class="row g-2">
-        <div class="col-md-3">
-            <input name="name" class="form-control" placeholder="Nama" required>
-        </div>
-        <div class="col-md-2">
-            <input name="calories" type="number" step="0.1" class="form-control" placeholder="Kalori" required>
-        </div>
-        <div class="col-md-2">
-            <input name="protein" type="number" step="0.1" class="form-control" placeholder="Protein (g)" required>
-        </div>
-        <div class="col-md-2">
-            <input name="fat" type="number" step="0.1" class="form-control" placeholder="Lemak (g)" required>
-        </div>
-        <div class="col-md-2">
-            <input name="carbs" type="number" step="0.1" class="form-control" placeholder="Karbo (g)" required>
-        </div>
-        <div class="col-md-1">
-            <button class="btn btn-success w-100">Tambah</button>
-        </div>
-    </div>
-</form>
-
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>Nama</th>
-        <th>Kalori</th>
-        <th>Aksi</th>
-    </tr>
-
-    <?php foreach ($data as $d): ?>
-        <tr>
-            <td><?= htmlspecialchars($d['name']) ?></td>
-            <td><?= $d['calories'] ?></td>
-            <td>
-                <a href="food_edit.php?id=<?= $d['id'] ?>"
-                   class="btn btn-warning btn-sm">Edit</a>
-
-                <form method="post"
-                      action="../process/food.process.php"
-                      style="display:inline">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="id" value="<?= $d['id'] ?>">
-                    <button class="btn btn-danger btn-sm"
-                            onclick="return confirm('Hapus data?')">
-                        Hapus
-                    </button>
-                </form>
-            </td>
-        </tr>
-    <?php endforeach; ?>
-</table>
+		<div class="card shadow-sm rounded-3">
+			<div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
+				<h6 class="mb-0 fw-bold">Daftar Makanan</h6>
+				<span class="badge bg-primary">Total: <?= count($data) ?> makanan</span>
+			</div>
+			<div class="card-body">
+				<?php if (empty($data)): ?>
+					<div class="alert alert-info mb-0">Belum ada data makanan.</div>
+				<?php else: ?>
+					<div class="table-responsive">
+						<table class="table table-hover align-middle">
+							<thead>
+								<tr>
+									<th style="width:70px;">ID</th>
+									<th>Nama</th>
+									<th style="width:120px;">Kalori</th>
+									<th style="width:120px;">Protein</th>
+									<th style="width:120px;">Lemak</th>
+									<th style="width:120px;">Karbo</th>
+									<th style="width:140px;">Aksi</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($data as $food): ?>
+									<tr>
+										<td><?= (int)$food['id'] ?></td>
+										<td>
+											<strong><?= htmlspecialchars($food['name'] ?? '') ?></strong>
+											<?php if (!empty($food['description'])): ?>
+												<div class="small text-muted text-truncate" style="max-width:520px;">
+													<?= htmlspecialchars($food['description']) ?>
+												</div>
+											<?php endif; ?>
+										</td>
+										<td><?= isset($food['calories']) ? round((float)$food['calories'], 1) : '-' ?> kcal</td>
+										<td><?= isset($food['protein']) ? round((float)$food['protein'], 1) : '-' ?> g</td>
+										<td><?= isset($food['fat']) ? round((float)$food['fat'], 1) : '-' ?> g</td>
+										<td><?= isset($food['carbs']) ? round((float)$food['carbs'], 1) : '-' ?> g</td>
+										<td>
+											<div class="btn-group btn-group-sm">
+												<a href="food_edit.php?id=<?= (int)$food['id'] ?>" class="btn btn-outline-warning" title="Ubah">
+													<i class="bi bi-pencil"></i>
+												</a>
+												<form method="post" action="../process/food.process.php" onsubmit="return confirm('Hapus makanan ini?')">
+													<input type="hidden" name="action" value="delete">
+													<input type="hidden" name="id" value="<?= (int)$food['id'] ?>">
+													<button type="submit" class="btn btn-outline-danger" title="Hapus">
+														<i class="bi bi-trash"></i>
+													</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+</section>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

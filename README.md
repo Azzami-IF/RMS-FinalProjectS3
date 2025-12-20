@@ -1,121 +1,105 @@
-# RMS (Rekomendasi Makanan Sehat) - Database Documentation
 
-## 📋 Overview
-RMS adalah aplikasi web untuk tracking nutrisi dan rekomendasi makanan sehat yang dibangun dengan PHP, MySQL, dan Bootstrap.
+# RMS (Rekomendasi Makanan Sehat)
 
-## 🗄️ Struktur Database
+## Ringkasan
+RMS adalah aplikasi web untuk pencatatan nutrisi dan rekomendasi makanan sehat. Aplikasi dibangun menggunakan PHP native, MySQL/MariaDB, dan Bootstrap. Sistem terintegrasi dengan Edamam API untuk pencarian resep dan analisis nutrisi, menyediakan analitik, notifikasi, dan CRUD untuk entitas utama.
 
-### Tabel Utama
+## Diagram
+- Activity Diagram: `Activity.jpg`
+- Use Case Diagram: `usecase.jpg`
 
-#### 1. `users` - Data Pengguna
-```sql
-- id (PRIMARY KEY)
-- name, email, password
-- role (admin/user)
-- phone, date_of_birth, gender
-- height_cm, weight_kg, activity_level
-- daily_calorie_goal
-- avatar, created_at, updated_at, last_login, is_active
+## Teknologi
+- Backend: PHP (native)
+- Database: MySQL/MariaDB
+- Frontend: Bootstrap, Chart.js
+- Library: PHPMailer, vlucas/phpdotenv
+
+## Prasyarat
+- PHP 8.x (disarankan menggunakan Laragon/XAMPP)
+- MySQL/MariaDB
+- Composer
+
+## Instalasi Lokal (Laragon)
+1. Pastikan proyek berada di direktori web server, contoh: `C:\laragon\www\RMS`.
+2. Jalankan instalasi dependency:
+    ```bash
+    composer install
+    ```
+3. Buat file environment:
+    - Salin `.env.example` menjadi `.env`, lalu isi nilainya.
+
+## Konfigurasi Environment
+Konfigurasi dibaca melalui `config/env.php` menggunakan `vlucas/phpdotenv`. Variabel yang digunakan:
+
+```dotenv
+DB_HOST=localhost
+DB_NAME=db_rms
+DB_USER=root
+DB_PASS=
+
+EDAMAM_APP_ID=
+EDAMAM_APP_KEY=
+EDAMAM_USER_ID=
+
+MAIL_USER=
+MAIL_PASS=
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_ENCRYPTION=tls
+MAIL_FROM=
 ```
 
-#### 2. `food_categories` - Kategori Makanan
-```sql
-- id (PRIMARY KEY)
-- name, description, icon
-- created_at
-```
+Catatan keamanan: file `.env` tidak boleh di-commit ke repository.
 
-#### 3. `foods` - Database Makanan
-```sql
-- id (PRIMARY KEY)
-- category_id (FOREIGN KEY)
-- name, description, calories
-- protein, fat, carbs, fiber, sugar, sodium
-- serving_size, image_url
-- is_verified, created_by, created_at, updated_at
-```
+## Setup Database
+1. Buat database dan import skema + seed data:
+    ```bash
+    mysql -u root -p < sql.txt
+    ```
+    Secara default, skrip SQL menggunakan database `db_rms`.
 
-#### 4. `meal_types` - Jenis Makanan
-```sql
-- id (PRIMARY KEY)
-- name, display_name, icon, sort_order
-- is_active
-```
+2. Akun demo (jika menggunakan seed data):
+    - `admin@rms.local` / `admin123`
+    - `user@rms.local` / `user123`
 
-#### 5. `schedules` - Jadwal Makan
-```sql
-- id (PRIMARY KEY)
-- user_id, food_id, meal_type_id (FOREIGN KEYS)
-- schedule_date, quantity, notes
-- calories_consumed (auto-calculated)
-- created_at, updated_at
-```
+## Menjalankan Aplikasi
+- Melalui Laragon: jalankan Apache/Nginx + MySQL, lalu akses `http://localhost/RMS/`.
 
-#### 6. `user_goals` - Target Pengguna
-```sql
-- id (PRIMARY KEY)
-- user_id (FOREIGN KEY)
-- goal_type, target_weight_kg, target_date
-- daily_calorie_target, daily_protein_target, etc.
-- is_active, created_at, updated_at
-```
+## Fitur
+- Autentikasi: login, registrasi, hashing password
+- CRUD: makanan (`foods`) dan jadwal makan (`schedules`)
+- Integrasi API: Edamam (pencarian resep dan analisis)
+- Notifikasi: in-app dan email (PHPMailer)
+- Analitik dan visualisasi: Chart.js, view `daily_nutrition_summary` dan `user_progress`
+- Ekspor: CSV untuk laporan tertentu
 
-#### 7. `weight_logs` - Log Berat Badan
-```sql
-- id (PRIMARY KEY)
-- user_id (FOREIGN KEY)
-- weight_kg, body_fat_percentage, muscle_mass_kg
-- notes, logged_at, created_at
-```
+## Notifikasi (Script)
+Script notifikasi berada di folder `notifications/` dan dapat dijalankan melalui browser atau CLI.
 
-#### 8. `notifications` - Notifikasi
-```sql
-- id (PRIMARY KEY)
-- user_id (FOREIGN KEY)
-- title, message, type, channel, status
-- scheduled_at, sent_at, created_at
-```
-
-## 🚀 Setup Database
-
-### 1. Import Schema
+Contoh (CLI):
 ```bash
-mysql -u username -p rms_db < sql.txt
+php notifications/send_daily_menu.php --force
 ```
 
-### 2. Konfigurasi Environment
-Edit file `config/env.php`:
-```php
-<?php
-return [
-    'DB_HOST' => 'localhost',
-    'DB_NAME' => 'rms_db',
-    'DB_USER' => 'your_username',
-    'DB_PASS' => 'your_password',
-    'MAIL_USER' => 'your_email@example.com',
-    'MAIL_PASS' => 'your_email_password',
-    'SPOON_API_KEY' => 'your_spoonacular_api_key'
-];
-```
+## Struktur Direktori (Ringkas)
+- `classes/`: class OOP (Database, Cache, Service)
+- `controllers/`: controller untuk halaman yang memerlukan pemrosesan
+- `process/`: handler aksi (create/update/delete)
+- `notifications/`: pengiriman dan pencatatan notifikasi
+- `assets/`: CSS/JS/Font/Gambar
+- `sql.txt`: skema database + seed data
 
-## 📊 Fitur Database
+## Troubleshooting
+- Jika koneksi database gagal, pastikan variabel `DB_HOST/DB_NAME/DB_USER/DB_PASS` pada `.env` sesuai.
+- Jika notifikasi email gagal, pastikan `MAIL_USER` dan `MAIL_PASS` valid (untuk Gmail, gunakan App Password).
 
-### Views untuk Analisis
-- `daily_nutrition_summary` - Ringkasan nutrisi harian
-- `user_progress` - Progress pengguna
+- `/analytics.php` - Analytics & charts
+- `/notifications.php` - Notification history
+- `/schedules.php` - Meal scheduling
+- `/admin/foods.php` - Food management (CRUD)
+- `/admin/schedules.php` - Schedule management (CRUD)
 
-### Stored Procedures
-- `calculate_meal_calories()` - Hitung kalori otomatis
-- `get_food_recommendations()` - Rekomendasi makanan
-- `update_user_stats()` - Update statistik user
-
-### Triggers
-- Auto-calculate calories saat insert/update schedule
-
-### Indexes
-- Optimized untuk performa query yang sering digunakan
-
-## 🔧 Classes PHP
+---
 
 ### Core Classes
 - `Database` - Koneksi database
@@ -130,7 +114,15 @@ return [
 - `UserGoal` - Target user
 - `WeightLog` - Log berat badan
 
-## 📈 Contoh Query Analytics
+
+## Analytics & Export CSV
+
+The analytics module provides:
+- Time-series and categorical charts (Chart.js)
+- Summary cards for calories, nutrients, and progress
+- **Export CSV:** Analytics data can be exported as CSV from the analytics page (see "Export" button on analytics view)
+
+---
 
 ### Kalori Mingguan
 ```sql
@@ -152,7 +144,18 @@ LEFT JOIN daily_nutrition_summary dns ON dns.user_id = ug.user_id
 WHERE ug.user_id = ? AND ug.is_active = TRUE;
 ```
 
-## 🔒 Keamanan Database
+
+## Testing & Validation
+
+Manual test cases to validate core features:
+- User registration, login, and logout
+- Add, edit, delete food items (CRUD)
+- Add, edit, delete meal schedules (CRUD)
+- Search and view food recommendations (Edamam API)
+- Receive and view notifications (email & in-app)
+- View analytics and export CSV
+
+---
 
 - Foreign key constraints
 - Input validation di application layer
@@ -160,7 +163,12 @@ WHERE ug.user_id = ? AND ug.is_active = TRUE;
 - Prepared statements untuk mencegah SQL injection
 - Audit trail dengan created_at/updated_at
 
-## 📊 Sample Data
+
+## Notification System
+
+Notifications are sent daily via email (PHPMailer) and stored in the `notifications` table. In-app notifications are displayed in the dashboard and notification page. Web Push is not implemented; all notifications use email and in-app channels.
+
+---
 
 Database sudah include sample data:
 - 6 jenis makanan (breakfast, lunch, dll.)
@@ -168,7 +176,16 @@ Database sudah include sample data:
 - 18+ sample makanan dengan nutrisi lengkap
 - 1 admin user (admin@rms.com / password)
 
-## 🔄 Migrasi dari Versi Lama
+
+## Security
+
+The application uses:
+- Foreign key constraints
+- Input validation and prepared statements
+- Password hashing with bcrypt
+- Audit trail with created_at/updated_at
+
+---
 
 Jika upgrade dari database lama:
 1. Backup data existing
@@ -177,7 +194,13 @@ Jika upgrade dari database lama:
 4. Migrate foods dengan field tambahan default
 5. Update schedules dengan meal_type_id default
 
-## 🎯 Rekomendasi Penggunaan
+
+## Additional Notes
+
+- For development, use the provided sample data.
+- For production, ensure regular backups and monitor performance.
+- All dependencies are managed via Composer (PHPMailer, vlucas/phpdotenv, etc.).
+- For support, open an issue in the repository or contact the development team.
 
 1. **Untuk Development**: Gunakan sample data yang tersedia
 2. **Production**: Setup proper backup dan monitoring

@@ -16,7 +16,7 @@ $message = '';
 $messageType = '';
 
 if (isset($_GET['success'])) {
-    $message = 'Profile berhasil diperbarui!';
+    $message = 'Profil berhasil diperbarui!';
     $messageType = 'success';
 } elseif (isset($_GET['error'])) {
     switch ($_GET['error']) {
@@ -39,12 +39,9 @@ if (isset($_GET['success'])) {
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="fw-bold mb-1">Edit Profile</h1>
+                <h1 class="fw-bold mb-1">Ubah Profil</h1>
                 <p class="text-muted">Perbarui informasi profil Anda</p>
             </div>
-            <a href="profile.php" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Kembali ke Profile
-            </a>
         </div>
 
         <?php if ($message): ?>
@@ -57,7 +54,7 @@ if (isset($_GET['success'])) {
         <div class="row">
             <div class="col-lg-8">
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">Informasi Pribadi</button>
@@ -99,7 +96,9 @@ if (isset($_GET['success'])) {
                                         <div class="col-md-6">
                                             <label class="form-label">Tanggal Lahir</label>
                                             <input type="date" name="date_of_birth" class="form-control"
-                                                   value="<?= $userData['date_of_birth'] ?? '' ?>">
+                                                   value="<?= $userData['date_of_birth'] ?? '' ?>"
+                                                   min="1900-01-01"
+                                                   max="<?= date('Y-m-d') ?>">
                                         </div>
 
                                         <div class="col-md-6">
@@ -130,32 +129,32 @@ if (isset($_GET['success'])) {
                                         <div class="col-md-6">
                                             <label class="form-label">Tinggi Badan (cm)</label>
                                             <input type="number" name="height_cm" class="form-control"
-                                                   value="<?= $userData['height_cm'] ?? '' ?>" step="0.1" min="50" max="250">
+                                                   value="<?= htmlspecialchars((string)($userData['height_cm'] ?? '')) ?>" step="0.1" min="50" max="250">
                                             <div class="form-text">Masukkan tinggi badan dalam centimeter</div>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label class="form-label">Berat Badan (kg)</label>
                                             <input type="number" name="weight_kg" class="form-control"
-                                                   value="<?= $userData['weight_kg'] ?? '' ?>" step="0.1" min="20" max="300">
+                                                   value="<?= htmlspecialchars((string)($userData['weight_kg'] ?? '')) ?>" step="0.1" min="20" max="300">
                                             <div class="form-text">Masukkan berat badan dalam kilogram</div>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label class="form-label">Target Kalori Harian</label>
                                             <input type="number" name="daily_calorie_goal" class="form-control"
-                                                   value="<?= $userData['daily_calorie_goal'] ?? 2000 ?>" min="1000" max="5000">
+                                                   value="<?= htmlspecialchars((string)($userData['daily_calorie_goal'] ?? 2000)) ?>" min="1000" max="5000">
                                             <div class="form-text">Target kalori harian Anda</div>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label class="form-label">Tingkat Aktivitas</label>
                                             <select name="activity_level" class="form-select">
-                                                <option value="sedentary" <?= ($userData['activity_level'] ?? 'moderate') === 'sedentary' ? 'selected' : '' ?>>Sedentary (Jarang olahraga)</option>
-                                                <option value="light" <?= ($userData['activity_level'] ?? 'moderate') === 'light' ? 'selected' : '' ?>>Light (Olahraga ringan 1-3x/minggu)</option>
-                                                <option value="moderate" <?= ($userData['activity_level'] ?? 'moderate') === 'moderate' ? 'selected' : '' ?>>Moderate (Olahraga sedang 3-5x/minggu)</option>
-                                                <option value="active" <?= ($userData['activity_level'] ?? 'moderate') === 'active' ? 'selected' : '' ?>>Active (Olahraga berat 6-7x/minggu)</option>
-                                                <option value="very_active" <?= ($userData['activity_level'] ?? 'moderate') === 'very_active' ? 'selected' : '' ?>>Very Active (Olahraga sangat berat & pekerjaan fisik)</option>
+                                                <option value="sedentary" <?= ($userData['activity_level'] ?? 'moderate') === 'sedentary' ? 'selected' : '' ?>>Sedentari (Jarang berolahraga)</option>
+                                                <option value="light" <?= ($userData['activity_level'] ?? 'moderate') === 'light' ? 'selected' : '' ?>>Ringan (Olahraga ringan 1-3x/minggu)</option>
+                                                <option value="moderate" <?= ($userData['activity_level'] ?? 'moderate') === 'moderate' ? 'selected' : '' ?>>Sedang (Olahraga sedang 3-5x/minggu)</option>
+                                                <option value="active" <?= ($userData['activity_level'] ?? 'moderate') === 'active' ? 'selected' : '' ?>>Aktif (Olahraga berat 6-7x/minggu)</option>
+                                                <option value="very_active" <?= ($userData['activity_level'] ?? 'moderate') === 'very_active' ? 'selected' : '' ?>>Sangat Aktif (Olahraga sangat berat & pekerjaan fisik)</option>
                                             </select>
                                         </div>
 
@@ -234,13 +233,13 @@ if (isset($_GET['success'])) {
 
                 <!-- Account Actions -->
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">Aksi Akun</h6>
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
                             <a href="profile.php" class="btn btn-outline-primary">
-                                <i class="bi bi-person me-2"></i>Lihat Profile
+                                <i class="bi bi-person me-2"></i>Lihat Profil
                             </a>
                             <button class="btn btn-outline-danger" onclick="confirmDelete()">
                                 <i class="bi bi-trash me-2"></i>Hapus Akun
@@ -252,7 +251,7 @@ if (isset($_GET['success'])) {
                         <div class="alert alert-info">
                             <small>
                                 <i class="bi bi-info-circle me-1"></i>
-                                <strong>Tips:</strong> Pastikan data Anda selalu update untuk rekomendasi nutrisi yang lebih akurat.
+                                <strong>Tips:</strong> Pastikan data Anda selalu diperbarui agar rekomendasi nutrisi lebih akurat.
                             </small>
                         </div>
                     </div>
@@ -265,12 +264,12 @@ if (isset($_GET['success'])) {
 <!-- Delete Account Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content rms-card-adaptive">
+            <div class="modal-header rms-card-adaptive">
                 <h5 class="modal-title">Hapus Akun</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body rms-card-adaptive">
                 <div class="alert alert-danger">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     <strong>Perhatian!</strong> Tindakan ini tidak dapat dibatalkan.
@@ -281,7 +280,7 @@ if (isset($_GET['success'])) {
                     <input type="password" class="form-control" id="confirmPassword" required>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer rms-card-adaptive">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-danger" onclick="deleteAccount()">Hapus Akun</button>
             </div>

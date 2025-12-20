@@ -6,5 +6,5 @@ return [
     'password' => 'app_password',
     'port' => 587,
     'from_email' => 'email@gmail.com',
-    'from_name' => 'Healthy Food App'
+    'from_name' => 'RMS - Aplikasi Makanan Sehat'
 ];

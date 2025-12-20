@@ -3,16 +3,30 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/User.php';
+require_once __DIR__ . '/../classes/Admin/UserEditController.php';
+
+use Admin\UserEditController;
 
 require_admin();
-
 $config = require __DIR__ . '/../config/env.php';
 $db = (new Database($config))->getConnection();
-$user = new User($db);
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, [
+    'options' => ['min_range' => 1],
+]);
+if (!$id) {
+    echo '<section class="py-5"><div class="container">'
+        . '<div class="alert alert-danger mb-0">ID pengguna tidak valid.</div>'
+        . '</div></section>';
+    require_once __DIR__ . '/../includes/footer.php';
+    exit;
+}
 
-$userData = $user->find((int)$_GET['id']);
+$controller = new UserEditController($db, $id);
+$userData = $controller->getUserData();
 if (!$userData) {
-    echo '<div class="container mt-5"><div class="alert alert-danger">User tidak ditemukan</div></div>';
+    echo '<section class="py-5"><div class="container">'
+        . '<div class="alert alert-danger mb-0">Pengguna tidak ditemukan.</div>'
+        . '</div></section>';
     require_once __DIR__ . '/../includes/footer.php';
     exit;
 }
@@ -22,19 +36,16 @@ if (!$userData) {
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="fw-bold mb-1">Edit User</h1>
+                <h1 class="fw-bold mb-1">Ubah Pengguna</h1>
                 <p class="text-muted">Ubah informasi pengguna</p>
             </div>
-            <a href="user_detail.php?id=<?= $userData['id'] ?>" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Kembali
-            </a>
         </div>
 
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Form Edit User</h5>
+                    <div class="card-header rms-card-adaptive">
+                        <h5 class="mb-0">Form Ubah Pengguna</h5>
                     </div>
                     <div class="card-body">
                         <form method="post" action="../process/user.process.php">
@@ -63,7 +74,9 @@ if (!$userData) {
                                 <div class="col-md-6">
                                     <label class="form-label">Tanggal Lahir</label>
                                     <input type="date" name="date_of_birth" class="form-control"
-                                           value="<?= $userData['date_of_birth'] ?? '' ?>">
+                                           value="<?= $userData['date_of_birth'] ?? '' ?>"
+                                           min="1900-01-01"
+                                           max="<?= date('Y-m-d') ?>">
                                 </div>
 
                                 <div class="col-md-6">
@@ -79,7 +92,7 @@ if (!$userData) {
                                 <div class="col-md-6">
                                     <label class="form-label">Role</label>
                                     <select name="role" class="form-select" required>
-                                        <option value="user" <?= $userData['role'] === 'user' ? 'selected' : '' ?>>User</option>
+                                        <option value="user" <?= $userData['role'] === 'user' ? 'selected' : '' ?>>Pengguna</option>
                                         <option value="admin" <?= $userData['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                                     </select>
                                 </div>
@@ -105,11 +118,11 @@ if (!$userData) {
                                 <div class="col-md-6">
                                     <label class="form-label">Tingkat Aktivitas</label>
                                     <select name="activity_level" class="form-select">
-                                        <option value="sedentary" <?= ($userData['activity_level'] ?? 'moderate') === 'sedentary' ? 'selected' : '' ?>>Sedentary (Jarang olahraga)</option>
-                                        <option value="light" <?= ($userData['activity_level'] ?? 'moderate') === 'light' ? 'selected' : '' ?>>Light (Olahraga ringan 1-3x/minggu)</option>
-                                        <option value="moderate" <?= ($userData['activity_level'] ?? 'moderate') === 'moderate' ? 'selected' : '' ?>>Moderate (Olahraga sedang 3-5x/minggu)</option>
-                                        <option value="active" <?= ($userData['activity_level'] ?? 'moderate') === 'active' ? 'selected' : '' ?>>Active (Olahraga berat 6-7x/minggu)</option>
-                                        <option value="very_active" <?= ($userData['activity_level'] ?? 'moderate') === 'very_active' ? 'selected' : '' ?>>Very Active (Olahraga sangat berat & pekerjaan fisik)</option>
+                                        <option value="sedentary" <?= ($userData['activity_level'] ?? 'moderate') === 'sedentary' ? 'selected' : '' ?>>Sedentari (Jarang berolahraga)</option>
+                                        <option value="light" <?= ($userData['activity_level'] ?? 'moderate') === 'light' ? 'selected' : '' ?>>Ringan (Olahraga ringan 1-3x/minggu)</option>
+                                        <option value="moderate" <?= ($userData['activity_level'] ?? 'moderate') === 'moderate' ? 'selected' : '' ?>>Sedang (Olahraga sedang 3-5x/minggu)</option>
+                                        <option value="active" <?= ($userData['activity_level'] ?? 'moderate') === 'active' ? 'selected' : '' ?>>Aktif (Olahraga berat 6-7x/minggu)</option>
+                                        <option value="very_active" <?= ($userData['activity_level'] ?? 'moderate') === 'very_active' ? 'selected' : '' ?>>Sangat Aktif (Olahraga sangat berat & pekerjaan fisik)</option>
                                     </select>
                                 </div>
 

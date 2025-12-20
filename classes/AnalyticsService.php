@@ -13,8 +13,11 @@ class AnalyticsService
     public function todayCalories(int $userId): int
     {
         $stmt = $this->db->prepare("
-            SELECT IFNULL(SUM(s.calories_consumed), 0) as total
+            SELECT IFNULL(SUM(
+                COALESCE(s.calories_consumed, (f.calories * COALESCE(s.quantity, 1)))
+            ), 0) as total
             FROM schedules s
+            JOIN foods f ON s.food_id = f.id
             WHERE s.user_id = ? AND s.schedule_date = CURDATE()
         ");
         $stmt->execute([$userId]);
@@ -28,8 +31,11 @@ class AnalyticsService
             SELECT
                 DAYNAME(s.schedule_date) as day_name,
                 DATE(s.schedule_date) as date,
-                IFNULL(SUM(s.calories_consumed), 0) as calories
+                IFNULL(SUM(
+                    COALESCE(s.calories_consumed, (f.calories * COALESCE(s.quantity, 1)))
+                ), 0) as calories
             FROM schedules s
+            JOIN foods f ON s.food_id = f.id
             WHERE s.user_id = ? AND s.schedule_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
             GROUP BY s.schedule_date
             ORDER BY s.schedule_date
@@ -44,7 +50,9 @@ class AnalyticsService
         $date = $date ?? date('Y-m-d');
         $stmt = $this->db->prepare("
             SELECT
-                IFNULL(SUM(s.calories_consumed), 0) as calories,
+                IFNULL(SUM(
+                    COALESCE(s.calories_consumed, (f.calories * COALESCE(s.quantity, 1)))
+                ), 0) as calories,
                 IFNULL(SUM(f.protein * s.quantity), 0) as protein,
                 IFNULL(SUM(f.fat * s.quantity), 0) as fat,
                 IFNULL(SUM(f.carbs * s.quantity), 0) as carbs,
@@ -63,23 +71,36 @@ class AnalyticsService
     // PROGRESS TERHADAP TARGET
     public function goalProgress(int $userId): array
     {
+        // NOTE: This project does not ship a daily_nutrition_summary table in sql.txt.
+        // Compute 7-day averages directly from schedules + foods.
         $stmt = $this->db->prepare("
             SELECT
                 ug.daily_calorie_target,
                 ug.daily_protein_target,
                 ug.daily_fat_target,
                 ug.daily_carbs_target,
-                COALESCE(AVG(dns.total_calories), 0) as avg_calories,
-                COALESCE(AVG(dns.total_protein), 0) as avg_protein,
-                COALESCE(AVG(dns.total_fat), 0) as avg_fat,
-                COALESCE(AVG(dns.total_carbs), 0) as avg_carbs
+                COALESCE(AVG(d.total_calories), 0) as avg_calories,
+                COALESCE(AVG(d.total_protein), 0) as avg_protein,
+                COALESCE(AVG(d.total_fat), 0) as avg_fat,
+                COALESCE(AVG(d.total_carbs), 0) as avg_carbs
             FROM user_goals ug
-            LEFT JOIN daily_nutrition_summary dns ON dns.user_id = ug.user_id
-                AND dns.schedule_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+            LEFT JOIN (
+                SELECT
+                    s.user_id,
+                    s.schedule_date,
+                    SUM(COALESCE(s.calories_consumed, (f.calories * COALESCE(s.quantity, 1)))) as total_calories,
+                    SUM(f.protein * COALESCE(s.quantity, 1)) as total_protein,
+                    SUM(f.fat * COALESCE(s.quantity, 1)) as total_fat,
+                    SUM(f.carbs * COALESCE(s.quantity, 1)) as total_carbs
+                FROM schedules s
+                JOIN foods f ON f.id = s.food_id
+                WHERE s.user_id = ? AND s.schedule_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                GROUP BY s.user_id, s.schedule_date
+            ) d ON d.user_id = ug.user_id
             WHERE ug.user_id = ? AND ug.is_active = TRUE
             GROUP BY ug.user_id, ug.daily_calorie_target, ug.daily_protein_target, ug.daily_fat_target, ug.daily_carbs_target
         ");
-        $stmt->execute([$userId]);
+        $stmt->execute([$userId, $userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
     }
 
@@ -103,7 +124,7 @@ class AnalyticsService
     public function caloriePerDay(int $userId): array
     {
         $stmt = $this->db->prepare("
-            SELECT s.schedule_date, SUM(f.calories) total
+            SELECT s.schedule_date, SUM(COALESCE(s.calories_consumed, (f.calories * COALESCE(s.quantity, 1)))) total
             FROM schedules s
             JOIN foods f ON s.food_id = f.id
             WHERE s.user_id = ?
@@ -118,7 +139,7 @@ class AnalyticsService
     public function totalCalories(int $userId): int
     {
         $stmt = $this->db->prepare("
-            SELECT IFNULL(SUM(f.calories),0) total
+            SELECT IFNULL(SUM(COALESCE(s.calories_consumed, (f.calories * COALESCE(s.quantity, 1)))),0) total
             FROM schedules s
             JOIN foods f ON s.food_id = f.id
             WHERE s.user_id = ?
@@ -138,7 +159,7 @@ class AnalyticsService
         return (int)$stmt->fetchColumn();
     }
 
-    // TOTAL MENU DIJADWALKAN
+    // TOTAL MENU DICATAT
     public function totalMeals(int $userId): int
     {
         $stmt = $this->db->prepare("

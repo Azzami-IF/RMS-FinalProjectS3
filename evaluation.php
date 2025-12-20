@@ -13,7 +13,11 @@ $totalCalories = $analytics->totalCalories($userId);
 $totalDays     = $analytics->totalDays($userId);
 ?>
 
-<h4 class="mb-4">Evaluasi Pola Makan</h4>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Evaluasi Pola Makan</h4>
+    <a href="export/export_evaluation.php" class="btn btn-outline-success">Ekspor CSV</a>
+</div>
 
 <!-- ANALYTICS CARDS -->
 <div class="row mb-4">
@@ -51,23 +55,106 @@ $totalDays     = $analytics->totalDays($userId);
 </div>
 
 <!-- GRAFIK -->
-<div class="row">
-    <div class="col-md-6">
-        <h6 class="mb-2">Distribusi Nutrisi</h6>
-        <canvas id="nutritionChart"></canvas>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm rounded-3 h-100">
+            <div class="card-header rms-card-adaptive">
+                <h6 class="mb-0">Distribusi Nutrisi Total</h6>
+            </div>
+            <div class="card-body">
+                <div class="w-100" style="position:relative;height:320px;">
+                    <canvas id="nutritionChart"></canvas>
+                </div>
+                <div class="small text-muted mt-2">Persentase total protein, lemak, dan karbohidrat dari seluruh catatan makan Anda.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm rounded-3 h-100">
+            <div class="card-header rms-card-adaptive">
+                <h6 class="mb-0">Tren Kalori Harian</h6>
+            </div>
+            <div class="card-body">
+                <div class="w-100" style="position:relative;height:320px;">
+                    <canvas id="calorieChart"></canvas>
+                </div>
+                <div class="small text-muted mt-2">Visualisasi tren asupan kalori harian Anda.</div>
+            </div>
+        </div>
     </div>
 </div>
 
-<script src="assets/js/Chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 fetch('charts/nutrition_chart.php')
-  .then(res => res.json())
-  .then(data => {
-    new Chart(document.getElementById('nutritionChart'), {
-      type: 'pie',
-      data: data
+    .then(res => res.json())
+    .then(data => {
+        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+        if (total === 0) {
+            document.getElementById('nutritionChart').replaceWith((() => {
+                const d = document.createElement('div');
+                d.className = 'alert alert-info mt-3';
+                d.innerText = 'Belum ada data nutrisi untuk ditampilkan.';
+                return d;
+            })());
+            return;
+        }
+        new Chart(document.getElementById('nutritionChart'), {
+            type: 'pie',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const value = Number(ctx.parsed) || 0;
+                                const pct = total > 0 ? (value / total) * 100 : 0;
+                                return `${ctx.label}: ${value}g (${pct.toFixed(1)}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
     });
-  });
+fetch('charts/calorie_chart.php')
+    .then(res => res.json())
+    .then(data => {
+        new Chart(document.getElementById('calorieChart'), {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Kalori' } },
+                    x: { title: { display: true, text: 'Tanggal' } }
+                },
+                elements: {
+                    line: { tension: 0.35, borderWidth: 2 },
+                    point: { radius: 2, hoverRadius: 5 }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const y = ctx.parsed?.y;
+                                return `Kalori: ${typeof y === 'number' ? Math.round(y) : y}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

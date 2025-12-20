@@ -25,7 +25,7 @@ include "header.php";
     </style>
 </head>
 
-<body class="bg-light">
+<body>
 
     <!-- NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-dark primarybg">

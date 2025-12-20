@@ -3,39 +3,24 @@ require_once 'includes/header.php';
 require_once 'includes/auth_guard.php';
 require_once 'config/database.php';
 require_once 'classes/WeightLog.php';
+require_once 'classes/WeightLogPageController.php';
 
 $config = require 'config/env.php';
 $db = (new Database($config))->getConnection();
-$weightLogClass = new WeightLog($db);
-
 $user = $_SESSION['user'];
-
-// Get recent weight logs
-$recentLogs = $weightLogClass->getRecent($user['id'], 10);
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    $message = 'Log berat badan berhasil disimpan!';
-    $messageType = 'success';
-} elseif (isset($_GET['error'])) {
-    $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-    $messageType = 'danger';
-}
+$controller = new WeightLogPageController($db, $user);
+$recentLogs = $controller->getRecentLogs();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
 <section class="py-5">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="fw-bold mb-1">Log Berat Badan</h1>
-                <p class="text-muted">Pantau progress berat badan Anda</p>
+                <h1 class="fw-bold mb-1">Catatan Berat Badan</h1>
+                <p class="text-muted">Pantau progres berat badan Anda</p>
             </div>
-            <a href="profile.php" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Kembali ke Profile
-            </a>
         </div>
 
         <?php if ($message): ?>
@@ -49,9 +34,9 @@ if (isset($_GET['success'])) {
             <div class="col-lg-4">
                 <!-- Add Weight Log -->
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">
-                            <i class="bi bi-plus-circle me-2"></i>Tambah Log Baru
+                            <i class="bi bi-plus-circle me-2"></i>Tambah Catatan Baru
                         </h6>
                     </div>
                     <div class="card-body">
@@ -67,7 +52,8 @@ if (isset($_GET['success'])) {
                             <div class="mb-3">
                                 <label class="form-label">Tanggal *</label>
                                 <input type="date" name="logged_at" class="form-control"
-                                       value="<?= date('Y-m-d') ?>" required>
+                                       value="<?= date('Y-m-d') ?>" min="1900-01-01" max="<?= date('Y-m-d', strtotime('+2 days')) ?>" required>
+                                <div class="form-text">Tanggal maksimal 2 hari ke depan (toleransi zona waktu).</div>
                             </div>
 
                             <div class="mb-3">
@@ -91,7 +77,7 @@ if (isset($_GET['success'])) {
                             </div>
 
                             <button type="submit" class="btn btn-success w-100">
-                                <i class="bi bi-save me-2"></i>Simpan Log
+                                <i class="bi bi-save me-2"></i>Simpan Catatan
                             </button>
                         </form>
                     </div>
@@ -99,14 +85,14 @@ if (isset($_GET['success'])) {
 
                 <!-- Weight Stats -->
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">
                             <i class="bi bi-graph-up me-2"></i>Statistik
                         </h6>
                     </div>
                     <div class="card-body">
                         <?php
-                        $stats = $weightLogClass->getStats($user['id']);
+                        $stats = $controller->getStats();
                         if ($stats):
                         ?>
                         <div class="row text-center">
@@ -145,7 +131,7 @@ if (isset($_GET['success'])) {
             <div class="col-lg-8">
                 <!-- Weight Chart -->
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">
                             <i class="bi bi-graph-up me-2"></i>Grafik Berat Badan
                         </h6>
@@ -157,9 +143,9 @@ if (isset($_GET['success'])) {
 
                 <!-- Weight Log History -->
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">
-                            <i class="bi bi-clock-history me-2"></i>Riwayat Log
+                            <i class="bi bi-clock-history me-2"></i>Riwayat Catatan
                         </h6>
                     </div>
                     <div class="card-body">
@@ -202,8 +188,8 @@ if (isset($_GET['success'])) {
                         <?php else: ?>
                         <div class="text-center py-5">
                             <i class="bi bi-clipboard-data fs-1 text-muted mb-3"></i>
-                            <h6 class="text-muted">Belum ada log berat badan</h6>
-                            <p class="text-muted">Mulai catat berat badan Anda untuk tracking progress</p>
+                            <h6 class="text-muted">Belum ada catatan berat badan</h6>
+                            <p class="text-muted">Mulai catat berat badan Anda untuk memantau progres</p>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -216,16 +202,16 @@ if (isset($_GET['success'])) {
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Hapus Log</h5>
+        <div class="modal-content rms-card-adaptive">
+            <div class="modal-header rms-card-adaptive">
+                <h5 class="modal-title">Hapus Catatan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus log berat badan ini?</p>
+            <div class="modal-body rms-card-adaptive">
+                <p>Apakah Anda yakin ingin menghapus catatan berat badan ini?</p>
                 <p class="text-muted small">Tindakan ini tidak dapat dibatalkan.</p>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer rms-card-adaptive">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete">Hapus</button>
             </div>
@@ -288,7 +274,7 @@ fetch('charts/weight_chart.php')
     });
   })
   .catch(error => {
-    console.error('Error loading weight chart:', error);
+        console.error('Gagal memuat grafik berat badan:', error);
     document.getElementById('weightChart').parentElement.innerHTML =
       '<div class="alert alert-info">Belum ada data berat badan untuk ditampilkan.</div>';
   });

@@ -4,47 +4,27 @@ require_once 'includes/auth_guard.php';
 require_once 'config/database.php';
 require_once 'classes/User.php';
 require_once 'classes/UserGoal.php';
+require_once 'classes/ProfilePageController.php';
 
 $config = require 'config/env.php';
 $db = (new Database($config))->getConnection();
-$userClass = new User($db);
-$userGoalClass = new UserGoal($db);
-
 $user = $_SESSION['user'];
-$userData = $userClass->find($user['id']);
-$userGoal = $userGoalClass->findActive($user['id']);
-
-// Get user's statistics
-$schedules = $db->prepare("SELECT COUNT(*) as total_schedules FROM schedules WHERE user_id = ?");
-$schedules->execute([$user['id']]);
-$scheduleStats = $schedules->fetch(PDO::FETCH_ASSOC);
-
-$todaySchedules = $db->prepare("SELECT COUNT(*) as today_count FROM schedules WHERE user_id = ? AND schedule_date = CURDATE()");
-$todaySchedules->execute([$user['id']]);
-$todayStats = $todaySchedules->fetch(PDO::FETCH_ASSOC);
-
-// Handle success/error messages
-$message = '';
-$messageType = '';
-
-if (isset($_GET['success'])) {
-    $message = 'Operasi berhasil!';
-    $messageType = 'success';
-} elseif (isset($_GET['error'])) {
-    switch ($_GET['error']) {
-        case 'password_incorrect':
-            $message = 'Password yang Anda masukkan salah!';
-            $messageType = 'danger';
-            break;
-        default:
-            $message = 'Terjadi kesalahan: ' . htmlspecialchars($_GET['error']);
-            $messageType = 'danger';
-    }
-}
+$controller = new ProfilePageController($db, $user);
+$userData = $controller->getUserData();
+$userGoal = $controller->getUserGoal();
+$scheduleStats = $controller->getScheduleStats();
+$todayStats = $controller->getTodayStats();
+$message = $controller->getMessage();
+$messageType = $controller->getMessageType();
 ?>
 
 <section class="py-5">
     <div class="container">
+        <div class="mb-4">
+            <h1 class="fw-bold mb-1">Profil</h1>
+            <p class="text-muted">Ringkasan akun dan data Anda</p>
+        </div>
+
         <?php if ($message): ?>
         <div class="alert alert-<?= $messageType ?> alert-dismissible fade show mb-4" role="alert">
             <?= $message ?>
@@ -65,12 +45,12 @@ if (isset($_GET['success'])) {
                         <h5 class="card-title fw-bold"><?= htmlspecialchars($userData['name']) ?></h5>
                         <p class="text-muted mb-2"><?= htmlspecialchars($userData['email']) ?></p>
                         <span class="badge bg-<?= $userData['role'] === 'admin' ? 'danger' : 'success' ?>">
-                            <?= $userData['role'] === 'admin' ? 'Admin' : 'User' ?>
+                            <?= $userData['role'] === 'admin' ? 'Admin' : 'Pengguna' ?>
                         </span>
 
                         <div class="mt-3">
                             <a href="profile_edit.php" class="btn btn-primary btn-sm me-2">
-                                <i class="bi bi-pencil me-1"></i>Edit Profile
+                                <i class="bi bi-pencil me-1"></i>Ubah Profil
                             </a>
                             <button class="btn btn-outline-danger btn-sm" onclick="confirmDelete()">
                                 <i class="bi bi-trash me-1"></i>Hapus Akun
@@ -81,7 +61,7 @@ if (isset($_GET['success'])) {
 
                 <!-- Quick Stats -->
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">Statistik</h6>
                     </div>
                     <div class="card-body">
@@ -91,14 +71,14 @@ if (isset($_GET['success'])) {
                                     <i class="bi bi-calendar-check fs-2 text-primary"></i>
                                 </div>
                                 <h4 class="mb-1"><?= $scheduleStats['total_schedules'] ?? 0 ?></h4>
-                                <small class="text-muted">Total Jadwal</small>
+                                <small class="text-muted">Total Catatan</small>
                             </div>
                             <div class="col-6">
                                 <div class="mb-2">
                                     <i class="bi bi-calendar-day fs-2 text-success"></i>
                                 </div>
                                 <h4 class="mb-1"><?= $todayStats['today_count'] ?? 0 ?></h4>
-                                <small class="text-muted">Jadwal Hari Ini</small>
+                                <small class="text-muted">Catatan Hari Ini</small>
                             </div>
                         </div>
                     </div>
@@ -108,10 +88,10 @@ if (isset($_GET['success'])) {
             <div class="col-md-8">
                 <!-- Personal Information -->
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold">Informasi Pribadi</h6>
                         <a href="profile_edit.php" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-pencil me-1"></i>Edit
+                            <i class="bi bi-pencil me-1"></i>Ubah
                         </a>
                     </div>
                     <div class="card-body">
@@ -165,81 +145,108 @@ if (isset($_GET['success'])) {
                 </div>
 
                 <!-- Physical Information -->
-                <?php if ($userData['height_cm'] || $userData['weight_kg']): ?>
+                <?php if ($userData['height_cm'] || $userData['weight_kg'] || $userData['activity_level'] || $userData['daily_calorie_goal']): ?>
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 fw-bold">Data Fisik</h6>
                         <a href="profile_edit.php#physical" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-pencil me-1"></i>Edit
+                            <i class="bi bi-pencil me-1"></i>Ubah
                         </a>
                     </div>
                     <div class="card-body">
+                        <?php
+                            $physicalItems = [];
+
+                            if (!empty($userData['height_cm'])) {
+                                $physicalItems[] = [
+                                    'label' => 'Tinggi Badan',
+                                    'value' => number_format((float)$userData['height_cm'], 1) . ' cm',
+                                ];
+                            }
+
+                            if (!empty($userData['weight_kg'])) {
+                                $physicalItems[] = [
+                                    'label' => 'Berat Badan',
+                                    'value' => number_format((float)$userData['weight_kg'], 1) . ' kg',
+                                ];
+                            }
+
+                            if (!empty($userData['height_cm']) && !empty($userData['weight_kg'])) {
+                                $bmi = round((float)$userData['weight_kg'] / (((float)$userData['height_cm'] / 100) ** 2), 1);
+                                $bmiCategory = '';
+                                if ($bmi < 18.5) $bmiCategory = 'Kurus';
+                                elseif ($bmi < 25) $bmiCategory = 'Normal';
+                                elseif ($bmi < 30) $bmiCategory = 'Berlebih';
+                                else $bmiCategory = 'Obesitas';
+
+                                $physicalItems[] = [
+                                    'label' => 'BMI',
+                                    'value' => $bmi . ' (' . $bmiCategory . ')',
+                                ];
+                            }
+
+                            $physicalItems[] = [
+                                'label' => 'Target Kalori Harian',
+                                'value' => (int)($userData['daily_calorie_goal'] ?? 2000) . ' kcal',
+                            ];
+
+                            $activityLabel = '';
+                            switch ($userData['activity_level'] ?? 'moderate') {
+                                case 'sedentary': $activityLabel = 'Sedentari (Jarang berolahraga)'; break;
+                                case 'light': $activityLabel = 'Ringan (Olahraga ringan)'; break;
+                                case 'moderate': $activityLabel = 'Sedang (Olahraga sedang)'; break;
+                                case 'active': $activityLabel = 'Aktif (Olahraga berat)'; break;
+                                case 'very_active': $activityLabel = 'Sangat Aktif (Olahraga sangat berat)'; break;
+                                default: $activityLabel = 'Sedang';
+                            }
+                            $physicalItems[] = [
+                                'label' => 'Tingkat Aktivitas',
+                                'value' => $activityLabel,
+                            ];
+
+                            $physicalLeft = [];
+                            $physicalRight = [];
+                            foreach ($physicalItems as $idx => $item) {
+                                if ($idx % 2 === 0) $physicalLeft[] = $item;
+                                else $physicalRight[] = $item;
+                            }
+                        ?>
+
                         <div class="row g-3">
-                            <?php if ($userData['height_cm']): ?>
-                            <div class="col-md-4">
-                                <strong>Tinggi Badan</strong><br>
-                                <span class="text-muted"><?= $userData['height_cm'] ?> cm</span>
+                            <div class="col-12 col-md-6">
+                                <?php foreach ($physicalLeft as $item): ?>
+                                    <div class="mb-3">
+                                        <strong><?= htmlspecialchars($item['label']) ?></strong><br>
+                                        <span class="text-muted"><?= htmlspecialchars($item['value']) ?></span>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
-                            <?php endif; ?>
-                            <?php if ($userData['weight_kg']): ?>
-                            <div class="col-md-4">
-                                <strong>Berat Badan</strong><br>
-                                <span class="text-muted"><?= $userData['weight_kg'] ?> kg</span>
-                            </div>
-                            <?php endif; ?>
-                            <?php if ($userData['height_cm'] && $userData['weight_kg']): ?>
-                            <div class="col-md-4">
-                                <strong>BMI</strong><br>
-                                <span class="text-muted">
-                                    <?php
-                                    $bmi = round($userData['weight_kg'] / (($userData['height_cm']/100) ** 2), 1);
-                                    $bmiCategory = '';
-                                    if ($bmi < 18.5) $bmiCategory = 'Underweight';
-                                    elseif ($bmi < 25) $bmiCategory = 'Normal';
-                                    elseif ($bmi < 30) $bmiCategory = 'Overweight';
-                                    else $bmiCategory = 'Obese';
-                                    echo $bmi . ' (' . $bmiCategory . ')';
-                                    ?>
-                                </span>
-                            </div>
-                            <?php endif; ?>
-                            <div class="col-md-6">
-                                <strong>Target Kalori Harian</strong><br>
-                                <span class="text-muted"><?= $userData['daily_calorie_goal'] ?> kcal</span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Tingkat Aktivitas</strong><br>
-                                <span class="text-muted">
-                                    <?php
-                                    switch($userData['activity_level']) {
-                                        case 'sedentary': echo 'Sedentary (Jarang olahraga)'; break;
-                                        case 'light': echo 'Light (Olahraga ringan)'; break;
-                                        case 'moderate': echo 'Moderate (Olahraga sedang)'; break;
-                                        case 'active': echo 'Active (Olahraga berat)'; break;
-                                        case 'very_active': echo 'Very Active (Olahraga sangat berat)'; break;
-                                        default: echo 'Moderate';
-                                    }
-                                    ?>
-                                </span>
+                            <div class="col-12 col-md-6">
+                                <?php foreach ($physicalRight as $item): ?>
+                                    <div class="mb-3">
+                                        <strong><?= htmlspecialchars($item['label']) ?></strong><br>
+                                        <span class="text-muted"><?= htmlspecialchars($item['value']) ?></span>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
                 </div>
                 <?php endif; ?>
 
-                <!-- Goals Section -->
+                <!-- Target Section -->
                 <div class="card shadow-sm rounded-3 mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 fw-bold">Target & Goals</h6>
+                    <div class="card-header rms-card-adaptive d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">Target</h6>
                         <a href="goals.php" class="btn btn-outline-success btn-sm">
-                            <i class="bi bi-target me-1"></i>Kelola Goals
+                            <i class="bi bi-target me-1"></i>Kelola Target
                         </a>
                     </div>
                     <div class="card-body">
                         <?php if ($userGoal): ?>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <strong>Tipe Goal</strong><br>
+                                <strong>Tipe Target</strong><br>
                                 <span class="text-muted">
                                     <?php
                                     switch($userGoal['goal_type']) {
@@ -297,10 +304,10 @@ if (isset($_GET['success'])) {
                         <?php else: ?>
                         <div class="text-center py-4">
                             <i class="bi bi-target fs-1 text-muted mb-3"></i>
-                            <h6 class="text-muted">Belum ada goal yang ditetapkan</h6>
-                            <p class="text-muted mb-3">Tetapkan goal untuk tracking progress yang lebih baik</p>
+                            <h6 class="text-muted">Belum ada target yang ditetapkan</h6>
+                            <p class="text-muted mb-3">Tetapkan target agar progres Anda lebih terpantau</p>
                             <a href="goals.php" class="btn btn-success">
-                                <i class="bi bi-plus-circle me-2"></i>Buat Goal Pertama
+                                <i class="bi bi-plus-circle me-2"></i>Buat Target Pertama
                             </a>
                         </div>
                         <?php endif; ?>
@@ -309,7 +316,7 @@ if (isset($_GET['success'])) {
 
                 <!-- Recent Activity -->
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0 fw-bold">Aktivitas Terbaru</h6>
                     </div>
                     <div class="card-body">
@@ -335,7 +342,7 @@ if (isset($_GET['success'])) {
                                         <strong><?= htmlspecialchars($activity['food_name']) ?></strong>
                                         <br>
                                         <small class="text-muted">
-                                            Dijadwalkan untuk: <?= date('d M Y', strtotime($activity['schedule_date'])) ?>
+                                            Dicatat untuk: <?= date('d M Y', strtotime($activity['schedule_date'])) ?>
                                         </small>
                                     </div>
                                     <small class="text-muted">
@@ -346,7 +353,7 @@ if (isset($_GET['success'])) {
                             <?php endforeach; ?>
                         </div>
                         <?php else: ?>
-                        <p class="text-muted mb-0">Belum ada aktivitas jadwal makan.</p>
+                        <p class="text-muted mb-0">Belum ada aktivitas catatan makan.</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -358,19 +365,19 @@ if (isset($_GET['success'])) {
 <!-- Delete Account Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content rms-card-adaptive">
+            <div class="modal-header rms-card-adaptive">
                 <h5 class="modal-title">Hapus Akun</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body rms-card-adaptive">
                 <div class="alert alert-danger">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     <strong>Perhatian!</strong> Tindakan ini tidak dapat dibatalkan.
                 </div>
                 <p>Apakah Anda yakin ingin menghapus akun Anda? Semua data Anda akan hilang permanen, termasuk:</p>
                 <ul>
-                    <li>Jadwal makan</li>
+                    <li>Catatan makan</li>
                     <li>Riwayat nutrisi</li>
                     <li>Data profil</li>
                 </ul>
@@ -379,7 +386,7 @@ if (isset($_GET['success'])) {
                     <input type="password" class="form-control" id="confirmPassword" required>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer rms-card-adaptive">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-danger" onclick="deleteAccount()">Hapus Akun</button>
             </div>

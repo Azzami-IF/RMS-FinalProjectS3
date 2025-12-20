@@ -1,408 +1,405 @@
--- ===========================================
--- RMS (Rekomendasi Makanan Sehat) Database
--- ===========================================
--- Database untuk aplikasi tracking nutrisi dan rekomendasi makanan
+CREATE DATABASE IF NOT EXISTS db_rms;
+USE db_rms;
 
--- Membuat database
-CREATE DATABASE IF NOT EXISTS rms_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE rms_db;
+START TRANSACTION;
 
--- ===========================================
--- TABEL UTAMA
--- ===========================================
-
--- Tabel Users (Pengguna)
+-- =========================
+-- TABLE: users
+-- =========================
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'user') DEFAULT 'user',
-    avatar VARCHAR(255) NULL,
-    phone VARCHAR(20) NULL,
-    date_of_birth DATE NULL,
-    gender ENUM('male', 'female', 'other') NULL,
-    height_cm DECIMAL(5,2) NULL, -- tinggi badan dalam cm
-    weight_kg DECIMAL(5,2) NULL, -- berat badan dalam kg
-    activity_level ENUM('sedentary', 'light', 'moderate', 'active', 'very_active') DEFAULT 'moderate',
-    daily_calorie_goal INT DEFAULT 2000,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    last_login TIMESTAMP NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-
-    INDEX idx_email (email),
-    INDEX idx_role (role),
-    INDEX idx_created_at (created_at)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('admin','user') DEFAULT 'user',
+  avatar VARCHAR(255),
+  phone VARCHAR(20),
+  date_of_birth DATE,
+  gender ENUM('male','female','other'),
+  height_cm DECIMAL(5,2),
+  weight_kg DECIMAL(5,2),
+  activity_level ENUM('sedentary','light','moderate','active','very_active') DEFAULT 'moderate',
+  daily_calorie_goal INT DEFAULT 2000,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  last_login TIMESTAMP NULL,
+  is_active TINYINT(1) DEFAULT 1
 );
 
--- Tabel User Preferences (Preferensi Pengguna)
-CREATE TABLE user_preferences (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    preference_key VARCHAR(50) NOT NULL,
-    preference_value TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_preference (user_id, preference_key),
-    INDEX idx_user (user_id),
-    INDEX idx_key (preference_key)
-);
-
--- Tabel Food Categories (Kategori Makanan)
+-- =========================
+-- TABLE: food_categories
+-- =========================
 CREATE TABLE food_categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT NULL,
-    icon VARCHAR(50) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_name (name)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL UNIQUE,
+  description TEXT,
+  icon VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabel Foods (Makanan)
+-- =========================
+-- TABLE: foods
+-- =========================
 CREATE TABLE foods (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    category_id INT NULL,
-    name VARCHAR(150) NOT NULL,
-    description TEXT NULL,
-    calories DECIMAL(8,2) NOT NULL, -- kalori per 100g
-    protein DECIMAL(6,2) DEFAULT 0, -- protein dalam gram
-    fat DECIMAL(6,2) DEFAULT 0, -- lemak dalam gram
-    carbs DECIMAL(6,2) DEFAULT 0, -- karbohidrat dalam gram
-    fiber DECIMAL(6,2) DEFAULT 0, -- serat dalam gram
-    sugar DECIMAL(6,2) DEFAULT 0, -- gula dalam gram
-    sodium DECIMAL(6,2) DEFAULT 0, -- sodium dalam mg
-    serving_size VARCHAR(50) DEFAULT '100g', -- ukuran porsi
-    image_url VARCHAR(255) NULL,
-    is_verified BOOLEAN DEFAULT FALSE,
-    created_by INT NULL, -- user yang menambahkan
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (category_id) REFERENCES food_categories(id) ON DELETE SET NULL,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
-
-    INDEX idx_category (category_id),
-    INDEX idx_name (name),
-    INDEX idx_calories (calories),
-    FULLTEXT idx_search (name, description)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  category_id INT,
+  name VARCHAR(150) NOT NULL,
+  description TEXT,
+  calories DECIMAL(8,2) NOT NULL,
+  protein DECIMAL(6,2) DEFAULT 0,
+  fat DECIMAL(6,2) DEFAULT 0,
+  carbs DECIMAL(6,2) DEFAULT 0,
+  fiber DECIMAL(6,2) DEFAULT 0,
+  sugar DECIMAL(6,2) DEFAULT 0,
+  sodium DECIMAL(6,2) DEFAULT 0,
+  image_url VARCHAR(1024),
+  is_verified TINYINT(1) DEFAULT 0,
+  created_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Tabel Meal Types (Jenis Makanan)
+-- =========================
+-- TABLE: meal_types
+-- =========================
 CREATE TABLE meal_types (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    display_name VARCHAR(50) NOT NULL,
-    icon VARCHAR(50) NULL,
-    sort_order INT DEFAULT 0,
-    is_active BOOLEAN DEFAULT TRUE,
-
-    INDEX idx_sort_order (sort_order)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL UNIQUE,
+  display_name VARCHAR(50) NOT NULL,
+  icon VARCHAR(50),
+  sort_order INT DEFAULT 0,
+  is_active TINYINT(1) DEFAULT 1
 );
 
--- Tabel Schedules (Jadwal Makan)
+-- =========================
+-- TABLE: schedules
+-- =========================
 CREATE TABLE schedules (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    food_id INT NOT NULL,
-    meal_type_id INT NULL,
-    schedule_date DATE NOT NULL,
-    quantity DECIMAL(6,2) DEFAULT 1, -- jumlah porsi
-    notes TEXT NULL,
-    calories_consumed DECIMAL(8,2) NULL, -- kalori yang dikonsumsi (dihitung otomatis)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (food_id) REFERENCES foods(id) ON DELETE CASCADE,
-    FOREIGN KEY (meal_type_id) REFERENCES meal_types(id) ON DELETE SET NULL,
-
-    INDEX idx_user_date (user_id, schedule_date),
-    INDEX idx_food (food_id),
-    INDEX idx_meal_type (meal_type_id),
-    INDEX idx_date (schedule_date)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  food_id INT NOT NULL,
+  meal_type_id INT,
+  schedule_date DATE NOT NULL,
+  quantity DECIMAL(6,2) DEFAULT 1.00,
+  notes TEXT,
+  calories_consumed DECIMAL(8,2),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Tabel User Goals (Target Pengguna)
-CREATE TABLE user_goals (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    goal_type ENUM('weight_loss', 'weight_gain', 'maintain', 'muscle_gain') NOT NULL,
-    target_weight_kg DECIMAL(5,2) NULL,
-    target_date DATE NULL,
-    weekly_weight_change DECIMAL(3,2) NULL, -- perubahan berat per minggu dalam kg
-    daily_calorie_target INT NOT NULL,
-    daily_protein_target DECIMAL(6,2) NULL,
-    daily_fat_target DECIMAL(6,2) NULL,
-    daily_carbs_target DECIMAL(6,2) NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-
-    INDEX idx_user (user_id),
-    INDEX idx_active (user_id, is_active)
-);
-
--- Tabel Weight Logs (Log Berat Badan)
-CREATE TABLE weight_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    weight_kg DECIMAL(5,2) NOT NULL,
-    body_fat_percentage DECIMAL(4,2) NULL,
-    muscle_mass_kg DECIMAL(5,2) NULL,
-    notes TEXT NULL,
-    logged_at DATE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-
-    UNIQUE KEY unique_user_date (user_id, logged_at),
-    INDEX idx_user_date (user_id, logged_at)
-);
-
--- Tabel Notifications (Notifikasi)
+-- =========================
+-- TABLE: notifications
+-- =========================
 CREATE TABLE notifications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    title VARCHAR(150) NOT NULL,
-    message TEXT NOT NULL,
-    type ENUM('info', 'warning', 'success', 'error') DEFAULT 'info',
-    channel ENUM('email', 'push', 'in_app') DEFAULT 'in_app',
-    status ENUM('unread', 'read', 'sent', 'failed') DEFAULT 'unread',
-    scheduled_at TIMESTAMP NULL,
-    sent_at TIMESTAMP NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-
-    INDEX idx_user_status (user_id, status),
-    INDEX idx_type (type),
-    INDEX idx_created_at (created_at)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(150) NOT NULL,
+  message TEXT NOT NULL,
+  type VARCHAR(20) DEFAULT 'info',
+  channel ENUM('email','push','in_app') DEFAULT 'in_app',
+  status ENUM('unread','read','sent','failed') DEFAULT 'unread',
+  scheduled_at TIMESTAMP NULL,
+  sent_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabel API Logs (untuk Spoonacular API)
-CREATE TABLE api_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    endpoint VARCHAR(255) NOT NULL,
-    request_data JSON NULL,
-    response_data JSON NULL,
-    status_code INT NULL,
-    error_message TEXT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_endpoint (endpoint),
-    INDEX idx_created_at (created_at)
+-- =========================
+-- TABLE: user_goals
+-- =========================
+CREATE TABLE user_goals (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  goal_type ENUM('weight_loss','weight_gain','maintain','muscle_gain') NOT NULL,
+  target_weight_kg DECIMAL(5,2),
+  target_date DATE,
+  weekly_weight_change DECIMAL(3,2),
+  daily_calorie_target INT NOT NULL,
+  daily_protein_target DECIMAL(6,2),
+  daily_fat_target DECIMAL(6,2),
+  daily_carbs_target DECIMAL(6,2),
+  evaluation TEXT,
+  status VARCHAR(20) DEFAULT 'active',
+  last_notif TIMESTAMP NULL,
+  progress DECIMAL(5,2) DEFAULT 0,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- ===========================================
--- DATA AWAL (SEED DATA)
--- ===========================================
+-- =========================
+-- TABLE: user_preferences
+-- =========================
+CREATE TABLE user_preferences (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  preference_key VARCHAR(50) NOT NULL,
+  preference_value TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_user_preference (user_id, preference_key)
+);
 
--- Insert meal types
-INSERT INTO meal_types (name, display_name, icon, sort_order) VALUES
-('breakfast', 'Sarapan', 'sunrise', 1),
-('morning_snack', 'Cemilan Pagi', 'cookie', 2),
-('lunch', 'Makan Siang', 'sun', 3),
-('afternoon_snack', 'Cemilan Sore', 'coffee', 4),
-('dinner', 'Makan Malam', 'moon', 5),
-('evening_snack', 'Cemilan Malam', 'star', 6);
+-- =========================
+-- TABLE: weight_logs
+-- =========================
+CREATE TABLE weight_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  weight_kg DECIMAL(5,2) NOT NULL,
+  body_fat_percentage DECIMAL(4,2),
+  muscle_mass_kg DECIMAL(5,2),
+  notes TEXT,
+  logged_at DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_user_date (user_id, logged_at)
+);
 
--- Insert food categories
-INSERT INTO food_categories (name, description, icon) VALUES
-('protein', 'Sumber protein tinggi', 'egg'),
-('vegetables', 'Sayuran dan buah', 'leaf'),
-('grains', 'Karbohidrat kompleks', 'wheat'),
-('dairy', 'Produk susu', 'cheese'),
-('fruits', 'Buah-buahan', 'apple'),
-('beverages', 'Minuman', 'cup'),
-('snacks', 'Cemilan', 'cookie'),
-('fast_food', 'Makanan cepat saji', 'hamburger');
+-- =========================
+-- INDEXES
+-- =========================
+CREATE FULLTEXT INDEX idx_food_search ON foods(name, description);
+CREATE INDEX idx_schedules_user_date ON schedules(user_id, schedule_date);
+CREATE INDEX idx_notifications_user ON notifications(user_id, status);
 
--- Insert sample foods
-INSERT INTO foods (category_id, name, description, calories, protein, fat, carbs, fiber, sugar, sodium, serving_size) VALUES
-(1, 'Ayam Dada Rebus', 'Dada ayam tanpa kulit direbus', 165, 31, 3.6, 0, 0, 0, 74, '100g'),
-(1, 'Telur Rebus', 'Telur ayam rebus', 155, 13, 11, 1.1, 0, 0.5, 124, '1 butir besar'),
-(1, 'Tahu', 'Tahu putih', 76, 8.1, 4.3, 1.9, 0.3, 0.5, 8, '100g'),
-(1, 'Tempe', 'Tempe kedelai', 193, 18.5, 8.8, 14.6, 2.1, 0.8, 9, '100g'),
-(2, 'Bayam', 'Sayur bayam hijau', 23, 2.9, 0.4, 3.6, 2.2, 0.4, 79, '100g'),
-(2, 'Wortel', 'Wortel segar', 41, 0.9, 0.2, 9.6, 2.8, 4.7, 69, '100g'),
-(2, 'Tomat', 'Tomat merah segar', 18, 0.9, 0.2, 3.9, 1.2, 2.6, 5, '100g'),
-(2, 'Kangkung', 'Sayur kangkung', 19, 2.6, 0.2, 3.1, 1.3, 0.4, 31, '100g'),
-(3, 'Nasi Putih', 'Nasi putih matang', 130, 2.7, 0.3, 27.9, 0.4, 0.1, 1, '100g'),
-(3, 'Oatmeal', 'Oatmeal instan', 379, 13.2, 6.5, 67.7, 10.1, 1, 49, '100g'),
-(3, 'Roti Gandum', 'Roti gandum utuh', 247, 12.4, 3.2, 41.3, 6.8, 5.2, 439, '100g'),
-(4, 'Susu Sapi', 'Susu sapi full cream', 61, 3.2, 3.3, 4.8, 0, 4.8, 43, '100ml'),
-(4, 'Yogurt Plain', 'Yogurt plain tanpa gula', 59, 3.5, 3.3, 4.7, 0, 4.7, 46, '100g'),
-(5, 'Apel', 'Apel merah segar', 52, 0.3, 0.2, 13.8, 2.4, 10.4, 1, '1 buah sedang'),
-(5, 'Pisang', 'Pisang Cavendish', 89, 1.1, 0.3, 22.8, 2.6, 12.2, 1, '1 buah sedang'),
-(5, 'Jeruk', 'Jeruk manis', 47, 0.9, 0.1, 11.8, 2.4, 9.4, 0, '1 buah sedang'),
-(7, 'Kacang Almond', 'Kacang almond mentah', 579, 21.2, 49.9, 21.6, 12.5, 4.4, 1, '100g'),
-(7, 'Kurma', 'Kurma Medjool', 277, 1.8, 0.2, 74.9, 6.7, 66.5, 1, '100g');
+-- =========================
+-- FOREIGN KEYS
+-- =========================
+ALTER TABLE foods
+  ADD FOREIGN KEY (category_id) REFERENCES food_categories(id) ON DELETE SET NULL,
+  ADD FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
 
--- Insert sample user (admin)
-INSERT INTO users (name, email, password, role) VALUES
-('Administrator', 'admin@rms.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+ALTER TABLE schedules
+  ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  ADD FOREIGN KEY (food_id) REFERENCES foods(id) ON DELETE CASCADE,
+  ADD FOREIGN KEY (meal_type_id) REFERENCES meal_types(id) ON DELETE SET NULL;
 
--- Insert sample user goals
-INSERT INTO user_goals (user_id, goal_type, daily_calorie_target, daily_protein_target, daily_fat_target, daily_carbs_target) VALUES
-(1, 'maintain', 2000, 150, 67, 250);
+ALTER TABLE notifications
+  ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
--- ===========================================
--- VIEWS UNTUK ANALISIS
--- ===========================================
+ALTER TABLE user_goals
+  ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
--- View untuk ringkasan nutrisi harian
+ALTER TABLE user_preferences
+  ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE weight_logs
+  ADD FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+-- =========================
+-- PROCEDURES
+-- =========================
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS calculate_meal_calories$$
+DROP PROCEDURE IF EXISTS get_food_recommendations$$
+DROP PROCEDURE IF EXISTS update_user_stats$$
+
+CREATE PROCEDURE calculate_meal_calories(IN schedule_id INT)
+BEGIN
+  UPDATE schedules s
+  JOIN foods f ON s.food_id = f.id
+  SET s.calories_consumed = f.calories * s.quantity
+  WHERE s.id = schedule_id;
+END$$
+
+CREATE PROCEDURE get_food_recommendations(
+  IN user_id INT,
+  IN meal_type VARCHAR(50),
+  IN calorie_limit INT
+)
+BEGIN
+  SELECT f.*, fc.name AS category_name
+  FROM foods f
+  LEFT JOIN food_categories fc ON f.category_id = fc.id
+  WHERE f.calories <= calorie_limit
+    AND f.is_verified = 1
+  ORDER BY f.calories DESC
+  LIMIT 10;
+END$$
+
+CREATE PROCEDURE update_user_stats(IN user_id INT)
+BEGIN
+  UPDATE users
+  SET last_login = CURRENT_TIMESTAMP
+  WHERE id = user_id;
+
+  UPDATE users u
+  SET weight_kg = (
+    SELECT weight_kg FROM weight_logs
+    WHERE user_id = u.id
+    ORDER BY logged_at DESC
+    LIMIT 1
+  )
+  WHERE u.id = user_id;
+END$$
+
+DELIMITER ;
+
+-- =========================
+-- TRIGGERS
+-- =========================
+DELIMITER $$
+
+DROP TRIGGER IF EXISTS calculate_calories_on_insert$$
+DROP TRIGGER IF EXISTS calculate_calories_on_update$$
+
+CREATE TRIGGER calculate_calories_on_insert
+BEFORE INSERT ON schedules
+FOR EACH ROW
+BEGIN
+  SET NEW.calories_consumed =
+    (SELECT calories FROM foods WHERE id = NEW.food_id) * NEW.quantity;
+END$$
+
+CREATE TRIGGER calculate_calories_on_update
+BEFORE UPDATE ON schedules
+FOR EACH ROW
+BEGIN
+  IF NEW.food_id != OLD.food_id OR NEW.quantity != OLD.quantity THEN
+    SET NEW.calories_consumed =
+      (SELECT calories FROM foods WHERE id = NEW.food_id) * NEW.quantity;
+  END IF;
+END$$
+
+DELIMITER ;
+
+-- =========================
+-- VIEWS
+-- =========================
+DROP VIEW IF EXISTS daily_nutrition_summary;
+DROP VIEW IF EXISTS user_progress;
+
 CREATE VIEW daily_nutrition_summary AS
 SELECT
-    s.user_id,
-    s.schedule_date,
-    SUM(s.calories_consumed) as total_calories,
-    SUM(f.protein * s.quantity) as total_protein,
-    SUM(f.fat * s.quantity) as total_fat,
-    SUM(f.carbs * s.quantity) as total_carbs,
-    SUM(f.fiber * s.quantity) as total_fiber,
-    COUNT(s.id) as total_meals
+  s.user_id,
+  s.schedule_date,
+  SUM(s.calories_consumed) AS total_calories,
+  SUM(f.protein * s.quantity) AS total_protein,
+  SUM(f.fat * s.quantity) AS total_fat,
+  SUM(f.carbs * s.quantity) AS total_carbs,
+  SUM(f.fiber * s.quantity) AS total_fiber,
+  COUNT(s.id) AS total_meals
 FROM schedules s
 JOIN foods f ON s.food_id = f.id
 GROUP BY s.user_id, s.schedule_date;
 
--- View untuk progress user
 CREATE VIEW user_progress AS
 SELECT
-    u.id,
-    u.name,
-    u.daily_calorie_goal,
-    COALESCE(AVG(dns.total_calories), 0) as avg_daily_calories,
-    COALESCE(SUM(dns.total_meals), 0) as total_meals_logged,
-    COUNT(DISTINCT dns.schedule_date) as days_logged,
-    MAX(wl.weight_kg) as current_weight,
-    MIN(wl.weight_kg) as starting_weight
+  u.id,
+  u.name,
+  u.daily_calorie_goal,
+  COALESCE(AVG(dns.total_calories),0) AS avg_daily_calories,
+  COUNT(DISTINCT dns.schedule_date) AS days_logged,
+  COALESCE(SUM(dns.total_meals),0) AS total_meals_logged,
+  MAX(wl.weight_kg) AS current_weight,
+  MIN(wl.weight_kg) AS starting_weight
 FROM users u
 LEFT JOIN daily_nutrition_summary dns ON u.id = dns.user_id
 LEFT JOIN weight_logs wl ON u.id = wl.user_id
-WHERE u.is_active = TRUE
-GROUP BY u.id, u.name, u.daily_calorie_goal;
+WHERE u.is_active = 1
+GROUP BY u.id;
 
--- ===========================================
--- STORED PROCEDURES
--- ===========================================
+-- =========================
+-- SEED DATA (Demo)
+-- =========================
+-- Login demo:
+-- admin@rms.local / admin123
+-- user@rms.local  / user123
 
--- Procedure untuk menghitung kalori yang dikonsumsi
-DELIMITER //
+INSERT INTO users (id, name, email, password, role, gender, height_cm, weight_kg, activity_level, daily_calorie_goal, is_active)
+VALUES
+  (1, 'Admin RMS', 'admin@rms.local', '$2y$10$72PQ.DXNSZKDBlrfNtTsQO/q4KUnCIdmnILmgtNA9HOcI2UyBf4K6', 'admin', 'other', 170.00, 70.00, 'moderate', 2000, 1),
+  (2, 'Demo User', 'user@rms.local',  '$2y$10$up4i2hStplzmf3Q4/DASAuiN0sbJOAsEeyrE3NU/5p31SLD9vdELK', 'user',  'male',  172.00, 75.00, 'moderate', 2000, 1);
 
-CREATE PROCEDURE calculate_meal_calories(IN schedule_id INT)
-BEGIN
-    UPDATE schedules s
-    JOIN foods f ON s.food_id = f.id
-    SET s.calories_consumed = f.calories * s.quantity
-    WHERE s.id = schedule_id;
-END //
+INSERT INTO user_preferences (user_id, preference_key, preference_value)
+VALUES
+  (1, 'theme', 'light'),
+  (1, 'notifications_email', '0'),
+  (1, 'notifications_inapp', '1'),
+  (2, 'theme', 'light'),
+  (2, 'notifications_email', '0'),
+  (2, 'notifications_inapp', '1');
 
--- Procedure untuk mendapatkan rekomendasi makanan
-CREATE PROCEDURE get_food_recommendations(
-    IN user_id INT,
-    IN meal_type VARCHAR(50),
-    IN calorie_limit INT
+INSERT INTO meal_types (id, name, display_name, icon, sort_order, is_active)
+VALUES
+  (1, 'breakfast', 'Sarapan', 'bi-sunrise', 1, 1),
+  (2, 'lunch', 'Makan Siang', 'bi-brightness-high', 2, 1),
+  (3, 'dinner', 'Makan Malam', 'bi-moon-stars', 3, 1),
+  (4, 'snack', 'Snack', 'bi-apple', 4, 1);
+
+INSERT INTO food_categories (id, name, description, icon)
+VALUES
+  (1, 'Protein', 'Sumber protein', 'bi-egg-fried'),
+  (2, 'Karbohidrat', 'Sumber energi', 'bi-bread-slice'),
+  (3, 'Sayur', 'Serat dan vitamin', 'bi-flower1'),
+  (4, 'Buah', 'Buah segar', 'bi-apple'),
+  (5, 'Minuman', 'Minuman sehat', 'bi-cup-straw');
+
+INSERT INTO foods (id, category_id, name, description, calories, protein, fat, carbs, fiber, sugar, sodium, image_url, is_verified, created_by)
+VALUES
+  (1, 1, 'Dada Ayam Panggang (100g)', 'Protein tinggi, rendah lemak', 165.00, 31.00, 3.60, 0.00, 0.00, 0.00, 74.00, NULL, 1, 1),
+  (2, 2, 'Nasi Putih (1 porsi)', 'Sumber karbohidrat', 206.00, 4.20, 0.40, 45.00, 0.60, 0.10, 2.00, NULL, 1, 1),
+  (3, 3, 'Brokoli (1 porsi)', 'Sayur tinggi serat', 55.00, 3.70, 0.60, 11.20, 3.80, 2.20, 33.00, NULL, 1, 1),
+  (4, 1, 'Telur Rebus (1 butir)', 'Protein + lemak sehat', 78.00, 6.30, 5.30, 0.60, 0.00, 0.60, 62.00, NULL, 1, 1),
+  (5, 4, 'Pisang (1 buah)', 'Buah sumber karbohidrat cepat', 105.00, 1.30, 0.40, 27.00, 3.10, 14.00, 1.00, NULL, 1, 1),
+  (6, 5, 'Susu Rendah Lemak (1 gelas)', 'Minuman dengan protein', 120.00, 8.00, 3.00, 12.00, 0.00, 12.00, 100.00, NULL, 1, 1),
+  (7, 2, 'Oatmeal (1 porsi)', 'Karbohidrat kompleks', 150.00, 5.00, 3.00, 27.00, 4.00, 1.00, 2.00, NULL, 1, 1),
+  (8, 3, 'Salad Sayur (1 porsi)', 'Sayur segar rendah kalori', 80.00, 2.00, 4.00, 10.00, 4.00, 3.00, 120.00, NULL, 1, 1);
+
+-- Weight logs (demo user)
+INSERT INTO weight_logs (id, user_id, weight_kg, body_fat_percentage, muscle_mass_kg, notes, logged_at)
+VALUES
+  (1, 2, 75.00, 22.50, 30.00, 'Mulai tracking', DATE_SUB(CURDATE(), INTERVAL 21 DAY)),
+  (2, 2, 74.60, 22.20, 30.10, 'Minggu 1', DATE_SUB(CURDATE(), INTERVAL 14 DAY)),
+  (3, 2, 74.20, 22.00, 30.20, 'Minggu 2', DATE_SUB(CURDATE(), INTERVAL 7 DAY)),
+  (4, 2, 74.00, 21.80, 30.30, 'Terbaru', CURDATE());
+
+-- Active goal (demo user)
+INSERT INTO user_goals (
+  id, user_id, goal_type, target_weight_kg, target_date, weekly_weight_change,
+  daily_calorie_target, daily_protein_target, daily_fat_target, daily_carbs_target,
+  evaluation, status, last_notif, progress, is_active
 )
-BEGIN
-    SELECT
-        f.*,
-        fc.name as category_name
-    FROM foods f
-    LEFT JOIN food_categories fc ON f.category_id = fc.id
-    WHERE f.calories <= calorie_limit
-    AND f.is_verified = TRUE
-    ORDER BY f.calories DESC
-    LIMIT 10;
-END //
+VALUES
+  (1, 2, 'weight_loss', 68.00, DATE_ADD(CURDATE(), INTERVAL 8 WEEK), 0.50,
+   2000, 120.00, 60.00, 250.00,
+   NULL, 'active', NULL, 0.00, 1);
 
--- Procedure untuk update user stats
-CREATE PROCEDURE update_user_stats(IN user_id INT)
-BEGIN
-    -- Update last login
-    UPDATE users
-    SET last_login = CURRENT_TIMESTAMP
-    WHERE id = user_id;
+-- Sample schedules (7 days, 3 meals/day) for demo user
+INSERT INTO schedules (user_id, food_id, meal_type_id, schedule_date, quantity, notes)
+VALUES
+  (2, 7, 1, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1.00, 'Sarapan'),
+  (2, 1, 2, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1.00, 'Makan siang'),
+  (2, 3, 3, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1.00, 'Makan malam'),
 
-    -- Calculate and update current weight from latest log
-    UPDATE users u
-    SET weight_kg = (
-        SELECT weight_kg
-        FROM weight_logs wl
-        WHERE wl.user_id = u.id
-        ORDER BY wl.logged_at DESC
-        LIMIT 1
-    )
-    WHERE u.id = user_id;
-END //
+  (2, 7, 1, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 1.00, 'Sarapan'),
+  (2, 2, 2, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 1.00, 'Makan siang'),
+  (2, 8, 3, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 1.00, 'Makan malam'),
 
-DELIMITER ;
+  (2, 4, 1, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 2.00, 'Sarapan'),
+  (2, 1, 2, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 1.00, 'Makan siang'),
+  (2, 3, 3, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 1.00, 'Makan malam'),
 
--- ===========================================
--- TRIGGERS
--- ===========================================
+  (2, 7, 1, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 1.00, 'Sarapan'),
+  (2, 2, 2, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 1.00, 'Makan siang'),
+  (2, 5, 3, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 1.00, 'Makan malam ringan'),
 
--- Trigger untuk menghitung kalori otomatis saat insert schedule
-DELIMITER //
+  (2, 4, 1, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1.00, 'Sarapan'),
+  (2, 1, 2, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1.00, 'Makan siang'),
+  (2, 8, 3, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1.00, 'Makan malam'),
 
-CREATE TRIGGER calculate_calories_on_insert
-    BEFORE INSERT ON schedules
-    FOR EACH ROW
-BEGIN
-    SET NEW.calories_consumed = (
-        SELECT calories * NEW.quantity
-        FROM foods
-        WHERE id = NEW.food_id
-    );
-END //
+  (2, 7, 1, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1.00, 'Sarapan'),
+  (2, 2, 2, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1.00, 'Makan siang'),
+  (2, 3, 3, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1.00, 'Makan malam'),
 
--- Trigger untuk menghitung kalori otomatis saat update schedule
-CREATE TRIGGER calculate_calories_on_update
-    BEFORE UPDATE ON schedules
-    FOR EACH ROW
-BEGIN
-    IF NEW.food_id != OLD.food_id OR NEW.quantity != OLD.quantity THEN
-        SET NEW.calories_consumed = (
-            SELECT calories * NEW.quantity
-            FROM foods
-            WHERE id = NEW.food_id
-        );
-    END IF;
-END //
+  (2, 4, 1, CURDATE(), 1.00, 'Sarapan'),
+  (2, 1, 2, CURDATE(), 1.00, 'Makan siang'),
+  (2, 6, 3, CURDATE(), 1.00, 'Makan malam');
 
-DELIMITER ;
-
--- ===========================================
--- INDEX TAMBAHAN UNTUK PERFORMA
--- ===========================================
-
-CREATE INDEX idx_schedules_user_date_meal ON schedules (user_id, schedule_date, meal_type_id);
-CREATE INDEX idx_foods_category_calories ON foods (category_id, calories);
-CREATE INDEX idx_notifications_user_created ON notifications (user_id, created_at);
-CREATE INDEX idx_weight_logs_user_date ON weight_logs (user_id, logged_at);
-
--- ===========================================
--- SAMPLE DATA UNTUK TESTING
--- ===========================================
-
--- Sample schedule untuk user admin
-INSERT INTO schedules (user_id, food_id, meal_type_id, schedule_date, quantity) VALUES
-(1, 1, 1, CURDATE(), 1), -- Ayam dada untuk sarapan
-(1, 9, 3, CURDATE(), 1), -- Nasi putih untuk makan siang
-(1, 2, 5, CURDATE(), 2); -- 2 telur untuk makan malam
-
--- Sample weight log
-INSERT INTO weight_logs (user_id, weight_kg, logged_at) VALUES
-(1, 70.5, CURDATE());
-
--- Sample notifications
-INSERT INTO notifications (user_id, title, message, type) VALUES
-(1, 'Selamat Datang!', 'Selamat datang di RMS! Mulai tracking nutrisi Anda hari ini.', 'success'),
-(1, 'Target Harian', 'Anda telah mencapai 80% dari target kalori harian.', 'info');
+INSERT INTO notifications (user_id, title, message, type, channel, status, created_at)
+VALUES
+  (2, 'Selamat datang!', 'Akun demo siap digunakan. Coba buat jadwal makan dan pantau progress.', 'info', 'in_app', 'unread', CURRENT_TIMESTAMP),
+  (2, 'Tips', 'Minum air yang cukup dan konsisten tracking.', 'tip', 'in_app', 'unread', CURRENT_TIMESTAMP),
+  (2, 'Goal', 'Goal Anda aktif. Cek progress di menu Goals.', 'goal', 'in_app', 'unread', CURRENT_TIMESTAMP);
 
 COMMIT;

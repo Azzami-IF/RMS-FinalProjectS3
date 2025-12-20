@@ -19,16 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update user preferences in database
         $preferences = [
             'theme' => $_POST['theme'] ?? 'light',
-            'language' => $_POST['language'] ?? 'id',
+            // 'language' removed
             'notifications_email' => isset($_POST['notifications_email']) ? '1' : '0',
             'notifications_inapp' => isset($_POST['notifications_inapp']) ? '1' : '0',
-            'units_weight' => $_POST['units_weight'] ?? 'kg',
-            'units_height' => $_POST['units_height'] ?? 'cm',
-            'privacy_profile' => isset($_POST['privacy_profile']) ? '1' : '0',
-            'privacy_stats' => isset($_POST['privacy_stats']) ? '1' : '0'
         ];
 
         $userPrefs->setMultiple($_SESSION['user']['id'], $preferences);
+
 
         $message = 'Pengaturan berhasil disimpan!';
         $messageType = 'success';
@@ -41,13 +38,11 @@ $currentPrefs = $userPrefs->getAll($_SESSION['user']['id']);
 // Set defaults if not set
 $defaults = [
     'theme' => 'light',
-    'language' => 'id',
+    // 'language' removed
     'notifications_email' => '1',
     'notifications_inapp' => '1',
-    'units_weight' => 'kg',
-    'units_height' => 'cm',
-    'privacy_profile' => '1',
-    'privacy_stats' => '1'
+
+    // privacy fields removed
 ];
 
 $currentPrefs = array_merge($defaults, $currentPrefs);
@@ -60,9 +55,6 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
                 <h1 class="fw-bold mb-1">Pengaturan</h1>
                 <p class="text-muted">Sesuaikan preferensi aplikasi Anda</p>
             </div>
-            <a href="dashboard.php" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard
-            </a>
         </div>
 
         <?php if ($message): ?>
@@ -79,7 +71,7 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
 
                     <!-- Appearance Settings -->
                     <div class="card shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-light">
+                        <div class="card-header rms-card-adaptive">
                             <h5 class="mb-0">
                                 <i class="bi bi-palette me-2"></i>Tampilan
                             </h5>
@@ -94,20 +86,14 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
                                         <option value="auto" <?= $currentPrefs['theme'] === 'auto' ? 'selected' : '' ?>>Otomatis (sesuai sistem)</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Bahasa</label>
-                                    <select name="language" class="form-select">
-                                        <option value="id" <?= $currentPrefs['language'] === 'id' ? 'selected' : '' ?>>Bahasa Indonesia</option>
-                                        <option value="en" <?= $currentPrefs['language'] === 'en' ? 'selected' : '' ?>>English</option>
-                                    </select>
-                                </div>
+                                <!-- Bahasa setting removed -->
                             </div>
                         </div>
                     </div>
 
                     <!-- Notification Settings -->
                     <div class="card shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-light">
+                        <div class="card-header rms-card-adaptive">
                             <h5 class="mb-0">
                                 <i class="bi bi-bell me-2"></i>Notifikasi
                             </h5>
@@ -129,7 +115,7 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
                                         <input class="form-check-input" type="checkbox" name="notifications_inapp" id="notifInApp"
                                                <?= $currentPrefs['notifications_inapp'] === '1' ? 'checked' : '' ?>>
                                         <label class="form-check-label" for="notifInApp">
-                                            <strong>In-App</strong><br>
+                                            <strong>Di Aplikasi</strong><br>
                                             <small class="text-muted">Terima notifikasi di dalam aplikasi</small>
                                         </label>
                                     </div>
@@ -138,65 +124,7 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
                         </div>
                     </div>
 
-                    <!-- Units Settings -->
-                    <div class="card shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="bi bi-rulers me-2"></i>Satuan Pengukuran
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Berat Badan</label>
-                                    <select name="units_weight" class="form-select">
-                                        <option value="kg" <?= $currentPrefs['units_weight'] === 'kg' ? 'selected' : '' ?>>Kilogram (kg)</option>
-                                        <option value="lbs" <?= $currentPrefs['units_weight'] === 'lbs' ? 'selected' : '' ?>>Pound (lbs)</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Tinggi Badan</label>
-                                    <select name="units_height" class="form-select">
-                                        <option value="cm" <?= $currentPrefs['units_height'] === 'cm' ? 'selected' : '' ?>>Centimeter (cm)</option>
-                                        <option value="inch" <?= $currentPrefs['units_height'] === 'inch' ? 'selected' : '' ?>>Inch</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Privacy Settings -->
-                    <div class="card shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="bi bi-shield-check me-2"></i>Privasi
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="privacy_profile" id="privacyProfile"
-                                               <?= $currentPrefs['privacy_profile'] === '1' ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="privacyProfile">
-                                            <strong>Profil Publik</strong><br>
-                                            <small class="text-muted">Izinkan data profil Anda dilihat oleh orang lain</small>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="privacy_stats" id="privacyStats"
-                                               <?= $currentPrefs['privacy_stats'] === '1' ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="privacyStats">
-                                            <strong>Statistik Publik</strong><br>
-                                            <small class="text-muted">Izinkan statistik nutrisi Anda dilihat oleh orang lain</small>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Save Button -->
                     <div class="d-flex justify-content-end">
@@ -210,28 +138,27 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
             <!-- Preview/Settings Info -->
             <div class="col-lg-4">
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0">Pratinjau Tema</h6>
                     </div>
                     <div class="card-body">
                         <div class="theme-preview p-3 rounded mb-3" id="themePreview">
-                            <div class="bg-primary text-white p-2 rounded mb-2">Header</div>
-                            <div class="bg-light p-2 rounded mb-2">Konten</div>
-                            <div class="bg-secondary text-white p-2 rounded">Footer</div>
+                            <div class="bg-primary text-white p-2 rounded mb-2">Bagian Atas</div>
+                            <div class="p-2 rounded mb-2 rms-card-adaptive">Konten</div>
+                            <div class="bg-secondary text-white p-2 rounded">Bagian Bawah</div>
                         </div>
                         <small class="text-muted">Tema akan diterapkan setelah menyimpan pengaturan</small>
                     </div>
                 </div>
 
                 <div class="card shadow-sm rounded-3 mt-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h6 class="mb-0">Tips</h6>
                     </div>
                     <div class="card-body">
                         <ul class="list-unstyled small mb-0">
                             <li class="mb-2"><i class="bi bi-lightbulb text-warning me-2"></i>Tema gelap menghemat baterai</li>
-                            <li class="mb-2"><i class="bi bi-bell text-info me-2"></i>Notifikasi membantu Anda tetap on track</li>
-                            <li class="mb-2"><i class="bi bi-shield text-success me-2"></i>Privasi data Anda selalu aman</li>
+                            <li class="mb-2"><i class="bi bi-bell text-info me-2"></i>Notifikasi membantu Anda tetap konsisten</li>
                         </ul>
                     </div>
                 </div>
@@ -254,16 +181,16 @@ document.getElementById('themeSelect').addEventListener('change', function() {
     if (theme === 'dark') {
         preview.className = 'theme-preview p-3 rounded mb-3 bg-dark text-light';
         preview.innerHTML = `
-            <div class="bg-secondary text-white p-2 rounded mb-2">Header</div>
+            <div class="bg-secondary text-white p-2 rounded mb-2">Bagian Atas</div>
             <div class="bg-dark p-2 rounded mb-2 border">Konten</div>
-            <div class="bg-secondary text-white p-2 rounded">Footer</div>
+            <div class="bg-secondary text-white p-2 rounded">Bagian Bawah</div>
         `;
     } else {
         preview.className = 'theme-preview p-3 rounded mb-3';
         preview.innerHTML = `
-            <div class="bg-primary text-white p-2 rounded mb-2">Header</div>
-            <div class="bg-light p-2 rounded mb-2">Konten</div>
-            <div class="bg-secondary text-white p-2 rounded">Footer</div>
+            <div class="bg-primary text-white p-2 rounded mb-2">Bagian Atas</div>
+            <div class="p-2 rounded mb-2 rms-card-adaptive">Konten</div>
+            <div class="bg-secondary text-white p-2 rounded">Bagian Bawah</div>
         `;
     }
 });
@@ -283,5 +210,4 @@ document.querySelector('form').addEventListener('submit', function(e) {
 });
 </script>
 
-<?php require_once 'includes/footer.php'; ?></content>
-<parameter name="filePath">c:\laragon\www\RMS\settings.php
+<?php require_once 'includes/footer.php'; ?>

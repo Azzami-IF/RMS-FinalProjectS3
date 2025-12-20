@@ -1,0 +1,19 @@
+# Environment secrets
+.env
+.env.*
+
+# Runtime cache
+/cache/*
+!/cache/.gitkeep
+
+# Logs
+*.log
+
+# OS / editor
+Thumbs.db
+.DS_Store
+.vscode/
+
+# Composer
+/vendor/
+composer.lock

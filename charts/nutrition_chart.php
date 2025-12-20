@@ -16,6 +16,7 @@ $db = (new Database($config))->getConnection();
 $analytics = new AnalyticsService($db);
 $data = $analytics->nutritionSummary($_SESSION['user']['id']);
 
+header('Content-Type: application/json');
 echo json_encode([
     'labels' => ['Protein', 'Lemak', 'Karbohidrat'],
     'datasets' => [[

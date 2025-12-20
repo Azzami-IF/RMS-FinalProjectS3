@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/header.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -7,11 +8,9 @@ $user = $_SESSION['user'] ?? null;
 $role = $user['role'] ?? null;
 
 if (!$user || !in_array($role, ['user', 'admin'])) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
-
-require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/classes/AnalyticsService.php';
 
@@ -32,7 +31,7 @@ $totalMeals = $analytics->totalMeals($user['id']);
             <span class="text-success"><?= htmlspecialchars($user['name']) ?></span>
         </h1>
 
-        <p class="lead text-muted">Role Anda: <b><?php echo ucfirst($role); ?></b></p>
+        <p class="lead text-muted">Peran Anda: <b><?php echo ucfirst($role); ?></b></p>
 
         <hr>
 
@@ -42,7 +41,7 @@ $totalMeals = $analytics->totalMeals($user['id']);
                 <div class="card shadow-sm rounded-3">
                     <div class="card-body text-center">
                         <h5 class="fw-bold">Total Kalori Hari Ini</h5>
-                        <p class="text-muted">Tracking kalori harian Anda.</p>
+                        <p class="text-muted">Pantau kalori harian Anda.</p>
                         <h4 class="text-success"><?= $totalCalories ?> kcal</h4>
                     </div>
                 </div>
@@ -51,8 +50,8 @@ $totalMeals = $analytics->totalMeals($user['id']);
             <div class="col-md-4">
                 <div class="card shadow-sm rounded-3">
                     <div class="card-body text-center">
-                        <h5 class="fw-bold">Total Menu Dijadwalkan</h5>
-                        <p class="text-muted">Jumlah menu yang dijadwalkan.</p>
+                        <h5 class="fw-bold">Total Menu Dicatat</h5>
+                        <p class="text-muted">Jumlah menu yang dicatat.</p>
                         <h4 class="text-success"><?= $totalMeals ?></h4>
                     </div>
                 </div>
@@ -61,9 +60,9 @@ $totalMeals = $analytics->totalMeals($user['id']);
             <div class="col-md-4">
                 <div class="card shadow-sm rounded-3">
                     <div class="card-body text-center">
-                        <h5 class="fw-bold">Jadwal Makan</h5>
-                        <p class="text-muted">Atur menu sehat harian Anda.</p>
-                        <a href="schedules.php" class="btn btn-success">Atur Jadwal</a>
+                        <h5 class="fw-bold">Catatan Harian</h5>
+                        <p class="text-muted">Catat menu harian Anda.</p>
+                        <a href="schedules.php" class="btn btn-success">Catat Menu</a>
                     </div>
                 </div>
             </div>
@@ -91,9 +90,9 @@ $totalMeals = $analytics->totalMeals($user['id']);
             <div class="col-md-4">
                 <div class="card shadow-sm rounded-3">
                     <div class="card-body text-center">
-                        <h5 class="fw-bold">Kelola Goals</h5>
+                        <h5 class="fw-bold">Kelola Target</h5>
                         <p class="text-muted">Tetapkan target nutrisi & berat badan.</p>
-                        <a href="goals.php" class="btn btn-success">Kelola Goals</a>
+                        <a href="goals.php" class="btn btn-success">Kelola Target</a>
                     </div>
                 </div>
             </div>
@@ -101,9 +100,9 @@ $totalMeals = $analytics->totalMeals($user['id']);
             <div class="col-md-4">
                 <div class="card shadow-sm rounded-3">
                     <div class="card-body text-center">
-                        <h5 class="fw-bold">Log Berat Badan</h5>
-                        <p class="text-muted">Pantau progress berat badan Anda.</p>
-                        <a href="weight_log.php" class="btn btn-info">Log Berat</a>
+                        <h5 class="fw-bold">Catatan Berat Badan</h5>
+                        <p class="text-muted">Pantau progres berat badan Anda.</p>
+                        <a href="weight_log.php" class="btn btn-info">Lihat Catatan</a>
                     </div>
                 </div>
             </div>
@@ -114,7 +113,7 @@ $totalMeals = $analytics->totalMeals($user['id']);
         <div class="row mt-5">
             <div class="col-12">
                 <div class="card shadow-sm rounded-3">
-                    <div class="card-header bg-light">
+                    <div class="card-header rms-card-adaptive">
                         <h5 class="mb-0">Grafik Kalori Harian</h5>
                     </div>
                     <div class="card-body">
