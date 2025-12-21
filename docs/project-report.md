@@ -296,9 +296,9 @@ $db = $app->db();
 
 ### 4.2.1. Struktur Tabel
 
-Skema database didefinisikan pada file `docs/sql.txt`. Database utama bernama `db_rms`.
+Skema database didefinisikan pada file `docs/query.sql`. Database utama bernama `db_rms`.
 
-Berikut tabel-tabel inti yang digunakan (kolom dan tipe data mengikuti `docs/sql.txt`).
+Berikut tabel-tabel inti yang digunakan (kolom dan tipe data mengikuti `docs/query.sql`).
 
 #### Tabel: `users`
 | Kolom | Tipe Data |
@@ -446,7 +446,7 @@ Berikut tabel-tabel inti yang digunakan (kolom dan tipe data mengikuti `docs/sql
 
 ### 4.2.2. Query-Query Penting
 
-Berikut contoh query utama yang digunakan aplikasi (diambil dari file PHP dan skema `docs/sql.txt`).
+Berikut contoh query utama yang digunakan aplikasi (diambil dari file PHP dan skema `docs/query.sql`).
 
 1) **Login**
 ```sql

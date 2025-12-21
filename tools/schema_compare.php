@@ -1,6 +1,6 @@
 <?php
 /**
- * Compare current DB schema vs docs/sql.txt (expected schema).
+ * Compare current DB schema vs docs/query.sql (expected schema).
  *
  * Usage:
  *   php tools/schema_compare.php
@@ -14,15 +14,15 @@ $app = AppContext::fromRootDir(__DIR__ . '/..');
 $db = $app->db();
 
 $rootDir = realpath(__DIR__ . '/..') ?: (__DIR__ . '/..');
-$sqlPath = $rootDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'sql.txt';
+$sqlPath = $rootDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'query.sql';
 if (!is_file($sqlPath)) {
-    fwrite(STDERR, "sql.txt not found at: $sqlPath\n");
+    fwrite(STDERR, "query.sql not found at: $sqlPath\n");
     exit(2);
 }
 
 $sql = file_get_contents($sqlPath);
 if ($sql === false) {
-    fwrite(STDERR, "Failed reading sql.txt\n");
+    fwrite(STDERR, "Failed reading query.sql\n");
     exit(2);
 }
 
@@ -164,7 +164,7 @@ foreach ($expectedTables as $table => $meta) {
         }
 
         // Lightweight type check for common mismatches (varchar length/enum).
-        // Map sql.txt raw type to a best-effort comparable signature.
+        // Map query.sql raw type to a best-effort comparable signature.
         $expectedSig = strtolower($typeRaw);
         $expectedSig = preg_replace('~\s+.*$~', '', $expectedSig) ?? $expectedSig; // base keyword (varchar/int/enum/decimal/etc)
         $actualType = strtolower((string)$actualCols[$col]);
@@ -226,7 +226,7 @@ echo "DB: {$dbName}\n";
 echo "\n== Tables ==\n";
 if ($missingTables) {
     $hasDiff = true;
-    echo "Missing tables (in DB, but expected by sql.txt):\n";
+    echo "Missing tables (in DB, but expected by query.sql):\n";
     foreach ($missingTables as $t) echo "  - $t\n";
 } else {
     echo "OK: all expected tables exist\n";

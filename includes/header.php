@@ -15,7 +15,6 @@ $db = $app->db();
 $user = $app->user();
 $role = $app->role();
 $path_prefix = $app->pathPrefix();
-// Language feature removed
 ?>
 <!DOCTYPE html>
 <html lang="id">

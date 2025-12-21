@@ -21,14 +21,18 @@ RMS adalah aplikasi web untuk pencatatan asupan nutrisi, rekomendasi menu (Edama
 - MySQL/MariaDB
 - Composer
 
-## Instalasi Lokal (Laragon)
-1. Letakkan project di `C:\laragon\www\RMS`.
+## Instalasi Lokal (Laragon / XAMPP)
+1. Letakkan project:
+	- Laragon: `C:\laragon\www\RMS`
+	- XAMPP: `C:\xampp\htdocs\RMS`
 2. Install dependency: `composer install`.
 3. Salin `.env.example` menjadi `.env` lalu isi nilainya.
-4. Import database: `mysql -u root -p < docs/sql.txt`.
+4. Import database (pilih salah satu):
+	- Via CLI: `mysql -u root -p < docs/query.sql`
+	- Via GUI: buka HeidiSQL/phpMyAdmin → jalankan isi `docs/query.sql`
 5. Akses via browser: `http://localhost/RMS/`.
 
-Reset total (opsional): di `docs/sql.txt` ada blok **OPTIONAL: FULL RESET (DESTRUCTIVE)** yang bisa di-uncomment untuk `DROP DATABASE` + recreate.
+Reset total (opsional): di `docs/query.sql` ada blok **OPTIONAL: FULL RESET (DESTRUCTIVE)** yang bisa di-uncomment untuk `DROP DATABASE` + recreate.
 
 Alternatif (tanpa Apache/Nginx): jalankan PHP built-in server dengan router `public/index.php`:
 - `php -S 127.0.0.1:8001 -t public public/index.php`
@@ -44,6 +48,11 @@ Konfigurasi dibaca via `config/env.php` (Dotenv `safeLoad()`), contoh variabel d
 - SMTP: `MAIL_FROM_NAME` (nama pengirim)
 
 Catatan: `.env` tidak boleh di-commit.
+
+## Akun Uji (Seed Data)
+Saat import `docs/query.sql`, aplikasi akan menambahkan akun demo (jika ID belum terpakai):
+- Admin: `admin@rms.local` / `admin123`
+- User: `user@rms.local` / `user123`
 
 ## Routing Endpoints
 
@@ -97,4 +106,4 @@ Catatan:
 ## Catatan Penting (Notifikasi)
 - Tabel `notifications` dipakai multi-channel.
 - In-app UI/API harus selalu memfilter `channel='in_app'` agar log email tidak ikut tampil.
-- Scheduler CLI `notifications/schedule_notifications.php` menyimpan status eksekusi ke tabel `notification_schedules` (sudah termasuk di `docs/sql.txt`).
+- Scheduler CLI `notifications/schedule_notifications.php` menyimpan status eksekusi ke tabel `notification_schedules` (sudah termasuk di `docs/query.sql`).
