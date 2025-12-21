@@ -28,6 +28,8 @@ RMS adalah aplikasi web untuk pencatatan asupan nutrisi, rekomendasi menu (Edama
 4. Import database: `mysql -u root -p < sql.txt`.
 5. Akses via browser: `http://localhost/RMS/`.
 
+Reset total (opsional): di `sql.txt` ada blok **OPTIONAL: FULL RESET (DESTRUCTIVE)** yang bisa di-uncomment untuk `DROP DATABASE` + recreate.
+
 Alternatif (tanpa Apache/Nginx): jalankan PHP built-in server dengan router `public/index.php`:
 - `php -S 127.0.0.1:8001 -t public public/index.php`
 
@@ -47,7 +49,7 @@ Catatan: `.env` tidak boleh di-commit.
 
 **Halaman (root)**
 - `index.php`, `home.php`, `dashboard.php`
-- `login.php`, `register.php`, `logout.php`
+- `login.php`, `register.php`, `logout.php` (login: Nama atau Email)
 - `profile.php`, `profile_edit.php`, `profile_register.php`, `settings.php`
 - `schedules.php`, `goals.php`, `weight_log.php`, `evaluation.php`
 - `recommendation.php`, `recipe_detail.php`, `nutrition_analysis.php`
@@ -95,3 +97,4 @@ Catatan:
 ## Catatan Penting (Notifikasi)
 - Tabel `notifications` dipakai multi-channel.
 - In-app UI/API harus selalu memfilter `channel='in_app'` agar log email tidak ikut tampil.
+- Scheduler CLI `notifications/schedule_notifications.php` menyimpan status eksekusi ke tabel `notification_schedules` (sudah termasuk di `sql.txt`).

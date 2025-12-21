@@ -7,7 +7,7 @@ class Auth {
   }
 
   public function login($identifier, $password) {
-    // Accept both name (as username) and email
+    // Accept email or name
     $stmt = $this->db->prepare("SELECT * FROM users WHERE email=? OR name=?");
     $stmt->execute([$identifier, $identifier]);
     $user = $stmt->fetch();
