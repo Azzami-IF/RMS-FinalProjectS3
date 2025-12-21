@@ -1,29 +1,28 @@
 <?php
-session_start();
+require_once __DIR__ . '/../classes/AppContext.php';
 
-if (!isset($_SESSION['user'])) {
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+
+header('Content-Type: application/json');
+
+if (!$app->user()) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
 
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/AnalyticsService.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$analytics = new AnalyticsService($app->db());
+$data = $analytics->nutritionSummary((int)$app->user()['id']);
 
-$analytics = new AnalyticsService($db);
-$data = $analytics->nutritionSummary($_SESSION['user']['id']);
-
-header('Content-Type: application/json');
 echo json_encode([
     'labels' => ['Protein', 'Lemak', 'Karbohidrat'],
     'datasets' => [[
         'data' => [
             $data['protein'],
             $data['fat'],
-            $data['carbs']
-        ]
-    ]]
+            $data['carbs'],
+        ],
+    ]],
 ]);

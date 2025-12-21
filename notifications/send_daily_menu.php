@@ -1,14 +1,15 @@
 <?php
 // notifications/send_daily_menu.php
 // Kirim notifikasi menu sehat harian dengan rekomendasi food dari Edamam API
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/Cache.php';
 require_once __DIR__ . '/../classes/NotificationService.php';
 require_once __DIR__ . '/../classes/ApiClientEdamam.php';
 require_once __DIR__ . '/../classes/UserPreferences.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$config = $app->config();
+$db = $app->db();
 $notif = new NotificationService($db, $config);
 $edamam = new ApiClientEdamam(
     $config['EDAMAM_APP_ID'],

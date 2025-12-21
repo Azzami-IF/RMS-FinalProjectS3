@@ -1,9 +1,10 @@
 <?php
-require_once '../config/database.php';
-require_once '../classes/NotificationService.php';
+require_once __DIR__ . '/../classes/AppContext.php';
+require_once __DIR__ . '/../classes/NotificationService.php';
 
-$config = require '../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$config = $app->config();
+$db = $app->db();
 $notif = new NotificationService($db, $config);
 
 // Quick test switches: --user=<id> and --force=1 (or ?user_id=&force=1)

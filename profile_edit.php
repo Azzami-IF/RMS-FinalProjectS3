@@ -1,14 +1,17 @@
 <?php
-require_once 'includes/header.php';
-require_once 'includes/auth_guard.php';
-require_once 'config/database.php';
+require_once __DIR__ . '/classes/AppContext.php';
+
+$app = AppContext::fromRootDir(__DIR__);
+$app->requireUser();
+$GLOBALS['rms_app'] = $app;
+
+require_once __DIR__ . '/includes/header.php';
 require_once 'classes/User.php';
 
-$config = require 'config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $userClass = new User($db);
 
-$user = $_SESSION['user'];
+$user = $app->user();
 $userData = $userClass->find($user['id']);
 
 // Handle success/error messages

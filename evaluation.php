@@ -1,13 +1,15 @@
 <?php
+require_once __DIR__ . '/classes/AppContext.php';
+
+$app = AppContext::fromRootDir(__DIR__);
+$app->requireUser();
+
 require_once __DIR__ . '/includes/header.php';
-require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/classes/AnalyticsService.php';
 
-$config = require __DIR__ . '/config/env.php';
-$db = (new Database($config))->getConnection();
 $analytics = new AnalyticsService($db);
 
-$userId = $_SESSION['user']['id'];
+$userId = (int)$user['id'];
 
 $totalCalories = $analytics->totalCalories($userId);
 $totalDays     = $analytics->totalDays($userId);

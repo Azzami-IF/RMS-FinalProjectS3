@@ -1,14 +1,15 @@
 <?php
 // notifications/send_reminder_log.php
 // Kirim notifikasi pengingat pencatatan menu harian + rekomendasi makanan ringan
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/Cache.php';
 require_once __DIR__ . '/../classes/NotificationService.php';
 require_once __DIR__ . '/../classes/UserPreferences.php';
 require_once __DIR__ . '/../classes/ApiClientEdamam.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$config = $app->config();
+$db = $app->db();
 $notif = new NotificationService($db, $config);
 $prefs = new UserPreferences($db);
 $edamam = new ApiClientEdamam(
@@ -77,6 +78,7 @@ foreach ($users as $u) {
     $userId = (int)$u['id'];
     $userName = htmlspecialchars($u['name'], ENT_QUOTES, 'UTF-8');
     $actionUrl = 'schedules.php';
+    $safeActionUrl = htmlspecialchars($actionUrl, ENT_QUOTES, 'UTF-8');
     $todayDate = date('l, d F Y');
     $targetCalorie = (int)($u['daily_calorie_goal'] ?? 2000);
 

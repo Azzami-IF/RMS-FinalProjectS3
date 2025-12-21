@@ -1,15 +1,14 @@
 <?php
+require_once __DIR__ . '/../classes/PageBootstrap.php';
+
+$app = PageBootstrap::requireAdmin(__DIR__ . '/..');
+
 require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/auth_guard.php';
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/AnalyticsService.php';
 require_once __DIR__ . '/../classes/Admin/DashboardController.php';
 
 use Admin\DashboardController;
-
-require_admin();
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $controller = new DashboardController($db);
 $userCount = $controller->getUserCount();
 $foodCount = $controller->getFoodCount();

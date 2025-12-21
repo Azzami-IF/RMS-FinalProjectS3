@@ -1,14 +1,15 @@
 <?php
 // Script: notifications/send_goal_evaluation.php
 // Kirim notifikasi evaluasi goal mingguan dengan detail progress
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/UserGoal.php';
 require_once __DIR__ . '/../classes/AnalyticsService.php';
 require_once __DIR__ . '/../classes/NotificationService.php';
 require_once __DIR__ . '/../classes/UserPreferences.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$config = $app->config();
+$db = $app->db();
 $notif = new NotificationService($db, $config);
 $userGoal = new UserGoal($db);
 $analytics = new AnalyticsService($db);

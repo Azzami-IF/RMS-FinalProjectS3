@@ -1,10 +1,7 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-
-$user = $_SESSION['user'] ?? null;
+require_once __DIR__ . '/classes/PageBootstrap.php';
+$app = PageBootstrap::fromRootDir(__DIR__);
+$user = $app->user();
 
 if ($user) {
     if (isset($_SESSION['wajib_profil']) && $_SESSION['wajib_profil']) {

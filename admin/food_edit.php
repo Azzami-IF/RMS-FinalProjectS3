@@ -1,17 +1,15 @@
 <?php
-require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/auth_guard.php';
-require_admin();
+require_once __DIR__ . '/../classes/PageBootstrap.php';
 
-require_once __DIR__ . '/../config/database.php';
+$app = PageBootstrap::requireAdmin(__DIR__ . '/..');
+
+require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../classes/Food.php';
 require_once __DIR__ . '/../classes/FoodCategory.php';
 require_once __DIR__ . '/../classes/Admin/FoodEditController.php';
 
 use Admin\FoodEditController;
-
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, [
     'options' => ['min_range' => 1],
 ]);

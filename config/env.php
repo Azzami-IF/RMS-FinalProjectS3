@@ -15,5 +15,6 @@ return [
     'MAIL_PORT' => getenv('MAIL_PORT') ?: '587',
     'MAIL_ENCRYPTION' => getenv('MAIL_ENCRYPTION') ?: 'tls',
     'MAIL_FROM' => getenv('MAIL_FROM') ?: (getenv('MAIL_USER') ?: ''),
+    'MAIL_FROM_NAME' => getenv('MAIL_FROM_NAME') ?: 'RMS',
     'EDAMAM_USER_ID' => getenv('EDAMAM_USER_ID') ?: '',
 ];

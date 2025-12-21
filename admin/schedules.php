@@ -1,18 +1,16 @@
 <?php
-require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/auth_guard.php';
-require_admin();
+require_once __DIR__ . '/../classes/PageBootstrap.php';
 
-require_once __DIR__ . '/../config/database.php';
+$app = PageBootstrap::requireAdmin(__DIR__ . '/..');
+
+require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../classes/Schedule.php';
 require_once __DIR__ . '/../classes/Food.php';
 require_once __DIR__ . '/../classes/User.php';
 require_once __DIR__ . '/../classes/Admin/SchedulesController.php';
 
 use Admin\SchedulesController;
-
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $controller = new SchedulesController($db);
 $foods = $controller->getFoods();
 $users = $controller->getUsers();

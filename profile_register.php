@@ -1,17 +1,13 @@
 <?php
-require_once 'includes/header.php';
-require_once 'config/database.php';
-require_once 'classes/User.php';
+require_once __DIR__ . '/classes/AppContext.php';
 
-if (!isset($_SESSION['user'])) {
-    header('Location: login.php');
-    exit;
-}
+$app = AppContext::fromRootDir(__DIR__);
+$app->requireUser();
+$GLOBALS['rms_app'] = $app;
 
-$config = require 'config/env.php';
-$db = (new Database($config))->getConnection();
-$userClass = new User($db);
-$user = $_SESSION['user'];
+require_once __DIR__ . '/includes/header.php';
+
+$user = $app->user();
 
 // Jika sudah pernah isi profil, hapus sesi dan redirect ke dashboard
 if ($user['weight_kg'] && $user['height_cm'] && $user['date_of_birth']) {

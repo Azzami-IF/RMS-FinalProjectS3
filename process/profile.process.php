@@ -1,17 +1,12 @@
 <?php
-session_start();
-
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/User.php';
 require_once __DIR__ . '/../classes/Auth.php';
 
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$app->requireUser();
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $user = new User($db);
 $auth = new Auth($db);
 

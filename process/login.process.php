@@ -1,7 +1,5 @@
 <?php
-session_start();
-
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/Auth.php';
 
 if (!isset($_POST['login_identifier'], $_POST['password'])) {
@@ -9,8 +7,8 @@ if (!isset($_POST['login_identifier'], $_POST['password'])) {
     exit;
 }
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$db = $app->db();
 $auth = new Auth($db);
 
 $success = $auth->login(
