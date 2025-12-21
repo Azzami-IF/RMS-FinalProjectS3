@@ -26,7 +26,6 @@ Catatan:
 - `/recipe_detail.php` → detail resep
 - `/nutrition_analysis.php` → analisis nutrisi
 - `/notifications.php` → riwayat notifikasi in-app
-- `/notification_center.php` → tampilan pusat notifikasi
 
 ## Admin (GET)
 - `/admin/dashboard.php` → dashboard admin
