@@ -95,6 +95,7 @@ CREATE TABLE notifications (
   user_id INT NOT NULL,
   title VARCHAR(150) NOT NULL,
   message TEXT NOT NULL,
+  action_url VARCHAR(512) DEFAULT NULL,
   type VARCHAR(20) DEFAULT 'info',
   channel ENUM('email','push','in_app') DEFAULT 'in_app',
   status ENUM('unread','read','sent','failed') DEFAULT 'unread',

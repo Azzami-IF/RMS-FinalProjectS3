@@ -1,16 +1,12 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
-
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/WeightLog.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$app->requireUser();
+
+$db = $app->db();
+$userId = (int)$app->user()['id'];
 $weightLog = new WeightLog($db);
 
 $action = $_POST['action'] ?? '';
@@ -44,7 +40,7 @@ try {
 
             // Prepare log data
             $logData = [
-                'user_id' => $_SESSION['user']['id'],
+                'user_id' => $userId,
                 'weight_kg' => $weight,
                 'body_fat_percentage' => !empty($_POST['body_fat_percentage']) ? (float)$_POST['body_fat_percentage'] : null,
                 'muscle_mass_kg' => !empty($_POST['muscle_mass_kg']) ? (float)$_POST['muscle_mass_kg'] : null,
@@ -60,7 +56,7 @@ try {
             $logId = (int)($_POST['log_id'] ?? 0);
 
             if ($logId > 0) {
-                $weightLog->delete($logId, $_SESSION['user']['id']);
+                $weightLog->delete($logId, $userId);
                 header('Location: ../weight_log.php?success=deleted');
             } else {
                 header('Location: ../weight_log.php?error=' . urlencode('ID catatan tidak valid'));

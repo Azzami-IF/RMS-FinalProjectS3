@@ -1,14 +1,15 @@
 <?php
-require_once 'includes/header.php';
-require_once 'includes/auth_guard.php';
-require_once 'config/database.php';
-require_once 'classes/UserGoal.php';
-require_once 'classes/GoalsPageController.php';
-require_once 'classes/AnalyticsService.php';
+require_once __DIR__ . '/classes/AppContext.php';
 
-$config = require 'config/env.php';
-$db = (new Database($config))->getConnection();
-$user = $_SESSION['user'];
+$app = AppContext::fromRootDir(__DIR__);
+$app->requireUser();
+
+require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/classes/UserGoal.php';
+require_once __DIR__ . '/classes/GoalsPageController.php';
+require_once __DIR__ . '/classes/AnalyticsService.php';
+
+$user = $app->user();
 $controller = new GoalsPageController($db, $user);
 $currentGoal = $controller->getCurrentGoal();
 $message = $controller->getMessage();

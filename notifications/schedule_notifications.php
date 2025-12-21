@@ -12,11 +12,11 @@
  * 0 18 * * 0 php /path/to/schedule_notifications.php weekly
  */
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../classes/NotificationService.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$config = $app->config();
+$db = $app->db();
 
 // Get command argument (morning|menu|evening|weekly)
 $command = $argv[1] ?? 'all';

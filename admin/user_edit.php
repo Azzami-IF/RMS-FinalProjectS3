@@ -1,15 +1,15 @@
 <?php
+require_once __DIR__ . '/../classes/PageBootstrap.php';
+
+$app = PageBootstrap::requireAdmin(__DIR__ . '/..');
+
 require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/auth_guard.php';
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/User.php';
 require_once __DIR__ . '/../classes/Admin/UserEditController.php';
 
 use Admin\UserEditController;
 
-require_admin();
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, [
     'options' => ['min_range' => 1],
 ]);

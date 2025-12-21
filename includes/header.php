@@ -1,25 +1,20 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+$rootDir = __DIR__ . '/..';
+require_once $rootDir . '/classes/PageBootstrap.php';
+$app = PageBootstrap::fromRootDir($rootDir);
 
 // Cek sesi wajib_profil, redirect jika perlu
-if (isset($_SESSION['wajib_profil']) && $_SESSION['wajib_profil'] && basename($_SERVER['PHP_SELF']) !== 'profile_register.php') {
+if (isset($_SESSION['wajib_profil']) && $_SESSION['wajib_profil'] && basename((string)($_SERVER['PHP_SELF'] ?? '')) !== 'profile_register.php') {
     $_SESSION['notif_wajib_profil'] = true;
     header('Location: profile_register.php');
     exit;
 }
-
-require_once __DIR__ . '/../config/database.php';
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
-
-$user = $_SESSION['user'] ?? null;
-$role = $user['role'] ?? null;
-
-// Determine path prefix based on current directory
-$path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : '';
+$config = $app->config();
+$db = $app->db();
+$user = $app->user();
+$role = $app->role();
+$path_prefix = $app->pathPrefix();
 // Language feature removed
 ?>
 <!DOCTYPE html>
@@ -133,6 +128,12 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
                         <a class="nav-link" href="<?php echo $path_prefix; ?>register.php">Registrasi</a>
                     </li>
                 <?php else: ?>
+                    <?php
+                    $userId = (int)($user['id'] ?? 0);
+                    $userName = (string)($user['name'] ?? '');
+                    $userEmail = (string)($user['email'] ?? '');
+                    $userInitial = $userName !== '' ? strtoupper(substr($userName, 0, 1)) : '?';
+                    ?>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $path_prefix; ?>home.php">Beranda</a>
                     </li>
@@ -145,12 +146,12 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
 
                     <!-- NOTIFIKASI (User + Admin) -->
                     <?php
-                    $stmt = $db->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND status = 'unread'");
-                    $stmt->execute([$_SESSION['user']['id']]);
+                    $stmt = $db->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = ? AND channel = 'in_app' AND status = 'unread'");
+                    $stmt->execute([$userId]);
                     $unreadCount = (int)$stmt->fetchColumn();
 
-                    $stmt = $db->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
-                    $stmt->execute([$_SESSION['user']['id']]);
+                    $stmt = $db->prepare("SELECT * FROM notifications WHERE user_id = ? AND channel = 'in_app' ORDER BY created_at DESC LIMIT 5");
+                    $stmt->execute([$userId]);
                     $recentNotifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     $notifTypeLabels = [
@@ -251,14 +252,14 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
                                 <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                    <?php echo strtoupper(substr($_SESSION['user']['name'], 0, 1)); ?>
+                                    <?php echo htmlspecialchars($userInitial); ?>
                                 </div>
-                                <span><?php echo htmlspecialchars($_SESSION['user']['name']); ?></span>
+                                <span><?php echo htmlspecialchars($userName); ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow">
                                 <li class="dropdown-header">
-                                    <strong><?php echo htmlspecialchars($_SESSION['user']['name']); ?></strong><br>
-                                    <small class="text-muted"><?php echo htmlspecialchars($_SESSION['user']['email']); ?></small>
+                                    <strong><?php echo htmlspecialchars($userName); ?></strong><br>
+                                    <small class="text-muted"><?php echo htmlspecialchars($userEmail); ?></small>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
@@ -300,14 +301,14 @@ $path_prefix = (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) ? '../' : 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
                                 <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                    <?php echo strtoupper(substr($_SESSION['user']['name'], 0, 1)); ?>
+                                    <?php echo htmlspecialchars($userInitial); ?>
                                 </div>
-                                <span><?php echo htmlspecialchars($_SESSION['user']['name']); ?></span>
+                                <span><?php echo htmlspecialchars($userName); ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow">
                                 <li class="dropdown-header">
-                                    <strong><?php echo htmlspecialchars($_SESSION['user']['name']); ?></strong><br>
-                                    <small class="text-muted"><?php echo htmlspecialchars($_SESSION['user']['email']); ?></small>
+                                    <strong><?php echo htmlspecialchars($userName); ?></strong><br>
+                                    <small class="text-muted"><?php echo htmlspecialchars($userEmail); ?></small>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>

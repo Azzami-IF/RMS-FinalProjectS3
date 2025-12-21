@@ -1,11 +1,15 @@
 <?php
-require_once 'includes/header.php';
-require_once 'includes/auth_guard.php';
-require_once 'config/database.php';
+require_once __DIR__ . '/classes/AppContext.php';
+
+$app = AppContext::fromRootDir(__DIR__);
+$app->requireUser();
+$GLOBALS['rms_app'] = $app;
+
+require_once __DIR__ . '/includes/header.php';
 require_once 'classes/UserPreferences.php';
 
-$config = require 'config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
+$userId = (int)$app->user()['id'];
 $userPrefs = new UserPreferences($db);
 
 // Handle form submission
@@ -24,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'notifications_inapp' => isset($_POST['notifications_inapp']) ? '1' : '0',
         ];
 
-        $userPrefs->setMultiple($_SESSION['user']['id'], $preferences);
+        $userPrefs->setMultiple($userId, $preferences);
 
 
         $message = 'Pengaturan berhasil disimpan!';
@@ -33,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get current preferences
-$currentPrefs = $userPrefs->getAll($_SESSION['user']['id']);
+$currentPrefs = $userPrefs->getAll($userId);
 
 // Set defaults if not set
 $defaults = [

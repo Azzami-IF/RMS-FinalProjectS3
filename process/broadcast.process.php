@@ -1,15 +1,11 @@
 <?php
-session_start();
-
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/NotificationService.php';
 
 // Admin only
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
-if (($_SESSION['user']['role'] ?? '') !== 'admin') {
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$app->requireUser();
+if (($app->role() ?? '') !== 'admin') {
     http_response_code(403);
     exit('Akses ditolak');
 }
@@ -37,8 +33,8 @@ if ($messageRaw === '') {
 $message = nl2br(htmlspecialchars($messageRaw, ENT_QUOTES, 'UTF-8'));
 $titleSafe = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$config = $app->config();
+$db = $app->db();
 $notif = new NotificationService($db, $config);
 
 try {

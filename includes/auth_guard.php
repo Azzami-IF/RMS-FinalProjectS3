@@ -1,18 +1,13 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../classes/PageBootstrap.php';
 
 function require_login() {
-    if (!isset($_SESSION['user'])) {
-        header('Location: login.php');
-        exit;
-    }
+    PageBootstrap::requireUser(__DIR__ . '/..', 'login.php');
 }
 
 function require_admin() {
-    require_login();
-    if ($_SESSION['user']['role'] !== 'admin') {
+    $app = PageBootstrap::requireUser(__DIR__ . '/..', 'login.php');
+    if ($app->role() !== 'admin') {
         http_response_code(403);
         exit('Akses ditolak');
     }

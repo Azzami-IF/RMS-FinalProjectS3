@@ -1,22 +1,18 @@
 <?php
-session_start();
-require_once '../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once '../classes/User.php';
 
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$app->requireUser();
+$db = $app->db();
+$user = $app->user();
 
 if (!isset($_POST['date_of_birth'], $_POST['gender'], $_POST['height_cm'], $_POST['weight_kg'], $_POST['activity_level'])) {
     header('Location: ../profile_register.php?error=1');
     exit;
 }
 
-$config = require '../config/env.php';
-$db = (new Database($config))->getConnection();
 $userClass = new User($db);
-$user = $_SESSION['user'];
 
 // Perbarui profil pengguna
 $userClass->update($user['id'], [
