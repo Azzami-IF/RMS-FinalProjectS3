@@ -105,7 +105,7 @@
   <text class="code" x="720" y="1700">│  ├─ project-report.md</text>
   <text class="code" x="720" y="1720">│  ├─ root-file-structure.svg</text>
   <text class="code" x="720" y="1740">│  ├─ ROUTES.md</text>
-  <text class="code" x="720" y="1760">│  ├─ sql.txt</text>
+  <text class="code" x="720" y="1760">│  ├─ query.sql</text>
   <text class="code" x="720" y="1780">│  └─ usecase.jpg</text>
   <text class="code" x="48" y="1720">├─ export/</text>
   <text class="code" x="48" y="1740">│  └─ export_evaluation.php</text>

@@ -1,9 +1,5 @@
-// Custom scripts
-
-// Theme management
 const ThemeManager = {
     applyTheme: function(theme) {
-        console.log('Applying theme:', theme);
         const html = document.documentElement;
 
         if (theme === 'dark') {
@@ -21,18 +17,14 @@ const ThemeManager = {
             }
             localStorage.setItem('theme', 'auto');
         }
-        console.log('Current data-theme attribute:', html.getAttribute('data-theme'));
     },
 
     loadTheme: function() {
         let savedTheme = localStorage.getItem('theme') || 'light';
-        console.log('localStorage theme:', savedTheme);
         
-        // If we have user preferences from server, prioritize those
         if (window.userPreferences && window.userPreferences.theme) {
             savedTheme = window.userPreferences.theme;
             localStorage.setItem('theme', savedTheme); // Sync localStorage
-            console.log('Server theme:', savedTheme);
         }
         
         this.applyTheme(savedTheme);
@@ -50,10 +42,8 @@ const ThemeManager = {
     }
 };
 
-// Initialize theme on page load
 document.addEventListener('DOMContentLoaded', function() {
     ThemeManager.init();
 });
 
-// Make ThemeManager globally available
 window.ThemeManager = ThemeManager;

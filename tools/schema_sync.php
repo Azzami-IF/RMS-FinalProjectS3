@@ -1,6 +1,6 @@
 <?php
 /**
- * Sync local DB schema to match sql.txt expectations (minimal changes).
+ * Sync local DB schema to match query.sql expectations (minimal changes).
  *
  * Applies:
  * - remove users.username column (no longer used)
@@ -58,7 +58,7 @@ if (columnExists($db, $dbName, 'users', 'username')) {
 // 2) notifications.action_url
 $actionUrlType = getColumnType($db, $dbName, 'notifications', 'action_url');
 if ($actionUrlType === null) {
-    echo "WARN: notifications.action_url column not found (sql.txt expects it).\n";
+    echo "WARN: notifications.action_url column not found (query.sql expects it).\n";
 } else {
     // Normalize: expect varchar(512)
     if (preg_match('~^varchar\((\d+)\)$~i', $actionUrlType, $m)) {
