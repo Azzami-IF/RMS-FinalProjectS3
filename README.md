@@ -21,8 +21,8 @@ RMS adalah aplikasi web untuk pencatatan asupan nutrisi, rekomendasi menu (Edama
 - MySQL/MariaDB
 - Composer
 
-## Instalasi Lokal (Laragon)
-1. Letakkan project di `C:\laragon\www\RMS`.
+## Instalasi Lokal
+1. Letakkan project di `C:\laragon\www\RMS` (laragon) atau `C:\xampp\htdocs` (XAMPP).
 2. Install dependency: `composer install`.
 3. Salin `.env.example` menjadi `.env` lalu isi nilainya.
 4. Import database: `mysql -u root -p < docs/sql.txt`.
