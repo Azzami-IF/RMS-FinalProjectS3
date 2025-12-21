@@ -1,14 +1,17 @@
 <?php
-require_once 'includes/header.php';
-require_once 'includes/auth_guard.php';
-require_once 'config/database.php';
+require_once __DIR__ . '/classes/AppContext.php';
+
+$app = AppContext::fromRootDir(__DIR__);
+$app->requireUser();
+$GLOBALS['rms_app'] = $app;
+
+require_once __DIR__ . '/includes/header.php';
 require_once 'classes/User.php';
 require_once 'classes/UserGoal.php';
 require_once 'classes/ProfilePageController.php';
 
-$config = require 'config/env.php';
-$db = (new Database($config))->getConnection();
-$user = $_SESSION['user'];
+$db = $app->db();
+$user = $app->user();
 $controller = new ProfilePageController($db, $user);
 $userData = $controller->getUserData();
 $userGoal = $controller->getUserGoal();

@@ -5,21 +5,13 @@
  * UI untuk menampilkan semua notifikasi user dengan filtering dan aksi
  */
 
-require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/classes/AppContext.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+$app = AppContext::fromRootDir(__DIR__);
+$app->requireUser();
 
-$user = $_SESSION['user'] ?? null;
-
-if (!$user) {
-    header('Location: login.php');
-    exit;
-}
-
-$config = require __DIR__ . '/config/env.php';
-$db = (new Database($config))->getConnection();
+$user = $app->user();
+$db = $app->db();
 
 $userId = $user['id'];
 $filter = $_GET['filter'] ?? 'unread'; // unread, read, all

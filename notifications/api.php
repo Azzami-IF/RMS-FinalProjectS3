@@ -9,13 +9,12 @@
 
 header('Content-Type: application/json; charset=UTF-8');
 
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
 
 $action = $_GET['action'] ?? 'list';
-$userId = (int)($_GET['user_id'] ?? $_SESSION['user_id'] ?? 0);
+$userId = (int)($app->user()['id'] ?? 0);
 $notificationId = (int)($_GET['notification_id'] ?? 0);
 
 // Simple auth check
@@ -24,6 +23,8 @@ if ($userId === 0) {
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
+
+$db = $app->db();
 
 $response = [];
 
@@ -71,8 +72,8 @@ switch ($action) {
             $response = ['error' => 'Notification not found'];
         } else {
             // Mark as read
-            $updateStmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND channel = 'in_app'");
-            $updateStmt->execute([$notificationId]);
+            $updateStmt = $db->prepare("UPDATE notifications SET status = 'read' WHERE id = ? AND user_id = ? AND channel = 'in_app'");
+            $updateStmt->execute([$notificationId, $userId]);
             
             $response = [
                 'success' => true,

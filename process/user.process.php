@@ -1,16 +1,15 @@
 <?php
-session_start();
-
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/User.php';
 
-if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$app->requireUser();
+if (($app->role() ?? '') !== 'admin') {
     http_response_code(403);
     exit('Akses ditolak');
 }
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $user = new User($db);
 
 $action = $_POST['action'] ?? '';
@@ -41,7 +40,7 @@ try {
         ];
 
         // Ensure role is always present (User::update requires it)
-        if (isset($_POST['role']) && $_SESSION['user']['role'] === 'admin') {
+        if (isset($_POST['role']) && ($app->role() ?? '') === 'admin') {
             $userData['role'] = $_POST['role'];
         } else {
             $userData['role'] = $existing['role'] ?? 'user';
@@ -52,7 +51,7 @@ try {
 
     } elseif ($action === 'delete') {
         // Prevent deleting the current admin user
-        if ((int)$_POST['id'] === $_SESSION['user']['id']) {
+        if ((int)$_POST['id'] === (int)$app->user()['id']) {
             header('Location: ../admin/users.php?error=cannot_delete_self');
             exit;
         }

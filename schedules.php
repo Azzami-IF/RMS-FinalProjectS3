@@ -1,12 +1,16 @@
 <?php
+require_once __DIR__ . '/classes/AppContext.php';
+
+$app = AppContext::fromRootDir(__DIR__);
+$GLOBALS['rms_app'] = $app;
+
 require_once __DIR__ . '/includes/header.php';
-require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/classes/Schedule.php';
 require_once __DIR__ . '/classes/Cache.php';
 require_once __DIR__ . '/classes/EdamamService.php';
 
-$config = require __DIR__ . '/config/env.php';
-$db = (new Database($config))->getConnection();
+$config = $app->config();
+$db = $app->db();
 $schedule = new Schedule($db);
 
 // Feedback
@@ -22,7 +26,7 @@ if (isset($_GET['success'])) {
 
 $today = date('Y-m-d');
 $seven_days_ago = date('Y-m-d', strtotime('-7 days'));
-$user_id = $_SESSION['user']['id'] ?? null;
+$user_id = (int)($app->user()['id'] ?? 0);
 $catatan = $user_id ? $schedule->getMealsByDateRange($user_id, $seven_days_ago, $today) : [];
 
 // Backfill missing image_url for foods shown in the list (uses cache to avoid repeated API calls).

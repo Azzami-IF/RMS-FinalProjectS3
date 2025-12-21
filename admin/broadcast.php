@@ -1,12 +1,11 @@
 <?php
+require_once __DIR__ . '/../classes/PageBootstrap.php';
+
+$app = PageBootstrap::requireAdmin(__DIR__ . '/..');
+
 require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/auth_guard.php';
-require_once __DIR__ . '/../config/database.php';
 
-require_admin();
-
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 
 $users = $db->query("SELECT id, name, email FROM users WHERE role='user' ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
 

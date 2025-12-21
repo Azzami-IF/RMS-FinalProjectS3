@@ -1,16 +1,15 @@
 
 <?php
+require_once __DIR__ . '/../classes/PageBootstrap.php';
+
+$app = PageBootstrap::requireAdmin(__DIR__ . '/..');
+
 require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/auth_guard.php';
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/User.php';
 require_once __DIR__ . '/../classes/Admin/UserAdminController.php';
 
 use Admin\UserAdminController;
-
-require_admin();
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $controller = new UserAdminController($db);
 $users = $controller->getUsers();
 $message = $controller->getMessage();

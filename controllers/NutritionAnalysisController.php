@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../classes/Cache.php';
 require_once __DIR__ . '/../classes/EdamamService.php';
 

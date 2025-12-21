@@ -1,16 +1,12 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
-
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/UserGoal.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$app->requireUser();
+
+$db = $app->db();
+$userId = (int)$app->user()['id'];
 $userGoal = new UserGoal($db);
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
@@ -56,7 +52,7 @@ try {
 
             // Prepare goal data
             $goalData = [
-                'user_id' => $_SESSION['user']['id'],
+                'user_id' => $userId,
                 'goal_type' => $goalType,
                 'daily_calorie_target' => $dailyCalorieTarget,
                 'target_weight_kg' => !empty($_POST['target_weight_kg']) ? (float)$_POST['target_weight_kg'] : null,
@@ -77,7 +73,7 @@ try {
                 "UPDATE user_goals SET is_active = FALSE
                  WHERE user_id = ? AND is_active = TRUE"
             );
-            $stmt->execute([$_SESSION['user']['id']]);
+            $stmt->execute([$userId]);
 
             header('Location: ../goals.php?success=Target berhasil dihapus');
             break;

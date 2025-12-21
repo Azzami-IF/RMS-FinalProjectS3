@@ -1,18 +1,16 @@
 <?php
-session_start();
-
-require_once '../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once '../classes/Schedule.php';
 require_once '../classes/Cache.php';
 require_once '../classes/ApiClientEdamam.php';
 
-if (!isset($_SESSION['user'])) {
-    header('Location: ../login.php');
-    exit;
-}
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$app->requireUser();
 
-$config = require '../config/env.php';
-$db = (new Database($config))->getConnection();
+$config = $app->config();
+$db = $app->db();
+$userId = (int)$app->user()['id'];
+$role = (string)($app->role() ?? '');
 $schedule = new Schedule($db);
 $edamam = new ApiClientEdamam($config['EDAMAM_APP_ID'] ?? '', $config['EDAMAM_APP_KEY'] ?? '', $config['EDAMAM_USER_ID'] ?? '');
 
@@ -109,13 +107,13 @@ try {
 
         // Prevent duplicate schedule entry
         $stmt = $db->prepare('SELECT id FROM schedules WHERE user_id = ? AND food_id = ? AND schedule_date = ?');
-        $stmt->execute([$_SESSION['user']['id'], $food_id, $schedule_date]);
+        $stmt->execute([$userId, $food_id, $schedule_date]);
         if ($stmt->fetch()) {
             throw new Exception('Catatan makan untuk makanan ini pada tanggal tersebut sudah ada.');
         }
 
         $schedule->create(
-            $_SESSION['user']['id'],
+            $userId,
             $food_id,
             $schedule_date,
             null,
@@ -127,7 +125,7 @@ try {
         $notifId = (int)($_GET['notif_id'] ?? $_POST['notif_id'] ?? 0);
         if ($notifId > 0) {
             $stmt = $db->prepare("UPDATE notifications SET status='read' WHERE id=? AND user_id=?");
-            $stmt->execute([$notifId, $_SESSION['user']['id']]);
+            $stmt->execute([$notifId, $userId]);
         }
 
         header('Location: ../schedules.php?success=schedule_created');
@@ -138,13 +136,13 @@ try {
         $id = $_POST['id'] ?? null;
         if (!$id) throw new Exception('ID catatan tidak ditemukan.');
         // Jika admin, bisa hapus semua, jika user biasa hanya miliknya sendiri
-        if ($_SESSION['user']['role'] === 'admin') {
+        if ($role === 'admin') {
             $stmt = $db->prepare("DELETE FROM schedules WHERE id=?");
             $stmt->execute([$id]);
             header('Location: ../admin/schedules.php?success=schedule_deleted');
         } else {
             $stmt = $db->prepare("DELETE FROM schedules WHERE id=? AND user_id=?");
-            $stmt->execute([$id, $_SESSION['user']['id']]);
+            $stmt->execute([$id, $userId]);
             header('Location: ../schedules.php?success=schedule_deleted');
         }
         exit;
@@ -154,7 +152,7 @@ try {
             throw new Exception('Tidak ada catatan yang dipilih.');
         }
         // Jika admin, hapus semua, jika user biasa hanya miliknya sendiri
-        if ($_SESSION['user']['role'] === 'admin') {
+        if ($role === 'admin') {
             $stmt = $db->prepare("DELETE FROM schedules WHERE id IN (" . implode(',', array_map('intval', $ids)) . ")");
             $stmt->execute();
             header('Location: ../admin/schedules.php?success=schedule_deleted');
@@ -163,7 +161,7 @@ try {
             $deleted = 0;
             foreach ($ids as $id) {
                 $stmt = $db->prepare("DELETE FROM schedules WHERE id=? AND user_id=?");
-                $stmt->execute([intval($id), $_SESSION['user']['id']]);
+                $stmt->execute([intval($id), $userId]);
                 $deleted += $stmt->rowCount();
             }
             header('Location: ../schedules.php?success=schedule_deleted');
@@ -228,13 +226,13 @@ try {
     // Cek duplikat catatan hanya untuk create, bukan update
     if ($action === 'create') {
         $stmt = $db->prepare('SELECT id FROM schedules WHERE user_id = ? AND food_id = ? AND schedule_date = ?');
-        $stmt->execute([$_SESSION['user']['id'], $food_id, $schedule_date]);
+        $stmt->execute([$userId, $food_id, $schedule_date]);
         if ($stmt->fetch()) {
             throw new Exception('Catatan makan untuk makanan ini pada tanggal tersebut sudah ada.');
         }
 
         $schedule->create(
-            $_SESSION['user']['id'],
+            $userId,
             $food_id,
             $schedule_date,
             null, // meal_type_id
@@ -248,19 +246,19 @@ try {
         if (!$id) throw new Exception('ID catatan tidak ditemukan.');
         // Cek kepemilikan catatan
         $stmt = $db->prepare('SELECT * FROM schedules WHERE id=? AND user_id=?');
-        $stmt->execute([$id, $_SESSION['user']['id']]);
+        $stmt->execute([$id, $userId]);
         $catatan = $stmt->fetch();
         if (!$catatan) throw new Exception('Catatan tidak ditemukan atau bukan milik Anda.');
         // Update
-        $schedule->update($id, $_SESSION['user']['id'], $food_id, $schedule_date, $_POST['notes'] ?? null);
+        $schedule->update($id, $userId, $food_id, $schedule_date, $_POST['notes'] ?? null);
         header('Location: ../schedules.php?success=schedule_updated');
     } elseif ($action === 'create_admin') {
-        if ($_SESSION['user']['role'] !== 'admin') {
+        if ($role !== 'admin') {
             http_response_code(403);
             exit('Akses ditolak');
         }
         $schedule->create(
-            $_POST['user_id'] ?? $_SESSION['user']['id'],
+            $_POST['user_id'] ?? $userId,
             $food_id,
             $schedule_date,
             $_POST['meal_type_id'] ?? null,
@@ -272,7 +270,7 @@ try {
         header('Location: ../schedules.php?error=invalid_action');
     }
 } catch (Exception $e) {
-    $redirect_url = ($_SESSION['user']['role'] === 'admin') ? '../admin/schedules.php' : '../schedules.php';
+    $redirect_url = ($role === 'admin') ? '../admin/schedules.php' : '../schedules.php';
     header('Location: ' . $redirect_url . '?error=' . urlencode($e->getMessage()));
 }
 exit;

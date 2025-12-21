@@ -1,14 +1,14 @@
 <?php
+require_once __DIR__ . '/../classes/PageBootstrap.php';
+
+$app = PageBootstrap::requireAdmin(__DIR__ . '/..');
+
 require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/auth_guard.php';
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../classes/Admin/ReportAdminController.php';
 
 use Admin\ReportAdminController;
 
-require_admin();
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$db = $app->db();
 $controller = new ReportAdminController($db);
 // Penggunaan controller (OOP)
 $stats = $controller->getStats();

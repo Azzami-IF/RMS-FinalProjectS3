@@ -3,8 +3,6 @@ require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/classes/Cache.php';
 require_once __DIR__ . '/classes/EdamamService.php';
 require_once __DIR__ . '/controllers/NutritionAnalysisController.php';
-
-$config = require __DIR__ . '/config/env.php';
 $cache = new Cache();
 $edamam = new EdamamService($config, $cache);
 $controller = new NutritionAnalysisController($edamam);

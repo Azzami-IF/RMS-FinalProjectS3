@@ -5,7 +5,6 @@ require_once __DIR__ . '/classes/EdamamService.php';
 require_once __DIR__ . '/controllers/RecommendationController.php';
 
 // Setup OOP controller
-$config = require __DIR__ . '/config/env.php';
 $cache = new Cache();
 $edamam = new EdamamService($config, $cache);
 $controller = new RecommendationController($edamam);

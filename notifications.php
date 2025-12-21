@@ -1,14 +1,11 @@
 <?php
-require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/classes/AppContext.php';
 
-$config = require __DIR__ . '/config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__);
+$app->requireUser();
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-$userId = $_SESSION['user']['id'] ?? null;
+$db = $app->db();
+$userId = (int)$app->user()['id'];
 
 function rms_notif_plain_text(string $html): string
 {
@@ -249,10 +246,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $userId && isset($_GET['mark_read'])
 ?>
 <?php
 require_once __DIR__ . '/includes/header.php';
-require_once __DIR__ . '/config/database.php';
-
-$config = require __DIR__ . '/config/env.php';
-$db = (new Database($config))->getConnection();
 
 // AJAX handler: output only notif-list div
 if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
@@ -261,7 +254,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
          WHERE user_id = ? AND channel = 'in_app'
          ORDER BY created_at DESC"
     );
-    $stmt->execute([$_SESSION['user']['id']]);
+    $stmt->execute([$userId]);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
     <div id="notif-list" class="list-group list-group-flush">
@@ -322,7 +315,7 @@ $stmt = $db->prepare(
     WHERE user_id = ? AND channel = 'in_app'
      ORDER BY created_at DESC"
 );
-$stmt->execute([$_SESSION['user']['id']]);
+$stmt->execute([$userId]);
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $unreadCountPage = 0;

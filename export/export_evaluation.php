@@ -1,8 +1,17 @@
 <?php
-session_start();
-require_once '../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 
-$db = (new Database(require '../config/env.php'))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$GLOBALS['rms_app'] = $app;
+$app->requireUser('login.php');
+
+$db = $app->db();
+$user = $app->user();
+$userId = (int)($user['id'] ?? 0);
+if ($userId <= 0) {
+    header('Location: login.php');
+    exit;
+}
 
 header('Content-Type: text/csv');
 header('Content-Disposition: attachment;filename=evaluasi.csv');
@@ -10,18 +19,21 @@ header('Content-Disposition: attachment;filename=evaluasi.csv');
 $out = fopen('php://output', 'w');
 fputcsv($out, ['Tanggal','Total Kalori','Protein (g)','Lemak (g)','Karbohidrat (g)']);
 
-$q = $db->query("SELECT s.schedule_date,
-    SUM(f.calories) AS total_calories,
-    SUM(f.protein * s.quantity) AS total_protein,
-    SUM(f.fat * s.quantity) AS total_fat,
-    SUM(f.carbs * s.quantity) AS total_carbs
-FROM schedules s
-JOIN foods f ON s.food_id = f.id
-WHERE s.user_id = ".intval($_SESSION['user']['id'])."
-GROUP BY s.schedule_date
-ORDER BY s.schedule_date DESC");
+$stmt = $db->prepare(
+    "SELECT s.schedule_date,
+        SUM(f.calories) AS total_calories,
+        SUM(f.protein * s.quantity) AS total_protein,
+        SUM(f.fat * s.quantity) AS total_fat,
+        SUM(f.carbs * s.quantity) AS total_carbs
+    FROM schedules s
+    JOIN foods f ON s.food_id = f.id
+    WHERE s.user_id = ?
+    GROUP BY s.schedule_date
+    ORDER BY s.schedule_date DESC"
+);
+$stmt->execute([$userId]);
 
-while ($row = $q->fetch(PDO::FETCH_ASSOC)) {
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     fputcsv($out, [
         $row['schedule_date'],
         round($row['total_calories'],2),
@@ -31,3 +43,4 @@ while ($row = $q->fetch(PDO::FETCH_ASSOC)) {
     ]);
 }
 fclose($out);
+exit;

@@ -33,7 +33,8 @@ class NotificationService
 
             $from = $this->config['MAIL_FROM'] ?? ($this->config['MAIL_USER'] ?? '');
             if ($from !== '') {
-                $mail->setFrom($from, 'RMS');
+                $fromName = (string)($this->config['MAIL_FROM_NAME'] ?? 'RMS');
+                $mail->setFrom($from, $fromName);
             }
 
             $mail->addAddress($email);

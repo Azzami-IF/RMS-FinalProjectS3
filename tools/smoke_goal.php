@@ -5,12 +5,12 @@
 //
 // This script is a small backend smoke test for Goals progress/evaluation.
 
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classes/AppContext.php';
 require_once __DIR__ . '/../classes/UserGoal.php';
 require_once __DIR__ . '/../classes/AnalyticsService.php';
 
-$config = require __DIR__ . '/../config/env.php';
-$db = (new Database($config))->getConnection();
+$app = AppContext::fromRootDir(__DIR__ . '/..');
+$db = $app->db();
 
 function parseArgs(array $argv): array {
     $out = [];
