@@ -97,7 +97,7 @@ foreach ($users as $u) {
         }
     }
     
-    // In-app: singkat, kompatibel dengan sanitizer notification_center (<b>/<strong>/<br>).
+    // In-app: singkat (akan dirender sebagai teks di notifications.php).
     $inAppMessage = "<strong>Pengingat Pencatatan Harian</strong><br>"
         . "Tanggal: $todayDate<br><br>"
         . "Lengkapi catatan asupan nutrisi hari ini.<br><br>"

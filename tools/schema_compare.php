@@ -1,6 +1,6 @@
 <?php
 /**
- * Compare current DB schema vs sql.txt (expected schema).
+ * Compare current DB schema vs docs/sql.txt (expected schema).
  *
  * Usage:
  *   php tools/schema_compare.php
@@ -14,7 +14,7 @@ $app = AppContext::fromRootDir(__DIR__ . '/..');
 $db = $app->db();
 
 $rootDir = realpath(__DIR__ . '/..') ?: (__DIR__ . '/..');
-$sqlPath = $rootDir . DIRECTORY_SEPARATOR . 'sql.txt';
+$sqlPath = $rootDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'sql.txt';
 if (!is_file($sqlPath)) {
     fwrite(STDERR, "sql.txt not found at: $sqlPath\n");
     exit(2);
