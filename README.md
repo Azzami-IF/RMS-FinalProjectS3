@@ -25,7 +25,12 @@ RMS adalah aplikasi web untuk pencatatan asupan nutrisi, rekomendasi menu (Edama
 1. Letakkan project:
 	- Laragon: `C:\laragon\www\RMS`
 	- XAMPP: `C:\xampp\htdocs\RMS`
-2. Install dependency: `composer install`.
+2. Install dependency (Composer).
+	- Jika `composer` tersedia di PATH:
+		- `composer install`
+	- Jika pakai Laragon dan `composer` tidak dikenali di terminal, jalankan Composer via PHP Laragon:
+		- `C:\laragon\bin\php\php-8.3.26-Win32-vs16-x64\php.exe C:\laragon\bin\composer\composer.phar install --no-interaction --prefer-source`
+		- (opsional) regenerate autoload: `C:\laragon\bin\php\php-8.3.26-Win32-vs16-x64\php.exe C:\laragon\bin\composer\composer.phar dump-autoload`
 3. Salin `.env.example` menjadi `.env` lalu isi nilainya.
 4. Import database (pilih salah satu):
 	- Via CLI: `mysql -u root -p < docs/query.sql`
@@ -38,6 +43,24 @@ Alternatif (tanpa Apache/Nginx): jalankan PHP built-in server dengan router `pub
 - `php -S 127.0.0.1:8001 -t public public/index.php`
 
 Catatan: router script diperlukan agar URL seperti `/login.php` dan `/assets/*` bekerja saat docroot di `public/`.
+
+## Troubleshooting
+
+### Fatal error: symfony/polyfill-ctype/bootstrap.php tidak ditemukan
+Gejala umum:
+- Error seperti: `Failed opening required .../symfony/polyfill-ctype/bootstrap.php`
+
+Penyebab paling sering:
+- Folder `vendor/` korup / tidak lengkap (mis. hasil copy-paste project tanpa dependensi lengkap).
+- Composer berjalan tanpa dukungan zip/unzip (Composer jadi fallback ke source, tapi instalasi sebelumnya sudah terlanjur tidak lengkap).
+
+Solusi cepat:
+1. Hapus folder `vendor/`.
+2. Jalankan ulang install dependencies:
+	- PATH Composer: `composer install`
+	- Laragon (tanpa PATH):
+		- `C:\laragon\bin\php\php-8.3.26-Win32-vs16-x64\php.exe C:\laragon\bin\composer\composer.phar install --no-interaction --prefer-source`
+3. Jika masih error autoload, jalankan: `... composer.phar dump-autoload`
 
 ## Konfigurasi Environment
 Konfigurasi dibaca via `config/env.php` (Dotenv `safeLoad()`), contoh variabel di `.env.example`:
