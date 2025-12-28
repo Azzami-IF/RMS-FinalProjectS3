@@ -29,8 +29,9 @@ RMS adalah aplikasi web untuk pencatatan asupan nutrisi, rekomendasi menu (Edama
 	- Jika `composer` tersedia di PATH:
 		- `composer install`
 	- Jika pakai Laragon dan `composer` tidak dikenali di terminal, jalankan Composer via PHP Laragon:
-		- `C:\laragon\bin\php\php-8.3.26-Win32-vs16-x64\php.exe C:\laragon\bin\composer\composer.phar install --no-interaction --prefer-source`
-		- (opsional) regenerate autoload: `C:\laragon\bin\php\php-8.3.26-Win32-vs16-x64\php.exe C:\laragon\bin\composer\composer.phar dump-autoload`
+		- `C:\laragon\bin\php\<php-folder>\php.exe C:\laragon\bin\composer\composer.phar install --no-interaction --prefer-source`
+		- (opsional) regenerate autoload: `C:\laragon\bin\php\<php-folder>\php.exe C:\laragon\bin\composer\composer.phar dump-autoload`
+		- Tips cari `<php-folder>`: lihat di `C:\laragon\bin\php\` (contoh: `php-8.x.x-...`).
 3. Salin `.env.example` menjadi `.env` lalu isi nilainya.
 4. Import database (pilih salah satu):
 	- Via CLI: `mysql -u root -p < docs/query.sql`
