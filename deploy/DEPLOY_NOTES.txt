@@ -1,0 +1,15 @@
+RMS Deploy Bundle (public_html)
+
+Isi folder deploy/public_html ini sudah disiapkan untuk diupload ke cPanel (tanpa file kerja seperti .git, docs, tools, dll).
+
+Langkah setelah upload:
+1) Buat file .env di root public_html (jangan upload .env dari lokal)
+   - Lihat contoh di .env.example
+   - Isi DB_HOST, DB_NAME, DB_USER, DB_PASS sesuai database hosting
+2) Import database via phpMyAdmin menggunakan docs/query.sql dari lokal
+3) Pastikan folder cache/ ada dan permission 755/775
+4) Jika masih HTTP 500: cek Metrics -> Errors / error_log
+
+Catatan keamanan:
+- Jangan taruh docs/ dan tools/ di public_html (tidak diperlukan).
+- Hapus file zip setelah extract/upload selesai.

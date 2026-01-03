@@ -101,10 +101,16 @@ if (!$forceSend) {
 }
 
 foreach ($users as $u) {
+    $sentInApp = $sentInApp ?? 0;
+    $sentEmail = $sentEmail ?? 0;
+    $skippedDisabled = $skippedDisabled ?? 0;
+    $skippedNoHits = $skippedNoHits ?? 0;
+
     $inAppEnabled = (string)$prefs->get((int)$u['id'], 'notifications_inapp', '1') === '1';
     $emailEnabled = (string)$prefs->get((int)$u['id'], 'notifications_email', '1') === '1';
 
     if (!$inAppEnabled && !$emailEnabled) {
+        $skippedDisabled++;
         continue; // Skip jika notifikasi disabled
     }
 
@@ -145,8 +151,13 @@ foreach ($users as $u) {
 
         // Link ke recommendation.php dengan query
         $menuQ = urlencode($menuLabel);
-        $fallbackUrl = "recommendation.php?q=$menuQ&calories=$targetKalori";
-        $primaryUrl = $scheduleUrl !== '' ? $scheduleUrl : $fallbackUrl;
+        // Deep-link to open the selected menu detail on recommendation.php
+        $recommendationFocusUrl = "recommendation.php?q=$menuQ&calories=$targetKalori&focus_label=$menuQ";
+        // General recommendation page (no forced detail)
+        $recommendationListUrl = "recommendation.php?calories=$targetKalori";
+
+        $recommendationUrl = $recommendationFocusUrl;
+        $primaryUrl = $scheduleUrl !== '' ? $scheduleUrl : $recommendationUrl;
 
         $tip = $tips[array_rand($tips)];
         $title = 'Rekomendasi Menu Sehat Harian';
@@ -154,17 +165,21 @@ foreach ($users as $u) {
         $safeLabel = htmlspecialchars($menuLabel, ENT_QUOTES, 'UTF-8');
         $safeImg = htmlspecialchars($menuImg, ENT_QUOTES, 'UTF-8');
         $safePrimaryUrl = htmlspecialchars($primaryUrl, ENT_QUOTES, 'UTF-8');
-        $safeRecUrl = htmlspecialchars($fallbackUrl, ENT_QUOTES, 'UTF-8');
+        $safeRecUrl = htmlspecialchars($recommendationFocusUrl, ENT_QUOTES, 'UTF-8');
+        $safeRecListUrl = htmlspecialchars($recommendationListUrl, ENT_QUOTES, 'UTF-8');
         $safeCuisine = htmlspecialchars($cuisineType, ENT_QUOTES, 'UTF-8');
         $safeLabels = htmlspecialchars($labelHtml, ENT_QUOTES, 'UTF-8');
 
-        // In-app: singkat, padat, jelas. Tombol "Buka" berasal dari action_url.
-        $inAppMessage = "Rekomendasi Menu Hari Ini<br>"
-            . "Target: $targetKalori kcal<br><br>"
-            . "$safeLabel ($menuCal kcal)";
+        // In-app: singkat dan informatif, dengan link langsung ke recommendation.php.
+        // notifications.php akan mengambil href ini untuk tombol "Buka Menu".
+        $inAppMessage = "<a href='$safeRecUrl'>Buka Menu</a><br>"
+            . "Target kalori: $targetKalori kcal<br>"
+            . "<b>$safeLabel</b> ($menuCal kcal)";
 
         if ($inAppEnabled) {
-            $notif->createNotification($userId, $title, $inAppMessage, 'menu', $primaryUrl);
+            // Action URL ke recommendation.php (detail menu terbuka via focus_label)
+            $notif->createNotification($userId, $title, $inAppMessage, 'menu', $recommendationFocusUrl);
+            $sentInApp++;
         }
 
         if ($emailEnabled && !empty($u['email'])) {
@@ -187,12 +202,14 @@ foreach ($users as $u) {
                 . "<p style='margin:0 0 6px 0;'><strong>Catatan</strong></p>"
                 . "<p style='margin:0;'>$safeTip</p>"
                 . "</div>"
-                . "<p><a href='$safePrimaryUrl' style='background:#4CAF50;color:white;padding:10px 16px;text-decoration:none;border-radius:4px;display:inline-block;font-weight:bold;'>Catat Menu Ini</a></p>"
-                . "<p><a href='$safeRecUrl' style='background:#2196F3;color:white;padding:10px 16px;text-decoration:none;border-radius:4px;display:inline-block;font-weight:bold;'>Lihat Menu Lainnya</a></p>"
-                . "<p style='color:#666;font-size:12px;margin:16px 0 0 0;'>RMS - Nutrition &amp; Health Management System</p>"
+                . "<p><a href='$safeRecUrl' style='background:#4CAF50;color:white;padding:10px 16px;text-decoration:none;border-radius:4px;display:inline-block;font-weight:bold;'>Catat Menu Ini</a></p>"
+                . "<p><a href='$safeRecListUrl' style='background:#2196F3;color:white;padding:10px 16px;text-decoration:none;border-radius:4px;display:inline-block;font-weight:bold;'>Lihat Menu Lainnya</a></p>"
+                . "<p style='color:#666;font-size:12px;margin:16px 0 0 0;'>&copy; " . date('Y') . " RMS - Rekomendasi Makanan Sehat</p>"
                 . "</body></html>";
 
-            $notif->sendEmail($userId, $u['email'], $title, $emailBody, $primaryUrl);
+            if ($notif->sendEmail($userId, $u['email'], $title, $emailBody, $primaryUrl)) {
+                $sentEmail++;
+            }
         }
     } else {
         // Fallback: tetap kirim notifikasi walau rekomendasi menu belum tersedia
@@ -200,13 +217,14 @@ foreach ($users as $u) {
         $safeFallbackUrl = htmlspecialchars($fallbackUrl, ENT_QUOTES, 'UTF-8');
         $title = 'Rekomendasi Menu Sehat Harian';
 
-        // In-app: singkat. Tombol "Buka" berasal dari action_url.
-        $inAppMessage = "Rekomendasi Menu Hari Ini<br>"
-            . "Target: $targetKalori kcal<br><br>"
+        // In-app: singkat dan jelas + link langsung.
+        $inAppMessage = "<a href='$safeFallbackUrl'>Buka Menu</a><br>"
+            . "Target kalori: $targetKalori kcal<br>"
             . "Rekomendasi menu belum tersedia saat ini.";
 
         if ($inAppEnabled) {
             $notif->createNotification($userId, $title, $inAppMessage, 'menu', $fallbackUrl);
+            $sentInApp++;
         }
 
         if ($emailEnabled && !empty($u['email'])) {
@@ -218,11 +236,19 @@ foreach ($users as $u) {
                 . "<p style='margin:0;'><strong>Info</strong><br>Rekomendasi menu belum tersedia saat ini. Silakan pilih dari daftar alternatif.</p>"
                 . "</div>"
                 . "<p><a href='$safeFallbackUrl' style='background:#2196F3;color:white;padding:10px 16px;text-decoration:none;border-radius:4px;display:inline-block;font-weight:bold;'>Lihat Menu Alternatif</a></p>"
-                . "<p style='color:#666;font-size:12px;margin:16px 0 0 0;'>RMS - Nutrition &amp; Health Management System</p>"
+                . "<p style='color:#666;font-size:12px;margin:16px 0 0 0;'>&copy; " . date('Y') . " RMS - Rekomendasi Makanan Sehat</p>"
                 . "</body></html>";
 
-            $notif->sendEmail($userId, $u['email'], $title, $emailBody, $fallbackUrl);
+            if ($notif->sendEmail($userId, $u['email'], $title, $emailBody, $fallbackUrl)) {
+                $sentEmail++;
+            }
         }
+
+        $skippedNoHits++;
     }
 }
+
+// Monitoring output
+$usersTotal = is_array($users) ? count($users) : 0;
+echo "OK send_daily_menu | users={$usersTotal} | in_app={$sentInApp} | email={$sentEmail} | skipped_disabled={$skippedDisabled} | fallback={$skippedNoHits}\n";
 ?>
