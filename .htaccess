@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Basic hardening
+Options -Indexes
+
+# Allow ACME challenges for SSL
+RewriteRule ^\.well-known/ - [L]
+
+# Serve assets directly
+RewriteRule ^assets/ - [L]
+
+# Allow direct access to /public (will use public/.htaccess)
+RewriteRule ^public/ - [L]
+
+# Route everything else through the public front controller.
+# This enables shared-hosting deployments where DocumentRoot is public_html.
+RewriteRule ^ public/index.php [L]
+</IfModule>
