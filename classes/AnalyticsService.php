@@ -71,8 +71,6 @@ class AnalyticsService
     // PROGRESS TERHADAP TARGET
     public function goalProgress(int $userId): array
     {
-        // NOTE: This project does not ship a daily_nutrition_summary table in sql.txt.
-        // Compute 7-day averages directly from schedules + foods.
         $stmt = $this->db->prepare("
             SELECT
                 ug.daily_calorie_target,

@@ -1,10 +1,10 @@
-# 🚀 Web Aplikasi Rekomendasi Makanan Sehat
+# Web Aplikasi Rekomendasi Makanan Sehat
 
 Bangun aplikasi cerdas yang membantu mahasiswa memilih makanan sehat, lengkap dengan fitur modern dan tampilan interaktif!
 
 ---
 
-## 🎯 Fitur Utama
+## Fitur Utama
 
 - **Integrasi API Gizi:** Edamam API / Nutritionix API
 - **Notifikasi Pintar:** Pengingat menu sehat harian (Web Push/Email)
@@ -13,7 +13,7 @@ Bangun aplikasi cerdas yang membantu mahasiswa memilih makanan sehat, lengkap de
 
 ---
 
-## 🛠️ Ketentuan Pengerjaan
+## Ketentuan Pengerjaan
 
 ### 1. Teknologi Inti
 - **Backend:** PHP native (tanpa framework MVC)
@@ -51,10 +51,9 @@ Bangun aplikasi cerdas yang membantu mahasiswa memilih makanan sehat, lengkap de
 - Ringkasan cards + **export CSV**
 
 ### 10. Deploy & Dokumentasi
-- **README**, ERD, diagram arsitektur, routing endpoints
+- **README**: cara run lokal, import DB, set .env, daftar akun uji.
+- ERD (gambar), diagram arsitektur, daftar endpoint (routing).
 - SQL dump + folder `/public` siap host
 - Source code di **GitHub**
 
 ---
-
-> 💡 **Tantang dirimu! Bangun aplikasi yang bukan cuma fungsional, tapi juga impactful untuk gaya hidup sehat.**

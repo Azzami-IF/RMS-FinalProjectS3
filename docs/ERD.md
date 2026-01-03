@@ -1,6 +1,6 @@
 # ERD (Entity Relationship Diagram)
 
-Berikut ERD ringkas berdasarkan [sql.txt](../sql.txt).
+Berikut ERD ringkas berdasarkan [query.sql](query.sql).
 
 ```mermaid
 erDiagram
@@ -89,4 +89,4 @@ erDiagram
 
 Catatan:
 - `notifications.channel` dipakai untuk membedakan `in_app` vs `email` log.
-- Beberapa entitas memiliki kolom tambahan (lihat detail lengkap di [sql.txt](../sql.txt)).
+- Beberapa entitas memiliki kolom tambahan (lihat detail lengkap di [query.sql](query.sql)).

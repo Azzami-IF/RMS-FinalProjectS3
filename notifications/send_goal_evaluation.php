@@ -122,8 +122,7 @@ foreach ($users as $u) {
     $filledBars = intval($barPercent / 10);
     $progressBar = str_repeat('█', $filledBars) . str_repeat('░', 10 - $filledBars);
 
-    // In-app: singkat, padat, jelas.
-    // NOTE: notification_center hanya mempertahankan tag <b>/<strong>/<br>, jadi hindari <p>/<span>/<a>.
+    // In-app: singkat, padat, jelas (akan dirender sebagai teks di notifications.php).
     $statusLabel = 'Perlu Peningkatan';
     if ($progress >= 75) {
         $statusLabel = 'Sangat Baik';

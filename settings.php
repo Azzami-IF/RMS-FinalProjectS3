@@ -11,8 +11,6 @@ require_once 'classes/UserPreferences.php';
 $db = $app->db();
 $userId = (int)$app->user()['id'];
 $userPrefs = new UserPreferences($db);
-
-// Handle form submission
 $message = '';
 $messageType = '';
 
@@ -20,10 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'update_settings') {
-        // Update user preferences in database
         $preferences = [
             'theme' => $_POST['theme'] ?? 'light',
-            // 'language' removed
             'notifications_email' => isset($_POST['notifications_email']) ? '1' : '0',
             'notifications_inapp' => isset($_POST['notifications_inapp']) ? '1' : '0',
         ];
@@ -36,17 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get current preferences
 $currentPrefs = $userPrefs->getAll($userId);
 
-// Set defaults if not set
 $defaults = [
     'theme' => 'light',
-    // 'language' removed
     'notifications_email' => '1',
     'notifications_inapp' => '1',
-
-    // privacy fields removed
 ];
 
 $currentPrefs = array_merge($defaults, $currentPrefs);
@@ -172,12 +163,10 @@ $currentPrefs = array_merge($defaults, $currentPrefs);
 </section>
 
 <script>
-    // Make user preferences available globally
     window.userPreferences = <?php echo json_encode($currentPrefs); ?>;
 </script>
 
 <script>
-// Theme preview functionality
 document.getElementById('themeSelect').addEventListener('change', function() {
     const theme = this.value;
     const preview = document.getElementById('themePreview');
@@ -199,16 +188,13 @@ document.getElementById('themeSelect').addEventListener('change', function() {
     }
 });
 
-// Apply current theme on load
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('themeSelect').dispatchEvent(new Event('change'));
 });
 
-// Apply theme on form submit
 document.querySelector('form').addEventListener('submit', function(e) {
     const themeSelect = document.getElementById('themeSelect');
     if (themeSelect && window.ThemeManager) {
-        console.log('Applying theme:', themeSelect.value);
         window.ThemeManager.applyTheme(themeSelect.value);
     }
 });

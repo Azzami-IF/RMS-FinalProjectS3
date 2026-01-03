@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1900" viewBox="0 0 1400 1900">
+  <style>
+    .title { font: 700 22px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; fill: #111; }
+    .subtitle { font: 400 14px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; fill: #333; }
+    .code { font: 400 14px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; fill: #111; }
+    .box { fill: #fff; stroke: #ddd; stroke-width: 1; }
+  </style>
+
+  <rect class="box" x="24" y="24" width="1352" height="1852" rx="10" />
+
+  <text class="title" x="48" y="70">RMS — Root Project Structure (with folder contents)</text>
+  <text class="subtitle" x="48" y="98">Tree view (1 level per folder; key subfolders expanded)</text>
+
+  <!-- Tree lines -->
+  <text class="code" x="48" y="140">RMS/</text>
+  <text class="code" x="48" y="160">├─ .env (local)</text>
+  <text class="code" x="48" y="180">├─ .env.example</text>
+  <text class="code" x="48" y="200">├─ .git/ (repo metadata)</text>
+  <text class="code" x="48" y="220">├─ .gitignore</text>
+  <text class="code" x="48" y="240">├─ .venv/ (local)</text>
+  <text class="code" x="48" y="260">├─ composer.json</text>
+  <text class="code" x="48" y="280">├─ composer.lock</text>
+  <text class="code" x="48" y="300">├─ README.md</text>
+  <text class="code" x="48" y="320">├─ admin/</text>
+  <text class="code" x="48" y="340">│  ├─ broadcast.php</text>
+  <text class="code" x="48" y="360">│  ├─ dashboard.php</text>
+  <text class="code" x="48" y="380">│  ├─ food_edit.php</text>
+  <text class="code" x="48" y="400">│  ├─ foods.php</text>
+  <text class="code" x="48" y="420">│  ├─ reports.php</text>
+  <text class="code" x="48" y="440">│  ├─ schedules.php</text>
+  <text class="code" x="48" y="460">│  ├─ user_detail.php</text>
+  <text class="code" x="48" y="480">│  ├─ user_edit.php</text>
+  <text class="code" x="48" y="500">│  └─ users.php</text>
+  <text class="code" x="48" y="720">├─ assets/</text>
+  <text class="code" x="48" y="740">│  ├─ css/</text>
+  <text class="code" x="48" y="760">│  │  ├─ bootstrap-icons.min.css</text>
+  <text class="code" x="48" y="780">│  │  ├─ bootstrap.min.css</text>
+  <text class="code" x="48" y="800">│  │  └─ style.css</text>
+  <text class="code" x="48" y="820">│  ├─ font/</text>
+  <text class="code" x="48" y="840">│  │  ├─ bootstrap-icons.css</text>
+  <text class="code" x="48" y="860">│  │  ├─ bootstrap-icons.json</text>
+  <text class="code" x="48" y="880">│  │  ├─ bootstrap-icons.min.css</text>
+  <text class="code" x="48" y="900">│  │  ├─ bootstrap-icons.scss</text>
+  <text class="code" x="48" y="920">│  │  └─ fonts/</text>
+  <text class="code" x="48" y="940">│  ├─ img/</text>
+  <text class="code" x="48" y="960">│  │  ├─ healthy-food.svg</text>
+  <text class="code" x="48" y="980">│  │  ├─ user1.png</text>
+  <text class="code" x="48" y="1000">│  │  └─ user2.png</text>
+  <text class="code" x="48" y="1020">│  └─ js/</text>
+  <text class="code" x="48" y="1040">│     ├─ bootstrap.bundle.min.js</text>
+  <text class="code" x="48" y="1060">│     ├─ Chart.js</text>
+  <text class="code" x="48" y="1080">│     └─ script.js</text>
+  <text class="code" x="48" y="1100">├─ cache/</text>
+  <text class="code" x="48" y="1120">│  ├─ .gitkeep</text>
+  <text class="code" x="48" y="1140">│  └─ (generated *.json cache files)</text>
+  <text class="code" x="48" y="1180">├─ charts/</text>
+  <text class="code" x="48" y="1200">│  ├─ calorie_chart.php</text>
+  <text class="code" x="48" y="1220">│  ├─ nutrition_chart.php</text>
+  <text class="code" x="48" y="1240">│  └─ weight_chart.php</text>
+  <text class="code" x="48" y="1260">├─ classes/</text>
+  <text class="code" x="48" y="1280">│  ├─ Admin/</text>
+  <text class="code" x="48" y="1300">│  │  ├─ DashboardController.php</text>
+  <text class="code" x="48" y="1320">│  │  ├─ FoodEditController.php</text>
+  <text class="code" x="48" y="1340">│  │  ├─ FoodsController.php</text>
+  <text class="code" x="48" y="1360">│  │  ├─ ReportAdminController.php</text>
+  <text class="code" x="48" y="1380">│  │  ├─ SchedulesController.php</text>
+  <text class="code" x="48" y="1400">│  │  ├─ UserAdminController.php</text>
+  <text class="code" x="48" y="1420">│  │  ├─ UserDetailController.php</text>
+  <text class="code" x="48" y="1440">│  │  └─ UserEditController.php</text>
+  <text class="code" x="48" y="1460">│  ├─ AnalyticsService.php</text>
+  <text class="code" x="48" y="1480">│  ├─ ApiClientEdamam.php</text>
+  <text class="code" x="48" y="1500">│  ├─ AppContext.php</text>
+  <text class="code" x="48" y="1520">│  ├─ Auth.php</text>
+  <text class="code" x="48" y="1540">│  ├─ Cache.php</text>
+  <text class="code" x="48" y="1560">│  ├─ Database.php</text>
+  <text class="code" x="48" y="1580">│  ├─ EdamamService.php</text>
+  <text class="code" x="48" y="1600">│  ├─ Food.php</text>
+  <text class="code" x="48" y="1620">│  ├─ FoodCategory.php</text>
+  <text class="code" x="48" y="1640">│  ├─ GoalsPageController.php</text>
+  <text class="code" x="48" y="1660">│  ├─ MealType.php</text>
+  <text class="code" x="48" y="1680">│  ├─ NotificationService.php</text>
+  <text class="code" x="720" y="1260">│  ├─ NutritionLog.php</text>
+  <text class="code" x="720" y="1280">│  ├─ PageBootstrap.php</text>
+  <text class="code" x="720" y="1300">│  ├─ ProfilePageController.php</text>
+  <text class="code" x="720" y="1320">│  ├─ Schedule.php</text>
+  <text class="code" x="720" y="1340">│  ├─ User.php</text>
+  <text class="code" x="720" y="1360">│  ├─ UserGoal.php</text>
+  <text class="code" x="720" y="1380">│  ├─ UserPreferences.php</text>
+  <text class="code" x="720" y="1400">│  ├─ WeightLog.php</text>
+  <text class="code" x="720" y="1420">│  └─ WeightLogPageController.php</text>
+  <text class="code" x="720" y="1440">├─ config/</text>
+  <text class="code" x="720" y="1460">│  ├─ database.php</text>
+  <text class="code" x="720" y="1480">│  ├─ env.php</text>
+  <text class="code" x="720" y="1500">│  └─ mail.php</text>
+  <text class="code" x="720" y="1520">├─ controllers/</text>
+  <text class="code" x="720" y="1540">│  ├─ NutritionAnalysisController.php</text>
+  <text class="code" x="720" y="1560">│  ├─ RecipeDetailController.php</text>
+  <text class="code" x="720" y="1580">│  └─ RecommendationController.php</text>
+  <text class="code" x="720" y="1600">├─ docs/</text>
+  <text class="code" x="720" y="1620">│  ├─ Activity.jpg</text>
+  <text class="code" x="720" y="1640">│  ├─ ARCHITECTURE.md</text>
+  <text class="code" x="720" y="1660">│  ├─ ERD.md</text>
+  <text class="code" x="720" y="1680">│  ├─ plan.md</text>
+  <text class="code" x="720" y="1700">│  ├─ project-report.md</text>
+  <text class="code" x="720" y="1720">│  ├─ root-file-structure.svg</text>
+  <text class="code" x="720" y="1740">│  ├─ ROUTES.md</text>
+  <text class="code" x="720" y="1760">│  ├─ query.sql</text>
+  <text class="code" x="720" y="1780">│  └─ usecase.jpg</text>
+  <text class="code" x="48" y="1720">├─ export/</text>
+  <text class="code" x="48" y="1740">│  └─ export_evaluation.php</text>
+  <text class="code" x="48" y="1760">├─ includes/</text>
+  <text class="code" x="48" y="1780">│  ├─ auth_guard.php</text>
+  <text class="code" x="48" y="1800">│  ├─ footer.php</text>
+  <text class="code" x="48" y="1820">│  ├─ header.php</text>
+  <text class="code" x="48" y="1840">│  └─ navbar.php</text>
+  <text class="code" x="48" y="1860">└─ (root PHP pages + vendor omitted below for space)</text>
+
+  <text class="subtitle" x="48" y="1888">Note: Large folders (vendor/, many root pages) may be summarized for readability.</text>
+</svg>
