@@ -64,6 +64,12 @@ require_once __DIR__ . '/includes/header.php';
                         <?php endif; ?>
 
                         <form method="post" action="process/login.process.php">
+                            <?php
+                                $next = isset($_GET['next']) && is_string($_GET['next']) ? $_GET['next'] : '';
+                                if ($next !== '') {
+                                    echo '<input type="hidden" name="next" value="' . htmlspecialchars($next, ENT_QUOTES, 'UTF-8') . '">';
+                                }
+                            ?>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Nama atau Email</label>
                                 <input type="text" name="login_identifier"

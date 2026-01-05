@@ -67,7 +67,10 @@ class AppContext
         $role = is_array($user) ? ($user['role'] ?? null) : null;
 
         $requestPath = (string)parse_url((string)($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH);
-        $pathPrefix = (preg_match('~/(?:admin)(?:/|$)~', $requestPath) === 1) ? '../' : '';
+        // When a request is served from a subfolder (e.g. /admin/* or /process/*), a relative redirect like
+        // "login.php" would become "/process/login.php" in the browser. Use a prefix to point back to
+        // the app root.
+        $pathPrefix = (preg_match('~/(?:admin|process|notifications|charts|export|public)(?:/|$)~', $requestPath) === 1) ? '../' : '';
 
         return new self($rootDir, $config, $db, is_array($user) ? $user : null, is_string($role) ? $role : null, $pathPrefix);
     }
@@ -105,7 +108,21 @@ class AppContext
     public function requireUser(string $redirect = 'login.php'): void
     {
         if (!$this->user) {
-            header('Location: ' . $this->pathPrefix . $redirect);
+            $location = $this->pathPrefix . $redirect;
+
+            $requestUri = (string)($_SERVER['REQUEST_URI'] ?? '');
+            $requestPath = (string)parse_url($requestUri, PHP_URL_PATH);
+            $isLoginRequest = ($requestPath !== '' && (str_ends_with($requestPath, '/login.php') || str_ends_with($requestPath, '/process/login.process.php')));
+
+            if (!$isLoginRequest && $requestPath !== '') {
+                $query = (string)parse_url($requestUri, PHP_URL_QUERY);
+                $next = $requestPath . ($query !== '' ? ('?' . $query) : '');
+
+                $separator = (str_contains($location, '?') ? '&' : '?');
+                $location .= $separator . 'next=' . rawurlencode($next);
+            }
+
+            header('Location: ' . $location);
             exit;
         }
     }
